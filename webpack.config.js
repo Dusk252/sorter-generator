@@ -1,60 +1,71 @@
-const HtmlWebPackPlugin = require("html-webpack-plugin");
-const path = require('path');
-var webpack = require('webpack');
-const htmlPlugin = new HtmlWebPackPlugin({
-  template: "./src/client/index.html", 
-  filename: "./index.html"
-});
-///const contextReplacementPlugin = new webpack.ContextReplacementPlugin( /(.+)?angular(\\|\/)core(.+)?/, root('./src'), {} );
-module.exports = [
-{
-  entry: ["./src/client/index"],
+var path = require('path')
+var webpack = require('webpack')
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const webpackBundleAnalyzer = require("webpack-bundle-analyzer");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const WebpackShellPlugin = require('webpack-shell-plugin');
+
+var clientConfig = {
+  entry: './src/client/index.js',
   output: {
-    path: path.join(__dirname, 'dist/public'),
-    filename: "bundle.js"
-  },
-  plugins: [htmlPlugin],
-    resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
-	modules: [
-		path.join(__dirname, 'src'),
-		"node_modules"
-	]
+    path: path.resolve(__dirname, 'dist/public'),
+    filename: 'bundle.js',
+    hotUpdateChunkFilename: 'hot/hot-update.js',
+    hotUpdateMainFilename: 'hot/hot-update.json',
+    publicPath: '/'
   },
   module: {
-    rules: [
+    rules: [ //telling webpack what files we want it to handle
       {
-        // Include ts, tsx, js, and jsx files.
-        test: /\.(ts|js)x?$/,
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
+        //running babel on all js/jsx files excluding the node_modules folder
+        //rules are configured from the bottom-up, so eslint is run first, then babel
+        use: ['babel-loader', 'eslint-loader']
       },
-    ],
-  }
-},
-{
-  entry: ["./src/server/index"],
-  output: {
-    path: path.join(__dirname, 'dist'),
-    filename: "server.js"
+      {
+        test: /(\.css)$/,
+        use: ['style-loader', 'css-loader']
+      }
+    ]
   },
-  resolve: {
-  extensions: ['.ts', '.tsx', '.js', '.json'],
-  modules: [
-	path.join(__dirname, 'src'),
-  	"node_modules"
+  mode: 'development',
+  target: 'web',
+  devtool: 'cheap-module-source-map', //source map lets us see original code in the browser when debugging
+  plugins: [
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify('development'),
+      "process.env.API_URL": JSON.stringify("http://localhost:3000"),
+      __isBrowser__: "true"
+    }),
   ]
-  },
+}
+
+var serverConfig = {
+  entry: './src/server/index.js',
   target: 'node',
+  devtool: 'cheap-module-source-map', //source map lets us see original code in the browser when debugging
+  output: {
+    path: __dirname,
+    filename: 'server.js',
+    publicPath: '/'
+  },
+  mode: 'development',
   module: {
     rules: [
       {
-        // Include ts, tsx, js, and jsx files.
-        test: /\.(ts|js)x?$/,
+        // Include js, and jsx files.
+        test: /\.(js)x?$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
       },
     ],
-  }
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      __isBrowser__: "false"
+    })
+  ]
 }
-];
+
+module.exports = [clientConfig, serverConfig]
