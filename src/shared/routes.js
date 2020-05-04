@@ -1,11 +1,17 @@
-import App from './App'
+import Home from './Home';
+import Hello from './Hello';
 
 const routes = [
   {
     path: '/',
     exact: true,
-    component: App,
-  }
+    component: Home,
+  },
+  {
+    path: '/hello',
+    exact: true,
+    component: Hello
+  },
 ]
 
 export default routes
