@@ -1,9 +1,14 @@
+import '@babel/polyfill';
 import React from 'react'
-import { hydrate } from 'react-dom'
-import App from '../shared/App'
+import ReactDOM from 'react-dom';
+import { renderRoutes } from 'react-router-config';
+import { createStore } from 'redux';
+import reducers from './reducers';
+import routes from './routes';
 import { BrowserRouter } from 'react-router-dom'
+import { Provider } from 'react-redux';
 
-if (module.hot) {
+/*if (module.hot) {
   module.hot.accept('../shared/App', () => {
     const NextApp = require('../shared/App').default;
     <BrowserRouter>
@@ -11,11 +16,17 @@ if (module.hot) {
     </BrowserRouter>,
       document.getElementById('app')
   })
-}
+}*/
+const state = window.__PRELOADED_STATE__;
+delete window.__PRELOADED_STATE__;
 
-hydrate(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>,
+const store = createStore(reducers, state);
+
+ReactDOM.hydrate(
+  <Provider store={store}>
+    <BrowserRouter>
+      <div>{renderRoutes(routes)}</div>
+    </BrowserRouter>
+  </Provider>,
   document.getElementById('app')
 );
