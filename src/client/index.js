@@ -8,15 +8,6 @@ import routes from './routes';
 import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux';
 
-/*if (module.hot) {
-  module.hot.accept('../shared/App', () => {
-    const NextApp = require('../shared/App').default;
-    <BrowserRouter>
-      <NextApp />
-    </BrowserRouter>,
-      document.getElementById('app')
-  })
-}*/
 const state = window.__PRELOADED_STATE__;
 delete window.__PRELOADED_STATE__;
 

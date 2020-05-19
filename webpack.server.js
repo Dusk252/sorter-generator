@@ -8,8 +8,6 @@ const config = {
   // for nodeJS, rather than for the browser
   target: 'node',
 
-  mode: 'production',
-
   // Tell webpack the root file of our
   // server application
   entry: './src/server.js',
@@ -21,7 +19,8 @@ const config = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'build')
-  }
+  },
+  devtool: 'source-map'
 };
 
 module.exports = merge(baseConfig, config);

@@ -47541,16 +47541,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/*if (module.hot) {
-  module.hot.accept('../shared/App', () => {
-    const NextApp = require('../shared/App').default;
-    <BrowserRouter>
-      <NextApp />
-    </BrowserRouter>,
-      document.getElementById('app')
-  })
-}*/
-
 var state = window.__PRELOADED_STATE__;
 delete window.__PRELOADED_STATE__;
 var store = Object(redux__WEBPACK_IMPORTED_MODULE_4__["createStore"])(_reducers__WEBPACK_IMPORTED_MODULE_5__["default"], state);
