@@ -1,6 +1,4 @@
-const config = require('./../config.json');
-const jwt = require('jsonwebtoken');
-const Role = require('../_helpers/role');
+const Roles = require('../_helpers/enum').roles;
 const db = require('./../db');
 const ObjectID = require('mongodb').ObjectID;
 
@@ -10,21 +8,53 @@ module.exports = {
     getById
 };
 
-async function authenticate({ username, password }) {
+async function authenticate({ email, password }) {
     const users = await db.get().collection('users').find(
         {
-            'user_info.name': username,
-            'user_info.password': password
+            email: email,
+            password: password
         }).toArray();
-    if (users.length === 1) {   
-        const user = users[0].user_info;
-        const token = jwt.sign({ sub: users[0]._id, role: user.role }, config.secret);
+    if (users.length >= 1) {
+        const user = users[0];
         const { password, ...userWithoutPassword } = user;
-        return {
-            ...userWithoutPassword,
-            token
-        };
+        return userWithoutPassword;
     }
+    return null;
+}
+
+async function createUser(username, email, password, icon, account_status) {
+    db.get().collection('users').insertOne({
+        joined_date: new Date(),
+        friends: [],
+        favorite_sorters: [],
+        sorter_history: [],
+        profile: {
+            username: username,
+            about_me: '',
+            links_list: [],
+            share_settings: {},
+            icon: icon
+        },
+        email: email,
+        password: password,
+        integration3rdparty: [],
+        role: Roles.User,
+        account_status: account_status
+    });
+}
+
+async function getUserByEmail(email) {
+    const users = await db.get().collection('users').find(
+        {
+            email: email
+        }
+    ).toArray();
+    if (users.length >= 1) {
+        const user = users[0];
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+    }
+    return null;
 }
 
 async function getAll() {

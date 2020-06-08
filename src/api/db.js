@@ -1,4 +1,4 @@
-var MongoClient = require('mongodb').MongoClient
+const MongoClient = require('mongodb').MongoClient
 
 module.exports = {
   connect,
@@ -6,7 +6,7 @@ module.exports = {
   close
 }
 
-var state = {
+const state = {
   db: null,
 }
 
@@ -14,22 +14,21 @@ function connect(url, dbName, done) {
   if (state.db) return done()
 
   MongoClient.connect(url, function (err, client) {
-    if (err) return done(err)
-    state.db = client.db(dbName)
-    done()
+    if (err) return done(err);
+    state.db = client.db(dbName);
+    done();
   })
 }
 
 function get() {
-  return state.db
+  return state.db;
 }
 
 function close(done) {
   if (state.db) {
     state.db.close(function (err, result) {
-      state.db = null
-      state.mode = null
-      done(err)
+      state.db = null;
+      done(err);
     })
   }
 }

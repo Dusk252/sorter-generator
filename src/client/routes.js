@@ -1,6 +1,6 @@
 import App from './App';
 import Home from './pages/Home';
-import Hello from './pages/Hello';
+import Login from './pages/Login';
 
 const routes = [
   {
@@ -12,8 +12,8 @@ const routes = [
         exact: true
       },
       {
-        component: Hello,
-        path: '/hello',
+        component: Login,
+        path: '/login',
         exact: true
       }
     ]

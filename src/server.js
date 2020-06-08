@@ -4,6 +4,8 @@ import express from 'express';
 import React from 'react';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
 import db from './api/db';
 import errorHandler from './api/_helpers/error-handler';
 //import { matchRoutes } from 'react-router-config';
@@ -20,9 +22,11 @@ function shouldCompress(req, res) {
     return compression.filter(req, res);
 }
 
+app.use(helmet());
+app.use(cors());
+app.use(morgan('combined')); //logging http requests
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors());
 app.use(express.static('public'));
 
 app.use(
@@ -64,5 +68,9 @@ db.connect("mongodb://localhost:27017/", "sorterGenerator", function (err) {
         app.listen(port, function () {
             console.log("Listening on port 3000...");
         });
+        //clean database on exit
+        process.on('exit', () => {
+            db.close();
+        })
     }
 });
