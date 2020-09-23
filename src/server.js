@@ -12,6 +12,8 @@ import errorHandler from './api/_helpers/error-handler';
 import compression from 'compression';
 import renderer from './helpers/renderer';
 import createStore from './client/store/createStore';
+import passport from 'passport';
+require('./api/authentication/passportConfig');
 //import Routes from './client/Routes';
 
 const port = process.env.PORT || 3000;
@@ -28,6 +30,7 @@ app.use(morgan('combined')); //logging http requests
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
+app.use(passport.initialize());
 
 app.use(
     compression({
@@ -37,8 +40,9 @@ app.use(
 );
 
 // api routes
-app.post("/api/test", (req, res) => res.json({ message: req.body.message + ' from server' }));
-app.use("/api/users", require("./api/users/users.controller"));
+app.post('/api/test', (req, res) => res.json({ message: req.body.message + ' from server' }));
+app.use('/api/users', require('./api/users/users.controller'));
+app.use('/api/auth', require('./api/authentication/authentication.controller'));
 
 // global error handler
 app.use(errorHandler);
@@ -59,18 +63,18 @@ app.use(/\/((?!api).)*/, (req, res) => {
 });
 
 //connect to database
-db.connect("mongodb://localhost:27017/", "sorterGenerator", function (err) {
+db.connect('mongodb://localhost:27017/', 'sorterGenerator', function (err) {
     if (err) {
-        console.log("Unable to connect to Mongo.");
+        console.log('Unable to connect to Mongo.');
         process.exit(1);
     } else {
         //start server
         app.listen(port, function () {
-            console.log("Listening on port 3000...");
+            console.log('Listening on port 3000...');
         });
         //clean database on exit
         process.on('exit', () => {
             db.close();
-        })
+        });
     }
 });

@@ -1,16 +1,22 @@
-const roles = {
-  Admin: 'Admin',
-  User: 'User'
-}
+const role = {
+    ADMIN: 'Admin',
+    USER: 'User'
+};
 
-const accountStates = {
-  Active: 'Active',
-  Pending: 'Pending',
-  Suspended: 'Suspended',
-  Deleted: 'Deleted'
-}
+const tokenType = {
+    ACCESS_TOKEN: 'ACCESS_TOKEN',
+    REFRESH_TOKEN: 'REFRESH_TOKEN'
+};
+
+const accountState = {
+    ACTIVE: 'Active',
+    PENDING: 'Pending',
+    SUSPENDED: 'Suspended',
+    DELETED: 'Deleted'
+};
 
 module.exports = {
-  roles,
-  accountStates
-}
+    role,
+    tokenType,
+    accountState
+};
