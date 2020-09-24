@@ -3,9 +3,9 @@ const passport = require('passport');
 const router = express.Router();
 const userService = require('./../users/users.service');
 const authService = require('./authentication.service');
-const { generateAccessToken, generateRefreshToken } = require('./tokenUtil');
+const { tokenType } = require('../_helpers/enum');
+const { generateAccessToken, generateRefreshToken, getTokenData } = require('./tokenUtil');
 const { UnauthorizedError } = require('express-jwt');
-const { EvalSourceMapDevToolPlugin } = require('webpack');
 
 //routes
 router.post('/register', localSignUp);
@@ -45,9 +45,13 @@ async function login(req, res, next) {
 async function refreshToken(req, res, next) {
     try {
         const token = req.cookies.refresh_token;
-        const validToken = await authService.isValidRefreshToken(token.userId, token);
+        const tokenObj = getTokenData(req.cookies.refresh_token);
+        const sub = JSON.parse(tokenObj.sub);
+        //check if valid refresh token
+        const validToken =
+            tokenObj.type === tokenType.REFRESH_TOKEN && (await authService.isValidRefreshToken(sub.id, token));
         if (validToken) {
-            const user = await userService.getById(userId);
+            const user = await userService.getById(sub.id);
             generateTokens(res, user, token);
         } else throw new UnauthorizedError(401, { message: 'Invalid refresh token.' });
     } catch (error) {

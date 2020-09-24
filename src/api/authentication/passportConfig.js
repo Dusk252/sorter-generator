@@ -3,7 +3,6 @@ const JWTstrategy = require('passport-jwt').Strategy;
 const localStrategy = require('passport-local').Strategy;
 const { tokenType } = require('../_helpers/enum');
 const { authentication_token_secret } = require('../config.json');
-const tokenUtil = require('./tokenUtil');
 const authService = require('../authentication/authentication.service');
 const { UnauthorizedError } = require('express-jwt');
 

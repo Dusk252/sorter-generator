@@ -3,7 +3,7 @@ const config = require('./../config.json');
 const { tokenType } = require('./../_helpers/enum');
 //const { encrypt, decrypt } = require('./../_helpers/encryptionUtil');
 
-const access_token_expiration = 1800;
+const access_token_expiration = 7200;
 const refresh_token_expiration = '30d';
 
 export const generateAccessToken = (sub) => {
@@ -24,6 +24,6 @@ const generateToken = (sub, type) => {
 };
 
 //only needed if decrypting, do it inside verify
-// export const getTokenData = (token) => {
-//     return jwt.verify(token, config.authentication_token_secret);
-// };
+export const getTokenData = (token) => {
+    return jwt.verify(token, config.authentication_token_secret);
+};

@@ -37,6 +37,7 @@
         "compression": "^1.7.4",
         "compression-webpack-plugin": "^6.0.2",
         "concurrently": "5.2.0",
+        "cookie-parser": "^1.4.5",
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "express-jwt": "^5.3.3",

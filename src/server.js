@@ -13,6 +13,7 @@ import compression from 'compression';
 import renderer from './helpers/renderer';
 import createStore from './client/store/createStore';
 import passport from 'passport';
+import cookieParser from 'cookie-parser';
 require('./api/authentication/passportConfig');
 //import Routes from './client/Routes';
 
@@ -27,6 +28,7 @@ function shouldCompress(req, res) {
 app.use(helmet());
 app.use(cors());
 app.use(morgan('combined')); //logging http requests
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));

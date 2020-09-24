@@ -26,12 +26,12 @@ async function authenticate(email, password) {
 }
 
 async function deleteRefreshToken(token) {
-    await db.get().collection('refresh_tokens').remove({ refresh_token: token });
+    await db.get().collection('refresh_tokens').deleteOne({ refresh_token: token });
 }
 
 async function updateRefreshToken(userId, old_token, new_token) {
-    if (old_token) await deleteRequestToken(old_token);
-    await db.get().collection('refresh_tokens').insertOne({ userId: userId, refresh_token: new_token });
+    if (old_token) await deleteRefreshToken(old_token);
+    await db.get().collection('refresh_tokens').insertOne({ userId: userId.toString(), refresh_token: new_token });
 }
 
 async function isValidRefreshToken(userId, refresh_token) {
