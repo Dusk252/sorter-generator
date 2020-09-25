@@ -42,7 +42,9 @@ const Login = () => {
                 <input type='text' value={password} onChange={(e) => setPassword(e.target.value)} />
                 <button type='submit'>Submit</button>
             </form>
-            <div>test</div>
+            <div>
+                <a href='/api/auth/twitter/login'>twitter login test</a>
+            </div>
         </div>
     );
 };

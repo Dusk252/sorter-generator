@@ -74,7 +74,11 @@ async function createUser(username, email, password, icon, account_status, integ
 }
 
 async function updateUser(userId, updateQuery, returnUpdated = false) {
-    if (returnUpdated)
-        db.get().collection('users').findOneAndUpdate({ _id: userId }, updateQuery, { returnNewDocument: true });
-    else db.get().collection('users').updateOne({ _id: userId }, updateQuery);
+    if (returnUpdated) {
+        const res = await db
+            .get()
+            .collection('users')
+            .findOneAndUpdate({ _id: userId }, updateQuery, { returnNewDocument: true });
+        return res.ok === 1 ? res.value : null;
+    } else db.get().collection('users').updateOne({ _id: userId }, updateQuery);
 }

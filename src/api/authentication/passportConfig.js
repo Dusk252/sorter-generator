@@ -99,7 +99,6 @@ passport.use(
                 oauth_token: twitter_oauth_token,
                 oauth_token_secret: twitter_oauth_token_secret
             };
-
             let user = await userService.getByEmail(profileData.email);
             if (user) {
                 user = await userService.updateUser(
@@ -121,6 +120,7 @@ passport.use(
             }
             done(null, user, { message: 'Login successful.' });
         } catch (err) {
+            console.log(err);
             done(err);
         }
     })

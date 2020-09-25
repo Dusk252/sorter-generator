@@ -15,7 +15,7 @@ const { UnauthorizedError } = require('express-jwt');
 //routes
 router.post('/register', localSignUp);
 router.post('/login', passport.authenticate('login', { session: false }), login);
-router.post('/twitter/login', twitterLogin);
+router.get('/twitter/login', twitterLogin);
 router.get('/twitter/callback', passport.authenticate('twitterLogin', { session: false }), login);
 router.post('/refresh-token', refreshToken);
 router.post('/logout', logout);
