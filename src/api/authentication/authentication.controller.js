@@ -1,19 +1,24 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
+const axios = require('axios');
+const config = require('../config.json');
+const crypto = require('crypto');
+const querystring = require('querystring');
+const OAuth = require('oauth-1.0a');
 const userService = require('./../users/users.service');
 const authService = require('./authentication.service');
-const { tokenType } = require('../_helpers/enum');
+const { tokenType, accountState } = require('../_helpers/enum');
 const { generateAccessToken, generateRefreshToken, getTokenData } = require('./tokenUtil');
 const { UnauthorizedError } = require('express-jwt');
 
 //routes
 router.post('/register', localSignUp);
 router.post('/login', passport.authenticate('login', { session: false }), login);
+router.post('/twitter/login', twitterLogin);
+router.get('/twitter/callback', passport.authenticate('twitterLogin', { session: false }), login);
 router.post('/refresh-token', refreshToken);
 router.post('/logout', logout);
-//router.post('/login-twitter-request', twitterLoginReq);
-//router.post('/login-twitter-access', twitterLoginAcc);
 module.exports = router;
 
 const generateTokens = async (res, user, old_token) => {
@@ -28,9 +33,32 @@ const generateTokens = async (res, user, old_token) => {
 async function localSignUp(req, res, next) {
     const { username, email, password } = req.body;
     userService
-        .createUser(username, email, password, '', 'Active')
+        .createUser(username, email, password, '', accountState.ACTIVE)
         .then(() => res.status(200).json({ message: 'Sign up successful.' }))
         .catch((err) => next(err));
+}
+
+async function twitterLogin(_, res, next) {
+    const oauth = OAuth({
+        consumer: { key: config.oauth_twitter_key, secret: config.oauth_twitter_secret },
+        signature_method: 'HMAC-SHA1',
+        hash_function: (base_string, key) => crypto.createHmac('sha1', key).update(base_string).digest('base64')
+    });
+    const request_data = {
+        url: config.oauth_twitter_request_url,
+        method: 'POST',
+        data: { oauth_callback: config.oauth_callback }
+    };
+    const authHeader = oauth.toHeader(oauth.authorize(request_data));
+    try {
+        const response = await axios.post(request_data.url, {}, { headers: { ...authHeader } });
+        const data = querystring.parse(response.data);
+        if (!data.oauth_callback_confirmed)
+            res.status(500).json({ message: 'An issue occurred with twitter authentication.' });
+        else res.redirect(`${config.oauth_twitter_authorize_url}?oauth_token=${data.oauth_token}`);
+    } catch (err) {
+        next(err);
+    }
 }
 
 async function login(req, res, next) {

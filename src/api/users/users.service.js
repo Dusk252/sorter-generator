@@ -8,6 +8,7 @@ const saltRounds = 10;
 module.exports = {
     getAll,
     getById,
+    getByEmail,
     createUser,
     updateUser
 };
@@ -31,7 +32,7 @@ async function getById(id) {
     return userWithoutPassword;
 }
 
-async function getUserByEmail(email) {
+async function getByEmail(email) {
     const users = await db
         .get()
         .collection('users')
@@ -47,29 +48,33 @@ async function getUserByEmail(email) {
     return null;
 }
 
-async function createUser(username, email, password, icon, account_status) {
-    db.get()
-        .collection('users')
-        .insertOne({
-            joined_date: new Date(),
-            friends: [],
-            favorite_sorters: [],
-            sorter_history: [],
-            profile: {
-                username: username,
-                about_me: '',
-                links_list: [],
-                share_settings: {},
-                icon: icon
-            },
-            email: email,
-            password: password,
-            integration3rdparty: [],
-            role: Roles.User,
-            account_status: account_status
-        });
+async function createUser(username, email, password, icon, account_status, integration) {
+    let user = {
+        joined_date: new Date(),
+        friends: [],
+        favorite_sorters: [],
+        sorter_history: [],
+        profile: {
+            username: username,
+            about_me: '',
+            links_list: [],
+            share_settings: {},
+            icon: icon
+        },
+        email: email,
+        password: password,
+        localLogin: password && password.length,
+        integration3rdparty: Array.isArray(integration) ? integration : [],
+        role: Roles.User,
+        account_status: account_status
+    };
+    const { insertedId } = await db.get().collection('users').insertOne(user);
+    user._id = insertedId;
+    return user;
 }
 
-async function updateUser(userId, updateQuery) {
-    db.get().collection('users').updateOne({ _id: userId }, { $set: updateQuery });
+async function updateUser(userId, updateQuery, returnUpdated = false) {
+    if (returnUpdated)
+        db.get().collection('users').findOneAndUpdate({ _id: userId }, updateQuery, { returnNewDocument: true });
+    else db.get().collection('users').updateOne({ _id: userId }, updateQuery);
 }

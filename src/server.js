@@ -19,7 +19,6 @@ require('./api/authentication/passportConfig');
 
 const port = process.env.PORT || 3000;
 const app = express();
-
 function shouldCompress(req, res) {
     if (req.headers['x-no-compression']) return false;
     return compression.filter(req, res);
