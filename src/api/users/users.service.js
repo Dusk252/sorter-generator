@@ -37,7 +37,7 @@ async function getByEmail(email) {
         .get()
         .collection('users')
         .find({
-            email: email
+            email: { $regex: new RegExp(email, 'i') }
         })
         .toArray();
     if (users.length >= 1) {

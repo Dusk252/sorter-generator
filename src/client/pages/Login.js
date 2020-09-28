@@ -14,7 +14,7 @@ const Login = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         };
-        fetch('/api/users/login', requestOptions)
+        fetch('/api/auth/login', requestOptions)
             .then((res) => res.json())
             .then((data) => console.log(data))
             .catch((err) => {
@@ -22,10 +22,6 @@ const Login = () => {
                 authFailure = true;
             });
         history.push('/');
-    };
-
-    const handleTwitterRes = (res) => {
-        res ? history.push('/') : (authFailure = true);
     };
 
     return (
@@ -43,7 +39,8 @@ const Login = () => {
                 <button type='submit'>Submit</button>
             </form>
             <div>
-                <a href='/api/auth/twitter/login'>twitter login test</a>
+                <a href='/api/auth/twitter/login'>google</a>
+                <a href='/api/auth/google/login'>google</a>
             </div>
         </div>
     );

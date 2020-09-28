@@ -3,6 +3,7 @@ const axios = require('axios');
 const JWTstrategy = require('passport-jwt').Strategy;
 const localStrategy = require('passport-local').Strategy;
 const customStrategy = require('passport-custom').Strategy;
+const googleStrategy = require('passport-google-oauth2').Strategy;
 const crypto = require('crypto');
 const querystring = require('querystring');
 const OAuth = require('oauth-1.0a');
@@ -63,65 +64,128 @@ passport.use(
 passport.use(
     'twitterLogin',
     new customStrategy(async (req, done) => {
-        try {
-            const { oauth_token, oauth_verifier } = req.query;
+        const callbackURL = '/twitter/callback';
+        if (req.path !== callbackURL) {
             const oauth = OAuth({
-                consumer: { key: config.oauth_twitter_key, secret: config.oauth_twitter_secret },
+                consumer: { key: config.twitter.oauth_key, secret: config.twitter.oauth_secret },
                 signature_method: 'HMAC-SHA1',
                 hash_function: (base_string, key) => crypto.createHmac('sha1', key).update(base_string).digest('base64')
             });
-            const tokenRequestData = {
-                url: config.oauth_twitter_access_url,
+            const request_data = {
+                url: config.twitter.oauth_request_url,
                 method: 'POST',
-                data: { oauth_verifier }
+                data: { oauth_callback: 'http://localhost:3000/api/auth/twitter/callback' }
             };
-            const token = { key: oauth_token };
-            let authHeader = oauth.toHeader(oauth.authorize(tokenRequestData, token));
-            const res = await axios.post(tokenRequestData.url, {}, { headers: { ...authHeader } });
-            const { oauth_token: twitter_oauth_token, oauth_token_secret: twitter_oauth_token_secret } = querystring.parse(
-                res.data
-            );
-            const userRequestData = {
-                url: config.twitter_user_profile_url,
-                method: 'GET'
+            const authHeader = oauth.toHeader(oauth.authorize(request_data));
+            try {
+                const response = await axios.post(request_data.url, {}, { headers: { ...authHeader } });
+                const data = querystring.parse(response.data);
+                if (!data.oauth_callback_confirmed)
+                    req.res.status(500).json({ message: 'An issue occurred with twitter authentication.' });
+                else req.res.redirect(`${config.twitter.oauth_authorize_url}?oauth_token=${data.oauth_token}`);
+            } catch (err) {
+                console.log(err);
+                done(err);
+            }
+        } else {
+            try {
+                const { oauth_token, oauth_verifier } = req.query;
+                const oauth = OAuth({
+                    consumer: { key: config.twitter.oauth_key, secret: config.twitter.oauth_secret },
+                    signature_method: 'HMAC-SHA1',
+                    hash_function: (base_string, key) => crypto.createHmac('sha1', key).update(base_string).digest('base64')
+                });
+                const tokenRequestData = {
+                    url: config.twitter.oauth_access_url,
+                    method: 'POST',
+                    data: { oauth_verifier }
+                };
+                const token = { key: oauth_token };
+                let authHeader = oauth.toHeader(oauth.authorize(tokenRequestData, token));
+                const res = await axios.post(tokenRequestData.url, {}, { headers: { ...authHeader } });
+                const {
+                    oauth_token: twitter_oauth_token,
+                    oauth_token_secret: twitter_oauth_token_secret
+                } = querystring.parse(res.data);
+                const userRequestData = {
+                    url: config.twitter.user_profile_url,
+                    method: 'GET'
+                };
+                const accessToken = { key: twitter_oauth_token, secret: twitter_oauth_token_secret };
+                authHeader = oauth.toHeader(oauth.authorize(userRequestData, accessToken));
+                const { data: profileData } = await axios({
+                    method: 'GET',
+                    url: userRequestData.url,
+                    headers: { ...authHeader }
+                });
+                const twitterProfile = {
+                    id: profileData.id_str,
+                    name: profileData.name,
+                    screen_name: profileData.screen_name,
+                    oauth_token: twitter_oauth_token,
+                    oauth_token_secret: twitter_oauth_token_secret
+                };
+                let user = await userService.getByEmail(profileData.email);
+                if (user) {
+                    user = await userService.updateUser(
+                        user._id,
+                        {
+                            $addToSet: { integration3rdparty: { twitter: twitterProfile } }
+                        },
+                        true
+                    );
+                } else {
+                    user = await userService.createUser(
+                        profileData.name,
+                        profileData.email.toLowerCase(),
+                        null,
+                        profileData.profile_image_url.replace('_normal', ''),
+                        accountState.ACTIVE,
+                        [{ twitter: twitterProfile }]
+                    );
+                }
+                done(null, user, { message: 'Login successful.' });
+            } catch (err) {
+                done(err);
+            }
+        }
+    })
+);
+
+passport.use(
+    'googleLogin',
+    new googleStrategy(
+        {
+            clientID: config.google.oauth_key,
+            clientSecret: config.google.oauth_secret,
+            callbackURL: 'http://localhost:3000/api/auth/google/callback'
+        },
+        async (accessToken, _, profile, done) => {
+            const googleProfile = {
+                id: profile.id,
+                name: profile.displayName,
+                oauth_token: accessToken
             };
-            const accessToken = { key: twitter_oauth_token, secret: twitter_oauth_token_secret };
-            authHeader = oauth.toHeader(oauth.authorize(userRequestData, accessToken));
-            const { data: profileData } = await axios({
-                method: 'GET',
-                url: userRequestData.url,
-                headers: { ...authHeader }
-            });
-            const twitterProfile = {
-                id: profileData.id_str,
-                name: profileData.name,
-                screen_name: profileData.screen_name,
-                oauth_token: twitter_oauth_token,
-                oauth_token_secret: twitter_oauth_token_secret
-            };
-            let user = await userService.getByEmail(profileData.email);
+            let user = await userService.getByEmail(profile.email);
             if (user) {
                 user = await userService.updateUser(
                     user._id,
                     {
-                        $addToSet: { integration3rdparty: { twitter: twitterProfile } }
+                        $addToSet: { integration3rdparty: { google: googleProfile } }
                     },
                     true
                 );
             } else {
                 user = await userService.createUser(
-                    profileData.name,
-                    profileData.email,
+                    profile.displayName,
+                    profile.email.toLowerCase(),
                     null,
-                    profileData.profile_image_url.replace('_normal', ''),
+                    profile.picture.replace('_normal', ''),
                     accountState.ACTIVE,
-                    [{ twitter: twitterProfile }]
+                    [{ google: googleProfile }]
                 );
             }
             done(null, user, { message: 'Login successful.' });
-        } catch (err) {
-            console.log(err);
-            done(err);
         }
-    })
+    )
 );

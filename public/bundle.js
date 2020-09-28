@@ -47683,7 +47683,7 @@ var Login = function Login() {
         password: password
       })
     };
-    fetch('/api/users/login', requestOptions).then(function (res) {
+    fetch('/api/auth/login', requestOptions).then(function (res) {
       return res.json();
     }).then(function (data) {
       return console.log(data);
@@ -47692,10 +47692,6 @@ var Login = function Login() {
       authFailure = (_readOnlyError("authFailure"), true);
     });
     history.push('/');
-  };
-
-  var handleTwitterRes = function handleTwitterRes(res) {
-    res ? history.push('/') : authFailure = (_readOnlyError("authFailure"), true);
   };
 
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
@@ -47724,10 +47720,48 @@ var Login = function Login() {
     type: "submit"
   }, "Submit")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
     href: "/api/auth/twitter/login"
-  }, "twitter login test")));
+  }, "google"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+    href: "/api/auth/google/login"
+  }, "google")));
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (Login);
+
+/***/ }),
+
+/***/ "./src/client/pages/LoginSuccess.js":
+/*!******************************************!*\
+  !*** ./src/client/pages/LoginSuccess.js ***!
+  \******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+
+
+
+var LoginSuccess = function LoginSuccess() {
+  var history = Object(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["useHistory"])();
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+    var timer = setTimeout(function () {
+      history.push('/');
+    }, 3000);
+    return function () {
+      return clearTimeout(timer);
+    };
+  }, []);
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "Home"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("header", {
+    className: "Home-header"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Login Successful")));
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (LoginSuccess);
 
 /***/ }),
 
@@ -47788,6 +47822,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _App__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./App */ "./src/client/App.js");
 /* harmony import */ var _pages_Home__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./pages/Home */ "./src/client/pages/Home.js");
 /* harmony import */ var _pages_Login__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./pages/Login */ "./src/client/pages/Login.js");
+/* harmony import */ var _pages_LoginSuccess__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./pages/LoginSuccess */ "./src/client/pages/LoginSuccess.js");
+
 
 
 
@@ -47800,6 +47836,10 @@ var routes = [{
   }, {
     component: _pages_Login__WEBPACK_IMPORTED_MODULE_2__["default"],
     path: '/login',
+    exact: true
+  }, {
+    component: _pages_LoginSuccess__WEBPACK_IMPORTED_MODULE_3__["default"],
+    path: '/loginSuccess',
     exact: true
   }]
 }];
