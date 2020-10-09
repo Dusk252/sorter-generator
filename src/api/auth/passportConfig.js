@@ -9,7 +9,7 @@ const querystring = require('querystring');
 const OAuth = require('oauth-1.0a');
 const { tokenType, accountState } = require('../_helpers/enum');
 const config = require('../config.json');
-const authService = require('../authentication/authentication.service');
+const authService = require('./auth.service');
 const userService = require('../users/users.service');
 const { UnauthorizedError } = require('express-jwt');
 
@@ -19,7 +19,7 @@ passport.use(
     new JWTstrategy(
         {
             //secret we used to sign our JWT
-            secretOrKey: config.authentication_token_secret,
+            secretOrKey: config.auth_token_secret,
             //we expect the user to send the access token in the header
             jwtFromRequest: (req) => {
                 if (!req.headers.authorization) throw new UnauthorizedError(401, { message: 'Access token not provided.' });
@@ -128,9 +128,9 @@ passport.use(
                 let user = await userService.getByEmail(profileData.email);
                 if (user) {
                     user = await userService.updateUser(
-                        user._id,
+                        { _id: user._id },
                         {
-                            $addToSet: { integration3rdparty: { twitter: twitterProfile } }
+                            $set: { 'integration3rdparty.twitter': twitterProfile }
                         },
                         true
                     );
@@ -141,7 +141,7 @@ passport.use(
                         null,
                         profileData.profile_image_url.replace('_normal', ''),
                         accountState.ACTIVE,
-                        [{ twitter: twitterProfile }]
+                        { twitter: twitterProfile }
                     );
                 }
                 done(null, user, { message: 'Login successful.' });
@@ -169,9 +169,9 @@ passport.use(
             let user = await userService.getByEmail(profile.email);
             if (user) {
                 user = await userService.updateUser(
-                    user._id,
+                    { _id: user._id },
                     {
-                        $addToSet: { integration3rdparty: { google: googleProfile } }
+                        $set: { 'integration3rdparty.google': googleProfile }
                     },
                     true
                 );
@@ -182,7 +182,7 @@ passport.use(
                     null,
                     profile.picture.replace('_normal', ''),
                     accountState.ACTIVE,
-                    [{ google: googleProfile }]
+                    { google: googleProfile }
                 );
             }
             done(null, user, { message: 'Login successful.' });

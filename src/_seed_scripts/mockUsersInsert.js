@@ -32,7 +32,7 @@ db.connect('mongodb://localhost:27017/', 'sorterGenerator', function (err) {
                         email: 'email' + i,
                         password: 'password' + i,
                         role: role.USER,
-                        integration3rdparty: [],
+                        integration3rdparty: {},
                         account_status: possibleStates[Math.floor(Math.random() * 4)]
                     })
             );

@@ -6,15 +6,15 @@ const config = require('../config.json');
 const crypto = require('crypto');
 const querystring = require('querystring');
 const OAuth = require('oauth-1.0a');
-const userService = require('./../users/users.service');
-const authService = require('./authentication.service');
+const userService = require('../users/users.service');
+const authService = require('./auth.service');
 const { tokenType, accountState } = require('../_helpers/enum');
 const { generateAccessToken, generateRefreshToken, getTokenData } = require('./tokenUtil');
 const { UnauthorizedError } = require('express-jwt');
 
 //routes
 router.post('/register', localSignUp);
-router.post('/login', passport.authenticate('login', { session: false }), login);
+router.post('/login', passport.authenticate('login', { session: false }), localLogin);
 router.get('/twitter/login', passport.authenticate('twitterLogin', { session: false }));
 router.get('/twitter/callback', passport.authenticate('twitterLogin', { session: false }), login);
 router.get('/google/login', passport.authenticate('googleLogin', { scope: ['email', 'profile'], session: false }));
@@ -31,11 +31,24 @@ async function localSignUp(req, res, next) {
         .catch((err) => next(err));
 }
 
+async function localLogin(req, res, next) {
+    try {
+        const user = req.user;
+        const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
+        await authService.updateRefreshToken(user._id, null, refreshToken);
+        res.cookie('refresh_token', refreshToken, { httpOnly: true });
+        res.status(200).json({ callback: `${req.protocol}://${req.get('host')}/loginSuccess` });
+    } catch (err) {
+        next(err);
+    }
+}
+
 async function login(req, res, next) {
     try {
         const user = req.user;
         const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
         res.cookie('refresh_token', refreshToken, { httpOnly: true });
+        await authService.updateRefreshToken(user._id, null, refreshToken);
         res.redirect(302, `${req.protocol}://${req.get('host')}/loginSuccess`);
     } catch (err) {
         next(err);

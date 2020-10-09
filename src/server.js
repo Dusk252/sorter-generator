@@ -11,10 +11,10 @@ import errorHandler from './api/_helpers/error-handler';
 //import { matchRoutes } from 'react-router-config';
 import compression from 'compression';
 import renderer from './helpers/renderer';
-import createStore from './client/store/createStore';
+import { createStore } from 'redux';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
-require('./api/authentication/passportConfig');
+require('./api/auth/passportConfig');
 //import Routes from './client/Routes';
 
 const port = process.env.PORT || 3000;
@@ -43,7 +43,7 @@ app.use(
 // api routes
 app.post('/api/test', (req, res) => res.json({ message: req.body.message + ' from server' }));
 app.use('/api/users', require('./api/users/users.controller'));
-app.use('/api/auth', require('./api/authentication/authentication.controller'));
+app.use('/api/auth', require('./api/auth/auth.controller'));
 
 // global error handler
 app.use(errorHandler);
@@ -51,8 +51,14 @@ app.use(errorHandler);
 // let router handle routes for server side rendering
 app.use(/\/((?!api).)*/, (req, res) => {
     // We create store before rendering html
-    const store = createStore();
-
+    const store = createStore(require('./client/store/rootReducer').default, {
+        auth: {
+            isFetching: false,
+            accessToken: null,
+            currentUser: null,
+            authError: false
+        }
+    });
     const context = {};
     const content = renderer(req, store, context);
 

@@ -1,4 +1,6 @@
 .vscode/
+.VSCodeCounter/
 build/
+public/
 node_modules/
 src/api/config.json

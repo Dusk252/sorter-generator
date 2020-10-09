@@ -15,7 +15,7 @@ export const generateRefreshToken = (sub) => {
 };
 
 const generateToken = (sub, type) => {
-    const secret = config.authentication_token_secret;
+    const secret = config.auth_token_secret;
     //if encrypting, do it here
     return jwt.sign({ type }, secret, {
         expiresIn: type == tokenType.ACCESS_TOKEN ? access_token_expiration : refresh_token_expiration,
@@ -25,5 +25,5 @@ const generateToken = (sub, type) => {
 
 //only needed if decrypting, do it inside verify
 export const getTokenData = (token) => {
-    return jwt.verify(token, config.authentication_token_secret);
+    return jwt.verify(token, config.auth_token_secret);
 };

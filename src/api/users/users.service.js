@@ -4,29 +4,35 @@ const bycrpt = require('bcrypt');
 const ObjectID = require('mongodb').ObjectID;
 
 const saltRounds = 10;
+const pageSize = 10;
 
 module.exports = {
-    getAll,
+    getUserList,
     getById,
     getByEmail,
     createUser,
     updateUser
 };
 
-async function getAll() {
-    let users = await db.get().collection('users').find().toArray();
-    users.map((u) => {
-        const { password, ...userWithoutPassword } = u;
-        return userWithoutPassword;
-    });
+async function getUserList(page) {
+    const users = await db
+        .get()
+        .collection('users')
+        .aggregate([
+            { $match: {} },
+            { $sort: { _id: -1 } },
+            { $skip: (page - 1) * pageSize },
+            { $limit: pageSize },
+            { $project: { 'profile.username': 1, 'profile.icon': 1, role: 1 } }
+        ])
+        .toArray();
     return users;
 }
 
-async function getById(id) {
-    const user = await db
-        .get()
-        .collection('users')
-        .findOne({ _id: new ObjectID(id) });
+async function getById(id, options) {
+    let query = { _id: new ObjectID(id) };
+    if (options) query = { query, options };
+    const user = await db.get().collection('users').findOne(query);
     if (!user) return;
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -64,7 +70,7 @@ async function createUser(username, email, password, icon, account_status, integ
         email: email,
         password: password,
         localLogin: password && password.length,
-        integration3rdparty: Array.isArray(integration) ? integration : [],
+        integration3rdparty: {}.toString.apply(integration) === '[object Object]' ? integration : {},
         role: Roles.User,
         account_status: account_status
     };
@@ -73,12 +79,9 @@ async function createUser(username, email, password, icon, account_status, integ
     return user;
 }
 
-async function updateUser(userId, updateQuery, returnUpdated = false) {
+async function updateUser(findQuery, updateQuery, returnUpdated = false) {
     if (returnUpdated) {
-        const res = await db
-            .get()
-            .collection('users')
-            .findOneAndUpdate({ _id: userId }, updateQuery, { returnNewDocument: true });
+        const res = await db.get().collection('users').findOneAndUpdate(findQuery, updateQuery, { returnNewDocument: true });
         return res.ok === 1 ? res.value : null;
-    } else db.get().collection('users').updateOne({ _id: userId }, updateQuery);
+    } else db.get().collection('users').updateOne(findQuery, updateQuery);
 }
