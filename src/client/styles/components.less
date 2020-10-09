@@ -1,0 +1,78 @@
+//Box wrapper component
+
+.box-wrapper {
+    width: 100%;
+    border: 2px solid @primary-color;
+    border-radius: 5px;
+    background-color: @background-color-base;
+    padding: 35px;
+}
+
+.box-wrapper-header {
+    margin-bottom: 35px;
+}
+
+//Slidebox component
+
+.slidebox {
+    border-radius: @border-radius-base;
+    line-height: @line-height-base;
+    border: solid 1px;
+    overflow: hidden;
+}
+
+.slidebox-header {
+    display: flex;
+    justify-content: center;
+    padding: @input-padding-vertical-base @btn-padding-horizontal-base;
+}
+
+.slidebox-content {
+    padding: 15px;
+    background-color: @component-background;
+}
+
+//Color Picker component
+
+.color-picker-current,
+.color-picker-input {
+    &:hover {
+        border-color: #4c3560 !important;
+    }
+    &:focus {
+        border-color: #6b478a !important;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(107, 71, 138, 0.2);
+    }
+}
+.color-picker-swatch {
+    &:hover {
+        box-shadow: 0 0 0 2px rgba(107, 71, 138, 0.2);
+    }
+    &:focus {
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(107, 71, 138, 0.2);
+    }
+    &-selected {
+        &:hover,
+        &:focus {
+            border-color: #fff !important;
+        }
+    }
+}
+
+//Picture upload component
+
+.ant-upload.ant-upload-select-picture-card {
+    margin: 0;
+    margin-bottom: 0;
+}
+
+.ant-upload.ant-upload-drag .ant-upload {
+    padding: 0;
+}
+
+.ant-form-item-has-error .ant-upload {
+    border-color: @error-color;
+}

@@ -2,6 +2,8 @@ import App from './App';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import LoginSuccess from './pages/LoginSuccess';
+import UserList from './pages/UserList';
+import SorterNew from './pages/SorterNew';
 
 const routes = [
     {
@@ -20,6 +22,16 @@ const routes = [
             {
                 component: LoginSuccess,
                 path: '/loginSuccess',
+                exact: true
+            },
+            {
+                component: UserList,
+                path: '/users',
+                exact: true
+            },
+            {
+                component: SorterNew,
+                path: '/sorters/new',
                 exact: true
             }
         ]

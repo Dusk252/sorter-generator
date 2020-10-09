@@ -1,49 +1,115 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { localLogin } from './../store/auth/authActions';
+import { Form, Input, Button, Space } from 'antd';
+import { UserOutlined, LockOutlined, TwitterOutlined, GoogleOutlined } from '@ant-design/icons';
+import SlideBox from '../components/general/SlideBox';
+import BoxWrapper from '../components/general/BoxWrapper';
+import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 
-const Login = () => {
+const Login = ({ authError, localLogin }) => {
     const history = useHistory();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const authFailure = false;
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        };
-        fetch('/api/auth/login', requestOptions)
-            .then((res) => res.json())
-            .then((data) => console.log(data))
-            .catch((err) => {
-                console.log(err);
-                authFailure = true;
-            });
-        history.push('/');
+    const handleSubmit = (values) => {
+        localLogin(values.email, values.password, () => history.push('/LoginSuccess'));
     };
 
     return (
-        <div className='Home'>
-            <header className='Home-header'>
-                <p>User login test page</p>
-                {authFailure ? <p style={{ color: 'red' }}>authentication failed</p> : ''}
-            </header>
-            <form onSubmit={handleSubmit}>
-                <p>
-                    <strong>Login:</strong>
-                </p>
-                <input type='text' value={email} onChange={(e) => setEmail(e.target.value)} />
-                <input type='text' value={password} onChange={(e) => setPassword(e.target.value)} />
-                <button type='submit'>Submit</button>
-            </form>
-            <div>
-                <a href='/api/auth/twitter/login'>google</a>
-                <a href='/api/auth/google/login'>google</a>
-            </div>
-        </div>
+        <LayoutBlockWrapper>
+            <BoxWrapper className='small-box' title='Login'>
+                <div id='login_form'>
+                    <Space size='middle' direction='vertical'>
+                        <Button
+                            style={{ width: '100%' }}
+                            type='primary'
+                            htmlType='link'
+                            href='/api/auth/twitter/login'
+                            className='form-button twitter-color'
+                        >
+                            <TwitterOutlined /> Login with Twitter
+                        </Button>
+                        <Button
+                            style={{ width: '100%' }}
+                            type='primary'
+                            htmlType='link'
+                            href='/api/auth/google/login'
+                            className='form-button google-color'
+                        >
+                            <GoogleOutlined /> Login with Google
+                        </Button>
+                        <SlideBox
+                            title={
+                                <div id='local_login_btn'>
+                                    <UserOutlined /> Login with E-mail
+                                </div>
+                            }
+                            color='rgba(255, 255, 255, 0.3)'
+                        >
+                            <Form
+                                name='normal_login'
+                                className='login-form'
+                                initialValues={{
+                                    remember: true
+                                }}
+                                onFinish={handleSubmit}
+                            >
+                                <Form.Item
+                                    name='email'
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Please input your e-mail'
+                                        }
+                                    ]}
+                                >
+                                    <Input
+                                        prefix={<UserOutlined className='site-form-item-icon' />}
+                                        placeholder='E-Mail'
+                                        autoComplete='off'
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    name='password'
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'Please input your password'
+                                        }
+                                    ]}
+                                >
+                                    <Input
+                                        prefix={<LockOutlined className='site-form-item-icon' />}
+                                        type='password'
+                                        placeholder='Password'
+                                        autoComplete='off'
+                                    />
+                                </Form.Item>
+                                <Form.Item style={{ marginBottom: '0' }}>
+                                    <Button
+                                        style={{ width: '100%' }}
+                                        type='primary'
+                                        htmlType='submit'
+                                        className='form-button'
+                                    >
+                                        Log in
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </SlideBox>
+                    </Space>
+                </div>
+            </BoxWrapper>
+        </LayoutBlockWrapper>
     );
 };
 
-export default Login;
+const mapStateToProps = (state) => ({
+    authError: state.auth.authError
+});
+
+const mapDispatchToProps = {
+    localLogin
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -1,0 +1,192 @@
+@import '~antd/lib/style/themes/default.less';
+@import '~antd/dist/antd.less'; // Import Ant Design styles by less entry
+@import '~antd/dist/antd.dark.less'; // Introduce the official dark less style entry file
+@import 'theme.less';
+@import 'components.less';
+
+#app {
+    height: 100%;
+}
+.layout {
+    min-height: 100%;
+}
+.ant-layout-header {
+    padding: 0;
+}
+.ant-menu,
+.ant-layout-content {
+    max-width: 1420px;
+    width: 100%;
+    margin: 0 auto;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.header {
+    text-align: center;
+    width: 100%;
+}
+.block-wrapper {
+    padding: 50px 0;
+}
+.small-box {
+    max-width: 500px;
+    min-width: 350px;
+}
+.checkbox-input {
+    .ant-form-item-control-input {
+        min-height: initial;
+    }
+}
+
+//overrides
+// .ant-input-affix-wrapper > input.ant-input {
+//     border: solid 2px #131313;
+// }
+
+// .ant-input-affix-wrapper > input.ant-input,
+// .ant-input-affix-wrapper > input.ant-input:focus,
+// input:-internal-autofill-selected {
+//     -webkit-box-shadow: 0 0 0 50px @body-background inset; /* Change the color to your own background color */
+//     -webkit-text-fill-color: @text-color;
+// }
+
+// .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input,
+// .ant-form-item-has-error .ant-input-affix-wrapper:hover > input.ant-input {
+//     border-color: transparent;
+// }
+
+//share colors
+.google-color {
+    background-color: @google-color;
+    border-color: @google-color;
+    &:hover,
+    &:focus {
+        background-color: @google-color-dark;
+        border-color: @google-color;
+    }
+}
+.twitter-color {
+    background-color: @twitter-color;
+    border-color: @twitter-color;
+    &:hover,
+    &:focus {
+        background-color: @twitter-color-dark;
+        border-color: @twitter-color;
+    }
+}
+
+//Login
+#login_form {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+
+    .login-form {
+        max-width: 300px;
+        margin: 20px auto;
+    }
+}
+
+#local_login_btn {
+    padding: 0 15px 2px 15px;
+    text-align: center;
+    line-height: 30px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    cursor: pointer;
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+//New Sorter Page
+.ant-empty-small .ant-empty-image {
+    height: 25px;
+}
+
+.base-form {
+    &-picture-field .picture-uploader {
+        width: 400px;
+        height: 150px;
+    }
+    &-wrapper {
+        display: flex;
+    }
+    &-right {
+        margin-left: 24px;
+        width: 100%;
+    }
+}
+
+.add-character-button {
+    height: 30px;
+}
+.character-form {
+    padding: 20px;
+    border: 1px dashed #434343;
+    border-radius: 2px;
+
+    .ant-form-item {
+        margin: 0;
+        margin-bottom: 0;
+    }
+
+    &-wrapper {
+        display: flex;
+        margin-bottom: 15px;
+    }
+
+    &-right {
+        margin-left: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        width: 100%;
+    }
+
+    &-picture-field {
+        .ant-form-item-explain {
+            display: none;
+        }
+        .picture-uploader {
+            height: 100px;
+            width: 100px;
+        }
+    }
+}
+.add-character-button {
+    height: 193px;
+}
+
+.chara-form {
+    margin-top: 25px;
+    &-item {
+        padding: 10px 15px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        border-top: solid 5px;
+        border-bottom: solid 5px;
+        background-color: @background-color-light;
+        &-remove {
+            margin-left: auto;
+            font-size: 24px;
+        }
+    }
+    &-info {
+        margin-left: 24px;
+    }
+    &-error {
+        text-align: center;
+        .ant-form-item-control-input {
+            display: none;
+        }
+    }
+}
