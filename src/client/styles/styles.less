@@ -112,9 +112,13 @@
 }
 
 .base-form {
-    &-picture-field .picture-uploader {
-        width: 400px;
-        height: 150px;
+    &-picture-field {
+        .picture-uploader,
+        img {
+            height: 150px;
+            width: 400px;
+            object-fit: contain;
+        }
     }
     &-wrapper {
         display: flex;
@@ -155,9 +159,11 @@
         .ant-form-item-explain {
             display: none;
         }
-        .picture-uploader {
+        .picture-uploader,
+        img {
             height: 100px;
             width: 100px;
+            object-fit: contain;
         }
     }
 }

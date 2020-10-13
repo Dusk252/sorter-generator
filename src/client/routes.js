@@ -1,7 +1,7 @@
 import App from './App';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import LoginSuccess from './pages/LoginSuccess';
+import LoginResult from './pages/LoginResult';
 import UserList from './pages/UserList';
 import SorterNew from './pages/SorterNew';
 
@@ -16,12 +16,12 @@ const routes = [
             },
             {
                 component: Login,
-                path: '/login',
+                path: '/login/',
                 exact: true
             },
             {
-                component: LoginSuccess,
-                path: '/loginSuccess',
+                component: LoginResult,
+                path: '/login/result',
                 exact: true
             },
             {

@@ -1,19 +1,26 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { localLogin } from './../store/auth/authActions';
-import { Form, Input, Button, Space } from 'antd';
+import { localLogin, clearAuthError } from './../store/auth/authActions';
+import { Form, Input, Button, Space, message } from 'antd';
 import { UserOutlined, LockOutlined, TwitterOutlined, GoogleOutlined } from '@ant-design/icons';
 import SlideBox from '../components/general/SlideBox';
 import BoxWrapper from '../components/general/BoxWrapper';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 
-const Login = ({ authError, localLogin }) => {
+const Login = ({ authError, localLogin, clearAuthError }) => {
     const history = useHistory();
 
     const handleSubmit = (values) => {
-        localLogin(values.email, values.password, () => history.push('/LoginSuccess'));
+        localLogin(values.email, values.password, () => history.push('/Login/result'));
     };
+
+    useEffect(() => {
+        if (authError) {
+            message.error('Invalid email and password combination.');
+            clearAuthError();
+        }
+    }, [authError]);
 
     return (
         <LayoutBlockWrapper>
@@ -109,7 +116,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-    localLogin
+    localLogin,
+    clearAuthError
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -5,6 +5,8 @@ import CreateFormBase from '../components/sorters/CreateFormBase';
 import CreateFormGroups from '../components/sorters/CreateFormGroups';
 import CreateFormCharacters from '../components/sorters/CreateFormCharacters';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
+import { validateData } from './../../schema/sorter.schema';
+import { sorterFormSchema } from './../../schema/sorter.schema';
 
 const lastStep = 3;
 const initialStepStatus = [
@@ -37,7 +39,25 @@ const SorterNew = () => {
     const [mainFormState, setMainFormState] = useState([]);
 
     const handleSubmit = () => {
-        console.log(mainFormState);
+        console.log(validateData(mainFormState, sorterFormSchema));
+    };
+
+    const handleFormValidation = (form, formValues) => {
+        formValues = formValues ?? form.getFieldsValue();
+        let fields = formValues ? Object.keys(formValues) : null;
+
+        const { values, errors } = validateData(formValues, sorterFormSchema, fields);
+        fields = fields ?? Object.keys(values);
+
+        if (errors) {
+            const errorKeys = Object.keys(errors);
+            form.setFields(errorKeys.map((key) => ({ name: errors[key].path, errors: errors[key].message })));
+            form.setFields(fields.filter((field) => !errorKeys.includes(field)).map((key) => ({ name: key, errors: null })));
+            return false;
+        } else {
+            form.setFields(fields.map((key) => ({ name: key, errors: null })));
+            return true;
+        }
     };
 
     const handleStepChange = (current) => {
@@ -49,30 +69,27 @@ const SorterNew = () => {
             }));
             setCurrentStep(current);
         } else if (stepForms[currentStep]) {
-            setMainFormState((prev) => ({ ...prev, [currentStep]: stepForms[currentStep].getFieldsValue() }));
-            stepForms[currentStep]
-                .validateFields()
-                .then(() => {
-                    setStepStatus((prevState) => ({
-                        ...prevState,
-                        [currentStep]: { prev: prevState[currentStep].cur, cur: 'finish' },
-                        [current]: { prev: prevState[current].cur, cur: 'process' }
-                    }));
-                    setCurrentStep(current);
-                })
-                .catch(() => {
-                    setStepStatus((prevState) => ({
-                        ...prevState,
-                        [currentStep]: { prev: prevState[currentStep].cur, cur: 'error' },
-                        [current]: { prev: prevState[current].cur, cur: 'process' }
-                    }));
-                    setCurrentStep(current);
-                });
+            setMainFormState((prev) => ({ ...prev, ...stepForms[currentStep].getFieldsValue() }));
+            if (handleFormValidation(stepForms[currentStep])) {
+                setStepStatus((prevState) => ({
+                    ...prevState,
+                    [currentStep]: { prev: prevState[currentStep].cur, cur: 'finish' },
+                    [current]: { prev: prevState[current].cur, cur: 'process' }
+                }));
+                setCurrentStep(current);
+            } else {
+                setStepStatus((prevState) => ({
+                    ...prevState,
+                    [currentStep]: { prev: prevState[currentStep].cur, cur: 'error' },
+                    [current]: { prev: prevState[current].cur, cur: 'process' }
+                }));
+            }
+            setCurrentStep(current);
         }
     };
 
     useEffect(() => {
-        if (stepStatus[currentStep].prev === 'error') stepForms[currentStep].validateFields();
+        if (stepStatus[currentStep].prev === 'error') handleFormValidation(stepForms[currentStep]);
     }, [currentStep]);
 
     return (
@@ -101,10 +118,17 @@ const SorterNew = () => {
                 <Col span={18}>
                     <LayoutBlockWrapper>
                         {/*--------------Step 1 - Basic Info--------------*/}
-                        {currentStep === 0 && <CreateFormBase form={stepForms[0]} formName='step1' />}
+                        {currentStep === 0 && (
+                            <CreateFormBase form={stepForms[0]} formName='step1' onValuesChange={handleFormValidation} />
+                        )}
                         {/*--------------Step 2 - Groups--------------*/}
                         {currentStep === 1 && (
-                            <CreateFormGroups form={stepForms[1]} formName='step2' colors={colorOptions} />
+                            <CreateFormGroups
+                                form={stepForms[1]}
+                                formName='step2'
+                                colors={colorOptions}
+                                onValuesChange={handleFormValidation}
+                            />
                         )}
                         {/*--------------Step 3 - Characters--------------*/}
                         {currentStep === 2 && (
@@ -118,6 +142,7 @@ const SorterNew = () => {
                                 editForm={charaEditForm}
                                 editFormState={editFormState}
                                 setEditFormState={setEditFormState}
+                                onValuesChange={handleFormValidation}
                             />
                         )}
                         {/*--------------Step 4 - Submit--------------*/}

@@ -84,67 +84,71 @@ passport.use(
                     req.res.status(500).json({ message: 'An issue occurred with twitter authentication.' });
                 else req.res.redirect(`${config.twitter.oauth_authorize_url}?oauth_token=${data.oauth_token}`);
             } catch (err) {
-                console.log(err);
                 done(err);
             }
         } else {
             try {
                 const { oauth_token, oauth_verifier } = req.query;
-                const oauth = OAuth({
-                    consumer: { key: config.twitter.oauth_key, secret: config.twitter.oauth_secret },
-                    signature_method: 'HMAC-SHA1',
-                    hash_function: (base_string, key) => crypto.createHmac('sha1', key).update(base_string).digest('base64')
-                });
-                const tokenRequestData = {
-                    url: config.twitter.oauth_access_url,
-                    method: 'POST',
-                    data: { oauth_verifier }
-                };
-                const token = { key: oauth_token };
-                let authHeader = oauth.toHeader(oauth.authorize(tokenRequestData, token));
-                const res = await axios.post(tokenRequestData.url, {}, { headers: { ...authHeader } });
-                const {
-                    oauth_token: twitter_oauth_token,
-                    oauth_token_secret: twitter_oauth_token_secret
-                } = querystring.parse(res.data);
-                const userRequestData = {
-                    url: config.twitter.user_profile_url,
-                    method: 'GET'
-                };
-                const accessToken = { key: twitter_oauth_token, secret: twitter_oauth_token_secret };
-                authHeader = oauth.toHeader(oauth.authorize(userRequestData, accessToken));
-                const { data: profileData } = await axios({
-                    method: 'GET',
-                    url: userRequestData.url,
-                    headers: { ...authHeader }
-                });
-                const twitterProfile = {
-                    id: profileData.id_str,
-                    name: profileData.name,
-                    screen_name: profileData.screen_name,
-                    oauth_token: twitter_oauth_token,
-                    oauth_token_secret: twitter_oauth_token_secret
-                };
-                let user = await userService.getByEmail(profileData.email);
-                if (user) {
-                    user = await userService.updateUser(
-                        { _id: user._id },
-                        {
-                            $set: { 'integration3rdparty.twitter': twitterProfile }
-                        },
-                        true
-                    );
-                } else {
-                    user = await userService.createUser(
-                        profileData.name,
-                        profileData.email.toLowerCase(),
-                        null,
-                        profileData.profile_image_url.replace('_normal', ''),
-                        accountState.ACTIVE,
-                        { twitter: twitterProfile }
-                    );
+                if (!oauth_token || !oauth_verifier) done(null, false, { message: 'Twitter authentication failed.' });
+                else {
+                    const oauth = OAuth({
+                        consumer: { key: config.twitter.oauth_key, secret: config.twitter.oauth_secret },
+                        signature_method: 'HMAC-SHA1',
+                        hash_function: (base_string, key) =>
+                            crypto.createHmac('sha1', key).update(base_string).digest('base64')
+                    });
+                    const tokenRequestData = {
+                        url: config.twitter.oauth_access_url,
+                        method: 'POST',
+                        data: { oauth_verifier }
+                    };
+                    const token = { key: oauth_token };
+                    let authHeader = oauth.toHeader(oauth.authorize(tokenRequestData, token));
+
+                    const res = await axios.post(tokenRequestData.url, {}, { headers: { ...authHeader } });
+                    const {
+                        oauth_token: twitter_oauth_token,
+                        oauth_token_secret: twitter_oauth_token_secret
+                    } = querystring.parse(res.data);
+                    const userRequestData = {
+                        url: config.twitter.user_profile_url,
+                        method: 'GET'
+                    };
+                    const accessToken = { key: twitter_oauth_token, secret: twitter_oauth_token_secret };
+                    authHeader = oauth.toHeader(oauth.authorize(userRequestData, accessToken));
+                    const { data: profileData } = await axios({
+                        method: 'GET',
+                        url: userRequestData.url,
+                        headers: { ...authHeader }
+                    });
+                    const twitterProfile = {
+                        id: profileData.id_str,
+                        name: profileData.name,
+                        screen_name: profileData.screen_name,
+                        oauth_token: twitter_oauth_token,
+                        oauth_token_secret: twitter_oauth_token_secret
+                    };
+                    let user = await userService.getByEmail(profileData.email);
+                    if (user) {
+                        user = await userService.updateUser(
+                            { _id: user._id },
+                            {
+                                $set: { 'integration3rdparty.twitter': twitterProfile }
+                            },
+                            true
+                        );
+                    } else {
+                        user = await userService.createUser(
+                            profileData.name,
+                            profileData.email.toLowerCase(),
+                            null,
+                            profileData.profile_image_url.replace('_normal', ''),
+                            accountState.ACTIVE,
+                            { twitter: twitterProfile }
+                        );
+                    }
+                    done(null, user, { message: 'Login successful.' });
                 }
-                done(null, user, { message: 'Login successful.' });
             } catch (err) {
                 done(err);
             }

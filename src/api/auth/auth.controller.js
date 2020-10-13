@@ -16,10 +16,19 @@ const { UnauthorizedError } = require('express-jwt');
 router.post('/register', localSignUp);
 router.post('/login', passport.authenticate('login', { session: false }), localLogin);
 router.get('/twitter/login', passport.authenticate('twitterLogin', { session: false }));
-router.get('/twitter/callback', passport.authenticate('twitterLogin', { session: false }), login);
+router.get(
+    '/twitter/callback',
+    passport.authenticate('twitterLogin', { session: false, failureRedirect: '/login/result' }),
+    login
+);
 router.get('/google/login', passport.authenticate('googleLogin', { scope: ['email', 'profile'], session: false }));
-router.get('/google/callback', passport.authenticate('googleLogin', { session: false }), login);
+router.get(
+    '/google/callback',
+    passport.authenticate('googleLogin', { session: false, failureRedirect: '/login/result' }),
+    login
+);
 router.post('/refresh-token', refreshToken);
+router.get('/logout', logout);
 router.post('/logout', logout);
 module.exports = router;
 
@@ -37,7 +46,7 @@ async function localLogin(req, res, next) {
         const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
         await authService.updateRefreshToken(user._id, null, refreshToken);
         res.cookie('refresh_token', refreshToken, { httpOnly: true });
-        res.status(200).json({ callback: `${req.protocol}://${req.get('host')}/loginSuccess` });
+        res.status(200).json({ callback: `${req.protocol}://${req.get('host')}/login/result` });
     } catch (err) {
         next(err);
     }
@@ -49,7 +58,7 @@ async function login(req, res, next) {
         const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
         res.cookie('refresh_token', refreshToken, { httpOnly: true });
         await authService.updateRefreshToken(user._id, null, refreshToken);
-        res.redirect(302, `${req.protocol}://${req.get('host')}/loginSuccess`);
+        res.redirect(302, `${req.protocol}://${req.get('host')}/login/result`);
     } catch (err) {
         next(err);
     }

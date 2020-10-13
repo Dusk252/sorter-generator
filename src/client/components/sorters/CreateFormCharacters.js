@@ -19,7 +19,7 @@ const defaultGroupInfo = {
     color: 'rgba(255,255,255,0.5)'
 };
 
-const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState, setEditFormState }) => {
+const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState, setEditFormState, onValuesChange }) => {
     const onPictureChange = (picture) => editForm.setFieldsValue([picture]);
     const onRemoveCharacter = (e, index) => {
         e.stopPropagation();
@@ -50,6 +50,7 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                         step3.setFieldsValue({
                             characters: [...characters, values]
                         });
+                    onValuesChange(step3);
                     setEditFormState({ index: null });
                     charaForm.resetFields();
                 }
@@ -177,7 +178,7 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                     className='chara-form-error'
                     rules={[{ required: true, message: "You can't create a sorter without characters!" }]}
                 >
-                    <input type='hidden'></input>
+                    <Input type='hidden'></Input>
                 </Form.Item>
             </Form>
         </Form.Provider>

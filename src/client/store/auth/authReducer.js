@@ -17,7 +17,9 @@ const authReducer = (state = initialState, action) => {
         case MESSAGES.AUTH_REJECTED:
             return { ...state, isFetching: false, authError: true };
         case MESSAGES.GET_NEW_TOKEN_RESOLVED:
-            return { ...state, isFetching: false, ...payload };
+            return { ...state, isFetching: false, authError: false, ...payload };
+        case MESSAGES.CLEAR_AUTH_ERROR:
+            return { ...state, authError: false };
         default:
             return state;
     }

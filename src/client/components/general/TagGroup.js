@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Tag, Tooltip } from 'antd';
 
-const TagGroup = ({ initialTags = [], onChange }) => {
+const TagGroup = ({ initialTags = null, onChange }) => {
     const [tags, setTags] = useState(initialTags);
     const [inputState, setInputState] = useState('');
 
@@ -11,9 +11,11 @@ const TagGroup = ({ initialTags = [], onChange }) => {
 
     const handleInputConfirm = (e) => {
         const value = e.target.value;
-        if (value && tags.indexOf(value) === -1) {
-            const newTags = [...tags, value];
-            setTags(newTags);
+        if (value) {
+            if (!tags || tags.indexOf(value) === -1) {
+                const newTags = tags ? [...tags, value] : [value];
+                setTags(newTags);
+            }
         }
         setInputState('');
     };
@@ -24,7 +26,7 @@ const TagGroup = ({ initialTags = [], onChange }) => {
     };
 
     useEffect(() => {
-        onChange(tags);
+        if (tags) onChange(tags);
     }, [tags]);
 
     return (
@@ -40,7 +42,7 @@ const TagGroup = ({ initialTags = [], onChange }) => {
                 placeholder='Insert new tag...'
                 style={{ marginBottom: '5px' }}
             />
-            {tags.length ? (
+            {tags ? (
                 tags.map((tag) => {
                     const isLongTag = tag.length > 20;
 

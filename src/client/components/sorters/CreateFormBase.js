@@ -14,21 +14,15 @@ const pictureChekcers = [
     }
 ];
 
-const CreateFormBase = ({ form, formName }) => {
+const CreateFormBase = ({ form, formName, onValuesChange }) => {
     const onPictureChange = (picture) => form.setFieldsValue([picture]);
+    const localOnValuesChange = (_, allValues) => {
+        onValuesChange(form, allValues);
+    };
     return (
-        <Form form={form} name={formName} autoComplete='off' className='base-form'>
+        <Form form={form} name={formName} autoComplete='off' className='base-form' onValuesChange={localOnValuesChange}>
             <div className='base-form-wrapper'>
-                <Form.Item
-                    className='base-form-picture-field'
-                    name='picture'
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please upload a logo or other representative picture.'
-                        }
-                    ]}
-                >
+                <Form.Item className='base-form-picture-field' name='picture'>
                     <PictureUpload
                         checkers={pictureChekcers}
                         onChange={onPictureChange}
@@ -36,15 +30,7 @@ const CreateFormBase = ({ form, formName }) => {
                     />
                 </Form.Item>
                 <div className='base-form-right'>
-                    <Form.Item
-                        name='title'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'The sorter needs a title.'
-                            }
-                        ]}
-                    >
+                    <Form.Item name='title'>
                         <Input placeholder='Title' autoComplete='off' />
                     </Form.Item>
                     <Form.Item name='tags'>
@@ -54,7 +40,7 @@ const CreateFormBase = ({ form, formName }) => {
                         />
                     </Form.Item>
                     <Form.Item name='isPrivate' valuePropName='checked' className='checkbox-input'>
-                        <Checkbox>Private Sorter</Checkbox>
+                        <Checkbox defaultChecked={false}>Private Sorter</Checkbox>
                     </Form.Item>
                 </div>
             </div>
