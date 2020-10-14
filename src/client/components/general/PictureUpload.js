@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, message } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 
-const getBase64 = (img, callback) => {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result));
-    reader.readAsDataURL(img);
+const getBase64 = (img) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            resolve(reader.result);
+        };
+
+        reader.onerror = reject;
+
+        reader.readAsDataURL(img);
+    });
 };
 
 const PictureUpload = ({ checkers, onChange, value }) => {
     const [loading, setLoading] = useState(false);
+    const [base64Value, setBase64Value] = useState('');
+
+    useEffect(() => {
+        if (value) {
+            const processValue = async () => {
+                const base64 = await getBase64(value);
+                setBase64Value(base64);
+                setLoading(false);
+            };
+            processValue();
+        }
+    }, [value]);
 
     const beforeUpload = (file) => {
         checkers.forEach((checker) => {
@@ -27,11 +47,8 @@ const PictureUpload = ({ checkers, onChange, value }) => {
             return;
         }
         if (info.file.status === 'done') {
-            // Get this url from response in real world.
-            getBase64(info.file.originFileObj, (imageUrl) => {
-                onChange(imageUrl);
-                setLoading(false);
-            });
+            onChange(info.file.originFileObj);
+            return;
         }
     };
 
@@ -51,7 +68,7 @@ const PictureUpload = ({ checkers, onChange, value }) => {
             beforeUpload={beforeUpload}
             onChange={handleChange}
         >
-            {value ? <img src={value} alt='img' style={{ width: '100%' }} /> : uploadButton}
+            {base64Value ? <img src={base64Value} alt='img' style={{ width: '100%' }} /> : uploadButton}
         </Upload.Dragger>
     );
 };

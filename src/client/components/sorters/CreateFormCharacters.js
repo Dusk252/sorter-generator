@@ -14,6 +14,20 @@ const pictureChekcers = [
     }
 ];
 
+const getBase64 = (img) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            resolve(reader.result);
+        };
+
+        reader.onerror = reject;
+
+        reader.readAsDataURL(img);
+    });
+};
+
 const defaultGroupInfo = {
     name: null,
     color: 'rgba(255,255,255,0.5)'
@@ -38,10 +52,11 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
 
     return (
         <Form.Provider
-            onFormFinish={(name, { values, forms }) => {
+            onFormFinish={async (name, { values, forms }) => {
                 if (name === 'charaForm') {
                     const { charaForm, step3 } = forms;
                     const characters = step3.getFieldValue('characters') || [];
+                    values.base64picture = await getBase64(values.picture);
                     if (editFormState.index != null)
                         step3.setFieldsValue({
                             characters: Object.assign([], [...characters], { [editFormState.index]: values })
@@ -147,7 +162,7 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                                                 style={{ borderColor: group.color }}
                                                 onClick={() => onEditCharacter(index)}
                                             >
-                                                <img src={chara.picture} alt={chara.name} width='80' height='80' />
+                                                <img src={chara.base64picture} alt={chara.name} width='80' height='80' />
                                                 <div className='chara-form-info'>
                                                     <div className='chara-form-text'>
                                                         <Typography.Title level={5} style={{ display: 'inline' }}>
