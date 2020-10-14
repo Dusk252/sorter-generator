@@ -6,6 +6,7 @@ module.exports = {
     getAll,
     getById,
     insertSorter
+    //insertImage
 };
 
 async function getAll(query, skip, take) {
@@ -35,3 +36,12 @@ async function insertSorter(sorter) {
             return false;
         });
 }
+
+// async function insertImage(url, deletehash) {
+//     return await db
+//         .get()
+//         .collection('images')
+//         .insertOne({ url, deletehash })
+//         .then(() => true)
+//         .catch(() => false);
+// }

@@ -14,6 +14,7 @@ import renderer from './helpers/renderer';
 import { createStore } from 'redux';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
+import fileUpload from 'express-fileupload';
 require('./api/auth/passportConfig');
 //import Routes from './client/Routes';
 
@@ -25,6 +26,11 @@ function shouldCompress(req, res) {
 }
 
 app.use(helmet());
+app.use(
+    fileUpload({
+        createParentPath: true
+    })
+);
 app.use(cors());
 app.use(morgan('combined')); //logging http requests
 app.use(cookieParser());
@@ -43,6 +49,7 @@ app.use(
 // api routes
 app.post('/api/test', (req, res) => res.json({ message: req.body.message + ' from server' }));
 app.use('/api/users', require('./api/users/users.controller'));
+app.use('/api/sorters', require('./api/sorters/sorters.controller'));
 app.use('/api/auth', require('./api/auth/auth.controller'));
 
 // global error handler

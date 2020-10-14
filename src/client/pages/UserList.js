@@ -45,7 +45,7 @@ const UserList = ({ users, usersPage, getUsersPage }) => {
 
 const mapStateToProps = (state) => ({
     usersPage: state.pages.users,
-    users: state.users
+    users: state.users.userList
 });
 
 const mapDispatchToProps = {

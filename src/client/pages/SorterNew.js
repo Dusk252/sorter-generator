@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { submitNewSorter, clearSubmissionError } from '../store/sorters/sortersActions';
 import { Affix, Row, Col, Steps, Form, Button, Space, Typography } from 'antd';
 import { red, volcano, orange, gold, yellow, lime, green, cyan, blue, geekblue, purple, magenta } from '@ant-design/colors';
 import CreateFormBase from '../components/sorters/CreateFormBase';
@@ -30,16 +32,27 @@ const colorOptions = [
     magenta.primary
 ];
 
-const SorterNew = () => {
+const SorterNew = ({ submitError, submitNewSorter, clearSubmissionError }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [stepStatus, setStepStatus] = useState(initialStepStatus);
     const stepForms = [...Form.useForm(), ...Form.useForm(), ...Form.useForm()];
     const [charaEditForm] = Form.useForm();
     const [editFormState, setEditFormState] = useState({ index: null, visible: false });
     const [mainFormState, setMainFormState] = useState([]);
+    const [formError, setFormError] = useState(false);
+
+    useEffect(() => {
+        clearSubmissionError();
+    }, []);
+
+    useEffect(() => {
+        if (submitError) setFormError(true);
+        else setFormError(false);
+    }, [submitError]);
 
     const handleSubmit = () => {
-        console.log(validateData(mainFormState, sorterFormSchema));
+        if (!validateData(mainFormState, sorterFormSchema).errors) submitNewSorter(mainFormState);
+        else setFormError(true);
     };
 
     const handleFormValidation = (form, formValues) => {
@@ -147,9 +160,12 @@ const SorterNew = () => {
                         )}
                         {/*--------------Step 4 - Submit--------------*/}
                         {currentStep === 3 && (
-                            <Button type='primary' block onClick={handleSubmit}>
-                                Submit Sorter
-                            </Button>
+                            <>
+                                {formError && <div>submission error goes here</div>}
+                                <Button type='primary' block onClick={handleSubmit}>
+                                    Submit Sorter
+                                </Button>
+                            </>
                         )}
                     </LayoutBlockWrapper>
                 </Col>
@@ -158,4 +174,13 @@ const SorterNew = () => {
     );
 };
 
-export default SorterNew;
+const mapStateToProps = (state) => ({
+    submitError: state.sorters.submitSorterError
+});
+
+const mapDispatchToProps = {
+    submitNewSorter,
+    clearSubmissionError
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SorterNew);

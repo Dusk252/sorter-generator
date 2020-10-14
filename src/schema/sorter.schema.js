@@ -2,9 +2,9 @@ const Joi = require('joi');
 
 export const sorterFormSchema = {
     schema: Joi.object({
-        picture: Joi.string().messages({
+        picture: Joi.any().meta({ swaggerType: 'file' }).messages({
             'any.required': 'Please upload a logo or other representative picture.',
-            'string.empty': 'Please upload a logo or other representative picture.'
+            'any.empty': 'Please upload a logo or other representative picture.'
         }),
         title: Joi.string().max(50).messages({
             'any.required': 'The sorter needs to have a title.',
@@ -45,7 +45,7 @@ export const sorterFormSchema = {
                     group: Joi.any()
                 })
             )
-            .min(3)
+            //.min(3)
             .messages({
                 'any.required': "You can't have a sorter without characters!",
                 'array.empty': "You can't have a sorter without characters!",

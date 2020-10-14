@@ -11,5 +11,9 @@ const privateCall = (method, url, body, accessToken) => {
 };
 
 export const requestList = (name, page) => {
-    return publicCall('POST', `/api/${name}`, { page });
+    return privateCall('POST', `/api/${name}`, { page });
+};
+
+export const createSorter = (sorter, accessToken) => {
+    return privateCall('POST', '/api/sorters/create', { sorter }, accessToken);
 };
