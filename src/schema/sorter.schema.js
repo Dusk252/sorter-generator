@@ -38,11 +38,12 @@ export const sorterFormSchema = {
                         'string.empty': 'A character needs to have a name.',
                         'string.max': "The name's length can't be over 50 characters."
                     }),
-                    picture: Joi.string().messages({
+                    picture: Joi.any().meta({ swaggerType: 'file' }).messages({
                         'any.required': 'A character needs to have a picture.',
-                        'string.empty': 'A character needs to have a picture.'
+                        'any.empty': 'A character needs to have a picture.'
                     }),
-                    group: Joi.any()
+                    group: Joi.number().positive().integer(),
+                    base64picture: Joi.string().optional()
                 })
             )
             //.min(3)
