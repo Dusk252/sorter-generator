@@ -1,9 +1,11 @@
+const webpack = require('webpack');
 const path = require('path');
 const merge = require('webpack-merge');
 const webpackNodeExternals = require('webpack-node-externals');
 const baseConfig = require('./webpack.base.js');
 
 const config = {
+    mode: 'production',
     // Inform webpack that we're building a bundle
     // for nodeJS, rather than for the browser
     target: 'node',
@@ -20,7 +22,14 @@ const config = {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'build')
     },
-    devtool: 'source-map'
+    devtool: 'source-map',
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env': {
+                STATIC_PATH: JSON.stringify('./public')
+            }
+        })
+    ]
 };
 
 module.exports = merge(baseConfig, config);

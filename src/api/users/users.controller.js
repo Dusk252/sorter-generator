@@ -2,7 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 const userService = require('./users.service');
-const authorize = require('../auth/authorize');
+const authorize = require('../_middleware/authorize');
 const Roles = require('../_helpers/enum').role;
 const { baseInfo, extendedInfo } = require('./users.entity');
 

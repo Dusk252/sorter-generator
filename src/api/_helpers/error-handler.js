@@ -10,7 +10,7 @@ function errorHandler(err, req, res, next) {
         // jwt authentication error
         return res.status(401).json({ message: err.message && err.message.length ? err.message : 'Invalid Token' });
     }
-
+    console.log('err: ', err);
     // default to 500 server error
     return res.status(500).json({ message: err.message });
 }

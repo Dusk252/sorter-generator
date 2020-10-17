@@ -3,12 +3,15 @@ const router = express.Router();
 const passport = require('passport');
 const axios = require('axios');
 const sorterService = require('./sorters.service');
-const authorize = require('./../auth/authorize');
+const authorize = require('../_middleware/authorize');
 const Roles = require('./../_helpers/enum').roles;
 const SorterStatus = require('./sorters.status');
-const validateSorterSubmission = require('./../../schema/sorter.schema').validateData;
+const schemaValidator = require('../_middleware/schemaValidator');
+const fileUploadHandler = require('../_middleware/fileUploadHandler');
 const sorterSchema = require('./../../schema/sorter.schema').sorterFormSchema;
+const sorterPrivacy = require('../_helpers/enum').sorterPrivacy;
 const imgurClientKey = require('./../config.json').imgur.oauth_key;
+const ObjectID = require('mongodb').ObjectID;
 
 // routes
 router.get('/', getPublic);
@@ -16,7 +19,20 @@ router.get('/all', getAll); // sorters list
 router.get('/:status', getByStatus); // get public, awaiting approval, private, etc
 router.get('/mySorters', getUserCreated); // sorters created by specific user
 router.get('/:id', getById); // view a sorter
-router.post('/create', passport.authenticate('jwt', { session: false }), createSorter); // create a new sorter
+router.post(
+    '/create',
+    passport.authenticate('jwt', { session: false }),
+    fileUploadHandler({
+        createParentPath: true,
+        parseNested: true,
+        abortOnLimit: true,
+        limits: { fileSize: 3 * 1024 * 1024 },
+        mimeTypeRegex: /image\/(p?jpeg|(x-)?png)/,
+        uploadPath: '/data/uploads/'
+    }),
+    schemaValidator(sorterSchema),
+    createSorter
+); // create a new sorter
 module.exports = router;
 
 function getAll(req, res, next) {
@@ -62,40 +78,51 @@ function getById(req, res, next) {
 }
 
 function createSorter(req, res, next) {
-    const sorter = req.body.sorter;
     if (!req.user) res.status(401).json({ message: 'Unauthorized' });
-    else if (validateSorterSubmission(sorter, sorterSchema).errors)
-        res.status(400).json({ message: 'Invalid sorter object' });
-    else res.status(200).json({ sorter });
-    // sorterService
-    //     .insertSorter(sorter)
-    //     .then()
-    //     .catch((err) => next(err));
+    const sorter = mapSorterRequest(req.body, req.user);
+
+    sorterService
+        .insertSorter(sorter)
+        .then((insertedSorter) => res.json(insertedSorter))
+        .catch((err) => next(err));
 }
 
-// const formUrlEncoded = (x) => Object.keys(x).reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, '');
+function mapSorterRequest(sorterObj, user) {
+    return {
+        basic_info: {
+            name: sorterObj.name,
+            created_by: new ObjectID(user.id),
+            created_date: new Date(),
+            privacy: sorterObj.privacy ? sorterPrivacy.PRIVATE : sorterPrivacy.PUBLIC,
+            favorites: 0,
+            total_plays: 0,
+            tags: sorterObj.tags ?? []
+        },
+        extended_info: {
+            groups: sorterObj.groups ?? [],
+            characters: sorterObj.characters
+        }
+    };
+}
 
-// async function storeImg(req, res, next) {
-//     const image = req.files.picture;
-//     try {
-//         const response = await axios.post(
-//             'https://api.imgur.com/3/upload',
-//             formUrlEncoded({
-//                 image: image.data.toString('base64'),
-//                 type: 'base64'
-//             }).substring(1),
-//             {
-//                 headers: {
-//                     Authorization: `Client-ID ${imgurClientKey}`,
-//                     'Content-Type': 'application/x-www-form-urlencoded'
-//                 }
+//const formUrlEncoded = (x) => Object.keys(x).reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, '');
+
+// async function storeImg(image) {
+//     const response = await axios.post(
+//         'https://api.imgur.com/3/upload',
+//         formUrlEncoded({
+//             image: image.data.toString('base64'),
+//             type: 'base64'
+//         }).substring(1),
+//         {
+//             headers: {
+//                 Authorization: `Client-ID ${imgurClientKey}`,
+//                 'Content-Type': 'application/x-www-form-urlencoded'
 //             }
-//         );
-//         const url = response.data.data.link;
-//         const deleteHash = response.data.data.deletehash;
-//         sorterService.insertImage(url, deleteHash);
-//         res.status(200).json({ url, deleteHash });
-//     } catch (err) {
-//         next(err);
-//     }
+//         }
+//     );
+//     const url = response.data.data.link;
+//     const deleteHash = response.data.data.deletehash;
+//     sorterService.insertImage(url, deleteHash);
+//     return url;
 // }

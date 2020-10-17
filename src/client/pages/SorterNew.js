@@ -7,7 +7,7 @@ import CreateFormBase from '../components/sorters/CreateFormBase';
 import CreateFormGroups from '../components/sorters/CreateFormGroups';
 import CreateFormCharacters from '../components/sorters/CreateFormCharacters';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
-import { validateData } from './../../schema/sorter.schema';
+import { validateData } from './../../schema/clientValidation';
 import { sorterFormSchema } from './../../schema/sorter.schema';
 
 const lastStep = 3;
@@ -51,7 +51,12 @@ const SorterNew = ({ submitError, submitNewSorter, clearSubmissionError }) => {
     }, [submitError]);
 
     const handleSubmit = () => {
-        if (!validateData(mainFormState, sorterFormSchema).errors) submitNewSorter(mainFormState);
+        const validatedData = validateData(mainFormState, sorterFormSchema, null, {
+            abortEarly: true,
+            allowUnknown: true,
+            stripUnknown: true
+        });
+        if (!validatedData.errors) submitNewSorter(validatedData.values);
         else setFormError(true);
     };
 
@@ -59,7 +64,10 @@ const SorterNew = ({ submitError, submitNewSorter, clearSubmissionError }) => {
         formValues = formValues ?? form.getFieldsValue();
         let fields = formValues ? Object.keys(formValues) : null;
 
-        const { values, errors } = validateData(formValues, sorterFormSchema, fields);
+        const { values, errors } = validateData(formValues, sorterFormSchema, fields, {
+            abortEarly: false,
+            allowUnknown: true
+        });
         fields = fields ?? Object.keys(values);
 
         if (errors) {
@@ -115,7 +123,7 @@ const SorterNew = ({ submitError, submitNewSorter, clearSubmissionError }) => {
                                 <Steps.Step
                                     title='Basic Info'
                                     status={stepStatus[0].cur}
-                                    description='Sorter title, etc...'
+                                    description='Sorter name, etc...'
                                 />
                                 <Steps.Step title='Groups' status={stepStatus[1].cur} description='Add selectable groups' />
                                 <Steps.Step

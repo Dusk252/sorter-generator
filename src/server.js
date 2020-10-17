@@ -14,7 +14,6 @@ import renderer from './helpers/renderer';
 import { createStore } from 'redux';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
-import fileUpload from 'express-fileupload';
 require('./api/auth/passportConfig');
 //import Routes from './client/Routes';
 
@@ -26,17 +25,12 @@ function shouldCompress(req, res) {
 }
 
 app.use(helmet());
-app.use(
-    fileUpload({
-        createParentPath: true
-    })
-);
 app.use(cors());
 app.use(morgan('combined')); //logging http requests
+app.use(express.static('public'));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(passport.initialize());
 
 app.use(

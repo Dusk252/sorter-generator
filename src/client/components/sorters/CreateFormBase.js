@@ -30,8 +30,8 @@ const CreateFormBase = ({ form, formName, onValuesChange }) => {
                     />
                 </Form.Item>
                 <div className='base-form-right'>
-                    <Form.Item name='title'>
-                        <Input placeholder='Title' autoComplete='off' />
+                    <Form.Item name='name'>
+                        <Input placeholder='Name' autoComplete='off' />
                     </Form.Item>
                     <Form.Item name='tags'>
                         <TagGroup

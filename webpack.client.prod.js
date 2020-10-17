@@ -44,13 +44,13 @@ const config = {
     devtool: 'inline-source-map',
     plugins: [
         // new BundleAnalyzerPlugin(),
-        new CompressionPlugin(),
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: JSON.stringify('production'),
-                BROWSER: JSON.stringify(true)
-            }
-        })
+        new CompressionPlugin()
+        // new webpack.DefinePlugin({
+        //     'process.env': {
+        //         NODE_ENV: JSON.stringify('production'),
+        //         BROWSER: JSON.stringify(true)
+        //     }
+        // })
     ]
 };
 

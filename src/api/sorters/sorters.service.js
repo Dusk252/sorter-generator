@@ -29,8 +29,9 @@ async function insertSorter(sorter) {
         .get()
         .collection('sorters')
         .insertOne(sorter)
-        .then(() => {
-            return true;
+        .then((result) => {
+            sorter._id = result.insertedId;
+            return sorter;
         })
         .catch(() => {
             return false;

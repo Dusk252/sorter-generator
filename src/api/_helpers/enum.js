@@ -1,22 +1,31 @@
-const role = {
-    ADMIN: 'Admin',
-    USER: 'User'
-};
+const keyMirror = require('keyMirror');
 
-const tokenType = {
-    ACCESS_TOKEN: 'ACCESS_TOKEN',
-    REFRESH_TOKEN: 'REFRESH_TOKEN'
-};
+const role = keyMirror({
+    ADMIN: null,
+    USER: null
+});
 
-const accountState = {
-    ACTIVE: 'Active',
-    PENDING: 'Pending',
-    SUSPENDED: 'Suspended',
-    DELETED: 'Deleted'
-};
+const tokenType = keyMirror({
+    ACCESS_TOKEN: null,
+    REFRESH_TOKEN: null
+});
+
+const accountState = keyMirror({
+    ACTIVE: null,
+    PENDING: null,
+    SUSPENDED: null,
+    DELETED: null
+});
+
+const sorterPrivacy = keyMirror({
+    PUBLIC: null,
+    UNLISTED: null,
+    PRIVATE: null
+});
 
 module.exports = {
     role,
     tokenType,
-    accountState
+    accountState,
+    sorterPrivacy
 };

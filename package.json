@@ -47,6 +47,7 @@
         "file-loader": "^6.1.0",
         "helmet": "^3.22.0",
         "joi": "^17.2.1",
+        "json-form-data": "^1.7.2",
         "jsonwebtoken": "^8.5.1",
         "mongodb": "^3.5.7",
         "morgan": "^1.10.0",

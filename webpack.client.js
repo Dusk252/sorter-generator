@@ -13,14 +13,14 @@ const config = {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'public')
     },
-    devtool: 'cheap-module-source-map', //source map lets us see original code in the browser when debugging
-    plugins: [
-        new webpack.DefinePlugin({
-            'process.env': {
-                BROWSER: JSON.stringify(true)
-            }
-        })
-    ]
+    devtool: 'cheap-module-source-map' //source map lets us see original code in the browser when debugging
+    // plugins: [
+    //     new webpack.DefinePlugin({
+    //         'process.env': {
+    //             BROWSER: JSON.stringify(true)
+    //         }
+    //     })
+    // ]
 };
 
 module.exports = merge(baseConfig, config);
