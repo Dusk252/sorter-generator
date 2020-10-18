@@ -12,6 +12,7 @@ function* processGetPage({ name, page, isPrivate }) {
         yield put(actions.populateState({ name, payload: res.data }));
         yield put(actions.resolveRequest({ name, meta: null, payload: { page: page, items: res.data } }));
     } catch (err) {
+        console.log(err);
         yield put(actions.rejectRequest({ error: err.error }));
     }
 }

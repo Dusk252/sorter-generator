@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import LoginResult from './pages/LoginResult';
 import UserList from './pages/UserList';
+import SorterList from './pages/SorterList';
 import SorterNew from './pages/SorterNew';
 
 const routes = [
@@ -27,6 +28,11 @@ const routes = [
             {
                 component: UserList,
                 path: '/users',
+                exact: true
+            },
+            {
+                component: SorterList,
+                path: '/sorters',
                 exact: true
             },
             {

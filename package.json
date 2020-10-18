@@ -51,6 +51,7 @@
         "jsonwebtoken": "^8.5.1",
         "mongodb": "^3.5.7",
         "morgan": "^1.10.0",
+        "nanoid": "^3.1.12",
         "oauth-1.0a": "^2.2.6",
         "passport": "^0.4.1",
         "passport-custom": "^1.1.1",

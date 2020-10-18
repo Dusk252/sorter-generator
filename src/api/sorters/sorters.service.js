@@ -2,18 +2,26 @@ const config = require('./../config.json');
 const db = require('./../db');
 const ObjectID = require('mongodb').ObjectID;
 
+const pageSize = 10;
+
 module.exports = {
-    getAll,
+    getSorterList,
     getById,
     insertSorter
     //insertImage
 };
 
-async function getAll(query, skip, take) {
+async function getSorterList(query, page) {
     return await db
         .get()
         .collection('sorters')
-        .aggregate([{ $match: query }, { $skip: skip }, { $limit: take }])
+        .aggregate([
+            { $match: query },
+            { $sort: { _id: -1 } },
+            { $skip: (page - 1) * pageSize },
+            { $limit: pageSize },
+            { $project: { basic_info: 1 } }
+        ])
         .toArray();
 }
 

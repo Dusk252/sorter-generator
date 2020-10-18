@@ -5,16 +5,15 @@ const axios = require('axios');
 const sorterService = require('./sorters.service');
 const authorize = require('../_middleware/authorize');
 const Roles = require('./../_helpers/enum').roles;
-const SorterStatus = require('./sorters.status');
+const sorterPrivacy = require('./../_helpers/enum').sorterPrivacy;
 const schemaValidator = require('../_middleware/schemaValidator');
 const fileUploadHandler = require('../_middleware/fileUploadHandler');
 const sorterSchema = require('./../../schema/sorter.schema').sorterFormSchema;
-const sorterPrivacy = require('../_helpers/enum').sorterPrivacy;
 const imgurClientKey = require('./../config.json').imgur.oauth_key;
 const ObjectID = require('mongodb').ObjectID;
 
 // routes
-router.get('/', getPublic);
+router.post('/', getPublic);
 router.get('/all', getAll); // sorters list
 router.get('/:status', getByStatus); // get public, awaiting approval, private, etc
 router.get('/mySorters', getUserCreated); // sorters created by specific user
@@ -36,17 +35,21 @@ router.post(
 module.exports = router;
 
 function getAll(req, res, next) {
-    sorterService
-        .getAll({}, 0, 10)
-        .then((sorters) => res.json(sorters))
-        .catch((err) => next(err));
+    if (Number.isInteger(req.body.page)) {
+        sorterService
+            .getSorterList({}, req.body.page)
+            .then((sorters) => res.json(sorters))
+            .catch((err) => next(err));
+    }
 }
 
 function getPublic(req, res, next) {
-    sorterService
-        .getAll({ status: SorterStatus.PUBLIC }, 0, 10)
-        .then((sorters) => res.json(sorters))
-        .catch((err) => next(err));
+    if (Number.isInteger(req.body.page)) {
+        sorterService
+            .getSorterList({ 'basic_info.privacy': sorterPrivacy.PUBLIC }, req.body.page)
+            .then((sorters) => res.json(sorters))
+            .catch((err) => next(err));
+    }
 }
 
 function getByStatus(req, res, next) {

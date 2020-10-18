@@ -15,7 +15,7 @@ export const MESSAGES = keyMirror({
     REQUEST_REJECTED: null,
     RESET_HASMORE_CHECK: null,
     POPULATE_USERS_STATE: null,
-    POPULATE_SORTER_STATE: null
+    POPULATE_SORTERS_STATE: null
 });
 
 const genStateMessage = (name) => `POPULATE_${name.toUpperCase()}_STATE`;
@@ -37,5 +37,5 @@ export const startRequest = () => ({ type: MESSAGES.REQUEST_STARTED });
 export const resolveRequest = ({ name, meta, payload }) => ({ type: MESSAGES.REQUEST_RESOLVED, name, meta, payload });
 export const rejectRequest = (payload) => ({ type: MESSAGES.REQUEST_REJECTED, payload });
 
-export const resetHasMoreCheck = (name) => ({ type: MESSAGES.RESET_HASMORE_CHECK, name: 'users' });
+export const resetHasMoreCheck = (name) => ({ type: MESSAGES.RESET_HASMORE_CHECK, name });
 export const populateState = ({ name, payload }) => ({ type: MESSAGES[genStateMessage(name)], payload });
