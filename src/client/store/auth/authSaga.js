@@ -1,6 +1,6 @@
 import { put, call, takeLatest, all } from 'redux-saga/effects';
 import * as AuthActions from './authActions';
-import { refreshToken, localLogin } from './../../apiCalls/publicCalls';
+import { refreshToken, localLogin } from './../apiCalls';
 
 const { SIGNALS, MESSAGES, ...actions } = AuthActions;
 
@@ -9,7 +9,7 @@ function* processLocalLogin({ email, password, callback }) {
     try {
         yield call(localLogin, email, password);
         yield put(actions.resolveAuth());
-        yield call(callback);
+        if (typeof callback === 'function') yield call(callback);
     } catch {
         yield put(actions.rejectAuth());
     }
@@ -20,7 +20,7 @@ function* processGetNewToken({ callback }) {
     try {
         const res = yield call(refreshToken);
         yield put(actions.resolveGetNewToken({ accessToken: res.data.accessToken, currentUser: res.data.user }));
-        yield call(callback);
+        if (typeof callback === 'function') yield call(callback);
     } catch {
         yield put(actions.rejectAuth());
     }

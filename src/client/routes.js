@@ -5,6 +5,7 @@ import LoginResult from './pages/LoginResult';
 import UserList from './pages/UserList';
 import SorterList from './pages/SorterList';
 import SorterNew from './pages/SorterNew';
+import SorterPage from './pages/SorterPage';
 
 const routes = [
     {
@@ -38,6 +39,11 @@ const routes = [
             {
                 component: SorterNew,
                 path: '/sorters/new',
+                exact: true
+            },
+            {
+                component: SorterPage,
+                path: '/sorters/:id',
                 exact: true
             }
         ]

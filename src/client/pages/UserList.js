@@ -5,12 +5,14 @@ import { getUsersPage, resetHasMoreCheck } from '../store/pagination/paginationA
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import InfiniteLoader from './../components/general/InfiniteLoader';
 
-const UserItem = ({ data }) => data.baseInfo.profile.username;
+const UserItem = ({ data }) => {
+    data.baseInfo.profile.username;
+};
 
 const UserList = ({ users, usersPage, getUsersPage }) => {
     return (
         <LayoutBlockWrapper>
-            <div className='userList'>
+            <div className='user-list'>
                 <InfiniteLoader
                     data={users}
                     page={usersPage}

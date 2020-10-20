@@ -4,21 +4,19 @@ import { connect } from 'react-redux';
 import { getSortersPage, resetHasMoreCheck } from '../store/pagination/paginationActions';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import InfiniteLoader from './../components/general/InfiniteLoader';
-
-const SorterItem = ({ data }) => data.baseInfo.name;
+import SorterListItem from './../components/sorters/SorterListItem';
 
 const SorterList = ({ sorters, sortersPage, getSortersPage }) => {
-    console.log(sorters);
     return (
         <LayoutBlockWrapper>
-            <div className='userList'>
+            <div className='sorter-list'>
                 <InfiniteLoader
                     data={sorters}
                     page={sortersPage}
                     pageName='sorters'
                     getPage={getSortersPage}
                     resetHasMoreCheck={resetHasMoreCheck}
-                    ListItem={SorterItem}
+                    ListItem={SorterListItem}
                 ></InfiniteLoader>
             </div>
         </LayoutBlockWrapper>

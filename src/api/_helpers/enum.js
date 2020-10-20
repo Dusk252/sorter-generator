@@ -17,7 +17,7 @@ const accountState = keyMirror({
     DELETED: null
 });
 
-const sorterPrivacy = keyMirror({
+const sorterStatus = keyMirror({
     PUBLIC: null,
     UNLISTED: null,
     PRIVATE: null
@@ -27,5 +27,5 @@ module.exports = {
     role,
     tokenType,
     accountState,
-    sorterPrivacy
+    sorterStatus
 };

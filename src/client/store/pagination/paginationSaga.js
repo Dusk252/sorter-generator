@@ -1,14 +1,13 @@
 import { put, call, takeLatest, all } from 'redux-saga/effects';
 import * as PageActions from './paginationActions';
-import { requestList as requestPublicList } from './../../apiCalls/publicCalls';
-import { requestList as requestPrivateList } from './../../apiCalls/privateCalls';
+import { requestList } from './../apiCalls';
 
 const { SIGNALS, MESSAGES, ...actions } = PageActions;
 
 function* processGetPage({ name, page, isPrivate }) {
     yield put(actions.startRequest());
     try {
-        const res = yield call(isPrivate ? requestPrivateList : requestPublicList, name, page);
+        const res = yield call(requestList, name, page);
         yield put(actions.populateState({ name, payload: res.data }));
         yield put(actions.resolveRequest({ name, meta: null, payload: { page: page, items: res.data } }));
     } catch (err) {

@@ -30,7 +30,7 @@ const InfiniteLoader = ({ data, page, pageName, getPage, resetHasMoreCheck, List
     return (
         <>
             {page.items.map((id) => {
-                return <div key={id}>{<ListItem data={data[id]}></ListItem>}</div>;
+                return <ListItem data={data[id]} key={id}></ListItem>;
             })}
             <div ref={loader}></div>
         </>

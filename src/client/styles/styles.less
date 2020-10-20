@@ -30,6 +30,7 @@
 }
 .block-wrapper {
     padding: 50px 0;
+    width: 100%;
 }
 .small-box {
     max-width: 500px;
@@ -193,6 +194,59 @@
         text-align: center;
         .ant-form-item-control-input {
             display: none;
+        }
+    }
+}
+
+//SorterList
+
+.sorter-list {
+    &-item {
+        display: flex;
+        background-color: @background-color-light;
+        margin-bottom: 25px;
+        height: 150px;
+        border-bottom: 5px solid @primary-color;
+        &-img {
+            width: 300px;
+            display: flex;
+            img {
+                object-fit: contain;
+                width: 100%;
+                height: auto;
+            }
+        }
+        &-center {
+            padding: 25px;
+            display: flex;
+            flex-grow: 1;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        &-right {
+            padding: 15px;
+            display: flex;
+            flex-grow: 1;
+            justify-content: flex-end;
+        }
+        &-tags {
+            margin-top: 10px;
+        }
+        &-stats {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: right;
+        }
+        &-favorite {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 15px 15px 25px;
+            svg {
+                width: 30px;
+                height: 30px;
+            }
         }
     }
 }

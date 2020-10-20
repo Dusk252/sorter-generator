@@ -3,7 +3,7 @@ let sorter = {
         picture: '',
         name: '',
         creator_id: '',
-        privacy: '',
+        status: '',
         favorites: '',
         creation_date: '',
         tags: []

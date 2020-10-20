@@ -4,8 +4,9 @@ const passport = require('passport');
 const axios = require('axios');
 const sorterService = require('./sorters.service');
 const authorize = require('../_middleware/authorize');
+const extractUser = require('../_middleware/extractUser');
 const Roles = require('./../_helpers/enum').roles;
-const sorterPrivacy = require('./../_helpers/enum').sorterPrivacy;
+const sorterStatus = require('./../_helpers/enum').sorterStatus;
 const schemaValidator = require('../_middleware/schemaValidator');
 const fileUploadHandler = require('../_middleware/fileUploadHandler');
 const sorterSchema = require('./../../schema/sorter.schema').sorterFormSchema;
@@ -15,9 +16,9 @@ const ObjectID = require('mongodb').ObjectID;
 // routes
 router.post('/', getPublic);
 router.get('/all', getAll); // sorters list
-router.get('/:status', getByStatus); // get public, awaiting approval, private, etc
+//router.get('/:status', getByStatus); // get public, awaiting approval, private, etc
+router.get('/:id', extractUser(), getById); // view a sorter
 router.get('/mySorters', getUserCreated); // sorters created by specific user
-router.get('/:id', getById); // view a sorter
 router.post(
     '/create',
     passport.authenticate('jwt', { session: false }),
@@ -46,7 +47,7 @@ function getAll(req, res, next) {
 function getPublic(req, res, next) {
     if (Number.isInteger(req.body.page)) {
         sorterService
-            .getSorterList({ 'basic_info.privacy': sorterPrivacy.PUBLIC }, req.body.page)
+            .getSorterList({ 'basic_info.status': sorterStatus.PUBLIC }, req.body.page)
             .then((sorters) => res.json(sorters))
             .catch((err) => next(err));
     }
@@ -72,10 +73,10 @@ function getByStatus(req, res, next) {
 function getUserCreated(req, res, next) {}
 
 function getById(req, res, next) {
-    const id = parseInt(req.params.id);
-
+    const id = req.params.id;
+    const userId = req.user ? req.user.id : null;
     sorterService
-        .getById(req.params.id, req.user.id)
+        .getById(id, userId)
         .then((sorter) => (sorter ? res.json(sorter) : res.sendStatus(404)))
         .catch((err) => next(err));
 }
@@ -94,9 +95,11 @@ function mapSorterRequest(sorterObj, user) {
     return {
         basic_info: {
             name: sorterObj.name,
+            picture: sorterObj.picture,
+            description: sorterObj.description,
             created_by: new ObjectID(user.id),
             created_date: new Date(),
-            privacy: sorterObj.privacy ? sorterPrivacy.PRIVATE : sorterPrivacy.PUBLIC,
+            status: sorterObj.privacy ? sorterStatus.PRIVATE : sorterStatus.PUBLIC,
             favorites: 0,
             total_plays: 0,
             tags: sorterObj.tags ?? []
