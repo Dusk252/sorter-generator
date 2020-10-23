@@ -1,129 +1,221 @@
 import React, { useState, useEffect } from 'react';
 
-const getRoundEstimates = (n) => {
-    const nRounds = Math.ceil(Math.log2(n));
-    let chunkSize = 1;
-    let roundSize = Math.floor(n / (2 * chunkSize));
-    let roundEstimates = [];
-    for (let i = 0; i < nRounds; i++) {
-        roundEstimates[i].push(roundSize * (2 * chunkSize - 1));
-        chunkSize = chunkSize * 2;
-        roundSize = Math.floor(n / (2 * chunkSize));
+const copyOverRemaining = (sourceList, destList, startI) => {
+    const res = [...destList];
+    for (let i = startI; i < sourceList.length; i++) {
+        res.push(sourceList[i]);
     }
-    console.log(roundEstimates);
-    return roundEstimates;
+    return res;
 };
 
 const Sorter = ({ characters }) => {
     const arrLenght = characters.length;
+    const nRounds = Math.ceil(Math.log2(arrLenght));
 
-    const [ties, setTies] = useState({});
-    const [progress, setProgress] = useState({
-        totalCharacters: characters.length,
-        totalMoves: characters.length * Math.log2(characters.length),
-        elapsedMoves: 0
-    });
     const [curMatch, setCurMatch] = useState({ left: null, right: null });
+    const [toggleClick, setToggleClick] = useState(true);
 
-    const [calcArrays, setCalcArrays] = useState({
-        sorted: characters,
-        buffer: new Array(characters.length)
+    const [ties, setTies] = useState(new Array(characters.length));
+    const [handlingTie, setHandlingTie] = useState(false);
+    const [progress, setProgress] = useState({
+        roundLen: characters.length - 1,
+        totalOps: nRounds * (characters.length - 1),
+        elapsedOps: 0
     });
+
     const [calcState, setCalcState] = useState({
-        size: 1,
-        leftStart: 0,
-        left: 0,
-        right: 1,
-        leftLimit: 1,
-        rightLimit: 2,
-        counter: 0
+        currentRound: 1,
+        currentRoundArr: characters.map((_, index) => [index]),
+        nextRoundArr: [],
+        currentLList: 0,
+        currentRList: 1,
+        curResList: [],
+        leftP: 0,
+        rightP: 0,
+        extraRound: false,
+        extraRoundList: null
     });
 
+    const [prevState, setPrevState] = useState(null);
     const [isFinished, setFinished] = useState(false);
 
-    useEffect(() => {
-        if (calcState.left < calcState.leftLimit && calcState.right < calcState.rightLimit) {
-            if (ties[calcArrays.sorted[calcState.left].name]) copyLeft();
-            else if (ties[calcArrays.sorted[calcState.right].name]) copyRight();
-            else setCurMatch({ left: calcArrays.sorted[calcState.left], right: calcArrays.sorted[calcState.right] });
-        } else if (calcState.left < calcState.leftLimit) {
-            copyLeft();
-        } else if (calcState.right < calcState.rightLimit) {
-            copyRight();
-        } else {
-            setCalcState((prev) => {
-                const newLeftStart = prev.leftStart + 2 * prev.size;
-                if (newLeftStart < arrLenght) return { ...prev, leftStart: newLeftStart };
-                else {
-                    setCalcArrays((prev) => ({
-                        buffer: prev.sorted,
-                        sorted: prev.buffer
-                    }));
+    const processStepUpdates = ({ leftStep, rightStep, tie = false }) => {
+        const currentLList = calcState.extraRound
+            ? calcState.extraRoundList
+            : calcState.currentRoundArr[calcState.currentLList];
+        const currentRList = calcState.currentRoundArr[calcState.currentRList];
+        const addItem = leftStep > 0 ? currentLList[calcState.leftP] : currentRList[calcState.rightP];
+        const pointerKey = leftStep > 0 ? 'leftP' : 'rightP';
 
-                    const newSize = prev.size * 2;
-                    if (newSize < arrLenght) {
-                        return { ...prev, size: newSize, leftStart: 0 };
-                    } else {
-                        setFinished(true);
-                        return prev;
-                    }
-                }
-            });
-        }
-    }, [calcState.left, calcState.right]);
-
-    useEffect(() => {
-        setCalcState((prev) => {
-            const right = Math.min(prev.leftStart + prev.size, arrLenght);
-            return {
+        if (calcState.leftP + leftStep < currentLList.length && calcState.rightP + rightStep < currentRList.length) {
+            setCalcState((prev) => ({
                 ...prev,
-                left: prev.leftStart,
-                right: right,
-                leftLimit: right,
-                rightLimit: Math.min(right + prev.size, arrLenght),
-                counter: prev.leftStart
-            };
-        });
-    }, [calcState.leftStart]);
-
-    const copyLeft = () => {
-        setCalcArrays((prev) => ({
-            ...prev,
-            buffer: Object.assign([...prev.buffer], { [calcState.counter]: prev.sorted[calcState.left] })
-        }));
-        setCalcState((prev) => ({ ...prev, left: prev.left + 1, counter: prev.counter + 1 }));
+                curResList: [...prev.curResList, addItem],
+                [pointerKey]: prev[pointerKey] + 1
+            }));
+            setProgress((prev) => ({ ...prev, elapsedOps: prev.elapsedOps + 1 }));
+        } else if (calcState.leftP + leftStep >= currentLList.length) {
+            const resList = copyOverRemaining(currentRList, [...calcState.curResList, addItem], calcState.rightP);
+            setProgress((prev) => ({ ...prev, elapsedOps: prev.elapsedOps + currentRList.length - calcState.rightP + 1 }));
+            processRoundUpdates(resList);
+        } else if (calcState.rightP + rightStep >= currentRList.length) {
+            const resList = copyOverRemaining(
+                currentLList,
+                [...calcState.curResList, addItem],
+                tie ? calcState.leftP + 1 : calcState.leftP
+            );
+            setProgress((prev) => ({ ...prev, elapsedOps: prev.elapsedOps + currentLList.length - calcState.leftP + 1 }));
+            processRoundUpdates(resList);
+        }
     };
 
-    const copyRight = () => {
-        setCalcArrays((prev) => ({
-            ...prev,
-            buffer: Object.assign([...prev.buffer], { [calcState.counter]: prev.sorted[calcState.right] })
-        }));
-        setCalcState((prev) => ({ ...prev, right: prev.right + 1, counter: prev.counter + 1 }));
+    const processRoundUpdates = (resList) => {
+        if (calcState.extraRound) {
+            setCalcState((prev) => ({
+                ...prev,
+                curResList: [],
+                currentRound: prev.currentRound + 1,
+                currentRoundArr: Object.assign([...prev.nextRoundArr], { 0: resList }),
+                currentLList: 0,
+                currentRList: 1,
+                leftP: 0,
+                rightP: 0,
+                nextRoundArr: [],
+                extraRound: false,
+                extraRoundList: null
+            }));
+        } else if (calcState.currentRList + 2 >= calcState.currentRoundArr.length) {
+            if (!(calcState.currentLList + 2 < calcState.currentRoundArr.length)) {
+                setCalcState((prev) => ({
+                    ...prev,
+                    curResList: [],
+                    currentRound: prev.currentRound + 1,
+                    currentRoundArr: [...prev.nextRoundArr, resList],
+                    currentLList: 0,
+                    currentRList: 1,
+                    leftP: 0,
+                    rightP: 0,
+                    nextRoundArr: [],
+                    extraRound: false,
+                    extraRoundList: null
+                }));
+            } else {
+                setCalcState((prev) => ({
+                    ...prev,
+                    curResList: [],
+                    currentLList: -1,
+                    currentRList: prev.currentLList + 2,
+                    leftP: 0,
+                    rightP: 0,
+                    nextRoundArr: [...prev.nextRoundArr, resList],
+                    extraRound: true,
+                    extraRoundList: prev.nextRoundArr[0]
+                }));
+            }
+        } else {
+            setCalcState((prev) => ({
+                ...prev,
+                curResList: [],
+                currentLList: prev.currentLList + 2,
+                currentRList: prev.currentRList + 2,
+                leftP: 0,
+                rightP: 0,
+                nextRoundArr: [...prev.nextRoundArr, resList]
+            }));
+        }
     };
+
+    useEffect(() => {
+        if (calcState.currentRound === nRounds) setFinished(true);
+        else {
+            const leftChar = calcState.extraRound
+                ? characters[calcState.extraRoundList[calcState.leftP]]
+                : characters[calcState.currentRoundArr[calcState.currentLList][calcState.leftP]];
+            const rightChar = characters[calcState.currentRoundArr[calcState.currentRList][calcState.rightP]];
+
+            if (leftChar && rightChar) {
+                setCurMatch({
+                    left: leftChar,
+                    right: rightChar
+                });
+                setToggleClick(true);
+            }
+        }
+    }, [calcState]);
+
+    useEffect(() => {
+        if (handlingTie) {
+            processStepUpdates({ leftStep: 1, rightStep: 0, tie: true });
+            setHandlingTie(false);
+        }
+    }, [handlingTie]);
 
     const handleLeftClick = () => {
-        setProgress((prev) => ({ ...prev, elapsedMoves: prev.elapsedMoves + 1 }));
-        copyLeft();
+        if (toggleClick) {
+            setToggleClick(false);
+            setPrevState({
+                calcState: calcState,
+                ties: ties
+            });
+            processStepUpdates({ leftStep: 1, rightStep: 0 });
+        }
     };
 
     const handleRightClick = () => {
-        setProgress((prev) => ({ ...prev, elapsedMoves: prev.elapsedMoves + 1 }));
-        copyRight();
+        if (toggleClick) {
+            setToggleClick(false);
+            setPrevState({
+                calcState: calcState,
+                ties: ties
+            });
+            processStepUpdates({ leftStep: 0, rightStep: 1 });
+        }
     };
 
     const handleTie = () => {
-        setProgress((prev) => ({
-            ...prev,
-            totalCharacters: prev.totalCharacters - 1,
-            totalMoves: prev.totalCharacters - 1 * Math.log2(prev.totalCharacters - 1)
-        }));
-        setTies((prev) => {
-            let newState = { ...prev };
-            newState[curMatch.right.name] = true;
-            return newState;
-        });
-        copyLeft();
+        if (toggleClick) {
+            setToggleClick(false);
+            setPrevState({
+                calcState: calcState,
+                ties: ties
+            });
+            const leftChar = calcState.extraRound
+                ? calcState.extraRoundList[calcState.leftP]
+                : calcState.currentRoundArr[calcState.currentLList][calcState.leftP];
+            const rightChar = calcState.currentRoundArr[calcState.currentRList][calcState.rightP];
+            setTies((prev) => {
+                let newState = { ...prev };
+                if (newState[leftChar]) newState[leftChar].push(rightChar);
+                else newState[leftChar] = [rightChar];
+                return newState;
+            });
+            const newRightArr = [...calcState.currentRoundArr[calcState.currentRList]];
+            newRightArr.splice(calcState.rightP, 1);
+            setCalcState((prev) => ({
+                ...prev,
+                currentRoundArr: Object.assign([...prev.currentRoundArr], { [prev.currentRList]: newRightArr })
+            }));
+            setProgress((prev) => {
+                const elapsedThisRound = prev.elapsedOps - (calcState.currentRound - 1) * prev.roundLen;
+                return {
+                    ...prev,
+                    roundLen: prev.roundLen - 1,
+                    totalOps:
+                        (calcState.currentRound - 1) * prev.roundLen +
+                        Math.max(prev.roundLen - 1, Math.round(elapsedThisRound + (prev.roundLen - 1) / 2)) +
+                        (nRounds - calcState.currentRound) * (prev.roundLen - 1)
+                };
+            });
+            setHandlingTie(true);
+        }
+    };
+
+    const handleUndo = () => {
+        if (toggleClick && prevState != null) {
+            setTies(prevState.ties);
+            setCalcState(prevState.calcState);
+            setPrevState(null);
+        }
     };
 
     let counter = 0;
@@ -131,16 +223,25 @@ const Sorter = ({ characters }) => {
 
     return (
         <>
-            <div>Progress: {Math.round((progress.elapsedMoves * 100) / progress.totalMoves)}%</div>
+            <div>Progress: {Math.min(Math.round((progress.elapsedOps * 100) / progress.totalOps), 100)}%</div>
             {isFinished ? (
                 <div>
-                    {calcArrays.sorted.map((char, index) => {
-                        if (ties[char.name]) tieCount++;
+                    {calcState.currentRoundArr[0].map((char) => {
+                        counter = counter + 1;
+                        if (ties[char]) tieCount = tieCount + ties[char].length;
                         else {
-                            counter = counter + tieCount + 1;
+                            counter = counter + tieCount;
                             tieCount = 0;
                         }
-                        return <div key={index}>{`${counter}. ${char.name}`}</div>;
+                        return (
+                            <>
+                                <div key={char}>{`${counter}. ${characters[char].name}`}</div>
+                                {ties[char] &&
+                                    ties[char].map((tieChar) => (
+                                        <div key={tieChar}>{`${counter}. ${characters[tieChar].name}`}</div>
+                                    ))}
+                            </>
+                        );
                     })}
                 </div>
             ) : (
@@ -151,6 +252,7 @@ const Sorter = ({ characters }) => {
                             <img src={curMatch.left.picture} />
                         </div>
                         <div onClick={handleTie}>TIE</div>
+                        <div onClick={handleUndo}>UNDO</div>
                         <div onClick={handleRightClick}>
                             <img src={curMatch.right.picture} />
                         </div>
