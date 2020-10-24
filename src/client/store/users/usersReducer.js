@@ -11,7 +11,9 @@ const usersReducer = (state = initialState, action) => {
             let userList = { ...state.userList };
             payload.forEach((user) => {
                 if (!userList[user._id]) userList[user._id] = {};
-                userList[user._id].baseInfo = user;
+                let userObj = Object.assign({}, sorterList[sorter._id]);
+                userObj.baseInfo = user;
+                userList[user._id].baseInfo = userObj;
             });
             return { ...state, userList };
         default:
