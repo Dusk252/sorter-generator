@@ -47,7 +47,7 @@ function getAll(req, res, next) {
 function getPublic(req, res, next) {
     if (Number.isInteger(req.body.page)) {
         sorterService
-            .getSorterList({ 'basic_info.status': sorterStatus.PUBLIC }, req.body.page)
+            .getSorterList({ 'base_info.status': sorterStatus.PUBLIC }, req.body.page)
             .then((sorters) => res.json(sorters))
             .catch((err) => next(err));
     }
@@ -93,7 +93,7 @@ function createSorter(req, res, next) {
 
 function mapSorterRequest(sorterObj, user) {
     return {
-        basic_info: {
+        base_info: {
             name: sorterObj.name,
             picture: sorterObj.picture,
             description: sorterObj.description,

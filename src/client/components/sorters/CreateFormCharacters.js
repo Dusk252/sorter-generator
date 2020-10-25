@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Button, Empty, Select, Typography, Row, Col } from 'antd';
 import { MinusSquareOutlined, PlusOutlined } from '@ant-design/icons';
-import PictureUpload from '../general/PictureUpload';
+import ImageUpload from '../general/ImageUpload';
 
 const pictureChekcers = [
     {
@@ -66,7 +66,7 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                             characters: [...characters, values]
                         });
                     onValuesChange(step3);
-                    setEditFormState({ index: null });
+                    setEditFormState({ index: null, visible: true });
                     charaForm.resetFields();
                 }
             }}
@@ -84,7 +84,7 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                                 }
                             ]}
                         >
-                            <PictureUpload
+                            <ImageUpload
                                 checkers={pictureChekcers}
                                 onChange={onPictureChange}
                                 value={editForm.getFieldValue('picture')}

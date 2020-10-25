@@ -1,5 +1,5 @@
 let sorter = {
-    basic_info: {
+    base_info: {
         picture: '',
         name: '',
         creator_id: '',

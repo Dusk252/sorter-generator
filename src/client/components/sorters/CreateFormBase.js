@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Input, Checkbox } from 'antd';
-import PictureUpload from '../general/PictureUpload';
+import ImageUpload from '../general/ImageUpload';
 import TagGroup from '../general/TagGroup';
 
 const pictureChekcers = [
@@ -23,7 +23,7 @@ const CreateFormBase = ({ form, formName, onValuesChange }) => {
         <Form form={form} name={formName} autoComplete='off' className='base-form' onValuesChange={localOnValuesChange}>
             <div className='base-form-wrapper'>
                 <Form.Item className='base-form-picture-field' name='picture'>
-                    <PictureUpload
+                    <ImageUpload
                         checkers={pictureChekcers}
                         onChange={onPictureChange}
                         value={form.getFieldValue('picture')}

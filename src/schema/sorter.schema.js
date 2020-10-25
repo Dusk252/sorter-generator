@@ -2,7 +2,7 @@ const Joi = require('joi');
 
 export const sorterDatabaseSchema = {
     schema: Joi.object({
-        basic_info: Joi.object({
+        base_info: Joi.object({
             name: Joi.string().max(50).required,
             picture: Joi.string().required(),
             tags: Joi.array().items(Joi.string()).required(),

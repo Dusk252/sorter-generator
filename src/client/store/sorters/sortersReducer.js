@@ -22,7 +22,7 @@ const sortersReducer = (state = initialState, action) => {
             payload.forEach((sorter) => {
                 if (!sorterList[sorter._id]) sorterList[sorter._id] = {};
                 let sorterObj = Object.assign({}, sorterList[sorter._id]);
-                sorterObj.baseInfo = { _id: sorter._id, ...sorter.basic_info };
+                sorterObj.baseInfo = { _id: sorter._id, ...sorter.base_info };
                 sorterObj.userInfo = sorter.user_info;
                 sorterList[sorter._id] = sorterObj;
             });

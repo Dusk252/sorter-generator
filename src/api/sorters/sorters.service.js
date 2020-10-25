@@ -24,14 +24,14 @@ async function getSorterList(query, page) {
             {
                 $lookup: {
                     from: 'users',
-                    localField: 'basic_info.created_by',
+                    localField: 'base_info.created_by',
                     foreignField: '_id',
                     as: 'user_info_array'
                 }
             },
             {
                 $project: {
-                    basic_info: 1,
+                    base_info: 1,
                     user_info: {
                         username: {
                             $arrayElemAt: ['$user_info_array.profile.username', 0]
@@ -56,7 +56,7 @@ async function getById(id, userId) {
         .collection('sorters')
         .findOne({
             _id: new ObjectID(id),
-            $or: [{ 'basic_info.status': sorterStatus.PUBLIC }, { 'basic_info.created_by': new ObjectID(userId) }]
+            $or: [{ 'base_info.status': sorterStatus.PUBLIC }, { 'base_info.created_by': new ObjectID(userId) }]
         });
 }
 

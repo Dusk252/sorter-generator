@@ -16,7 +16,7 @@ const getBase64 = (img) => {
     });
 };
 
-const PictureUpload = ({ checkers, onChange, value }) => {
+const ImageUpload = ({ checkers, onChange, value }) => {
     const [loading, setLoading] = useState(false);
     const [base64Value, setBase64Value] = useState('');
 
@@ -73,4 +73,4 @@ const PictureUpload = ({ checkers, onChange, value }) => {
     );
 };
 
-export default PictureUpload;
+export default ImageUpload;

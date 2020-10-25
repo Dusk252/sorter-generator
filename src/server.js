@@ -71,7 +71,7 @@ app.use(/\/((?!api).)*/, (req, res) => {
 });
 
 //connect to database
-db.connect('mongodb://localhost:27017/', 'sorterGenerator', function (err) {
+db.connect('mongodb://localhost:27017/', 'sorter-generator', function (err) {
     if (err) {
         console.log('Unable to connect to Mongo.');
         process.exit(1);
