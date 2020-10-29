@@ -8,8 +8,8 @@ const pageSize = 10;
 module.exports = {
     getSorterList,
     getById,
-    insertSorter
-    //insertImage
+    insertSorter,
+    updateSorter
 };
 
 async function getSorterList(query, page) {
@@ -50,7 +50,6 @@ async function getSorterList(query, page) {
 }
 
 async function getById(id, userId) {
-    console.log(id, userId);
     return await db
         .get()
         .collection('sorters')
@@ -72,6 +71,16 @@ async function insertSorter(sorter) {
         .catch(() => {
             return false;
         });
+}
+
+async function updateSorter(findQuery, updateQuery, returnUpdated = false) {
+    if (returnUpdated) {
+        const res = await db
+            .get()
+            .collection('sorters')
+            .findOneAndUpdate(findQuery, updateQuery, { returnNewDocument: true });
+        return res.ok === 1 ? res.value : null;
+    } else db.get().collection('sorters').updateOne(findQuery, updateQuery);
 }
 
 // async function insertImage(url, deletehash) {

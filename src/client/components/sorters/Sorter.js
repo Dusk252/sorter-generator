@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import SorterInteractions from './SorterInteractions';
+import SorterProgress from './SorterProgress';
+import SorterResults from './SorterResults';
+import { Space } from 'antd';
 
 const copyOverRemaining = (sourceList, destList, startI) => {
     const res = [...destList];
@@ -8,29 +12,34 @@ const copyOverRemaining = (sourceList, destList, startI) => {
     return res;
 };
 
-const Sorter = ({ characters }) => {
+const Sorter = ({ localStorageKey, sorterName, sorterLogo, characters, groups, initialState }) => {
+    if (!initialState) {
+        initialState = {
+            calcState: {
+                currentRoundArr: characters.map((_, index) => [index]),
+                nextRoundArr: [],
+                currentLList: 0,
+                currentRList: 1,
+                curResList: [],
+                leftP: 0,
+                rightP: 0,
+                extraRound: false,
+                extraRoundList: null
+            },
+            ties: {},
+            progress: 0
+        };
+    }
+
     const arrLenght = characters.length;
-    const nRounds = Math.ceil(Math.log2(arrLenght));
-    const totalOps = nRounds * (characters.length - 1);
+    const totalOps = Math.ceil(Math.log2(arrLenght)) * (characters.length - 1);
 
     const [curMatch, setCurMatch] = useState({ left: null, right: null });
     const [toggleClick, setToggleClick] = useState(true);
 
-    const [ties, setTies] = useState({});
-    const [progress, setProgress] = useState(0);
-
-    const [calcState, setCalcState] = useState({
-        currentRound: 1,
-        currentRoundArr: characters.map((_, index) => [index]),
-        nextRoundArr: [],
-        currentLList: 0,
-        currentRList: 1,
-        curResList: [],
-        leftP: 0,
-        rightP: 0,
-        extraRound: false,
-        extraRoundList: null
-    });
+    const [calcState, setCalcState] = useState(initialState.calcState);
+    const [ties, setTies] = useState(initialState.ties);
+    const [progress, setProgress] = useState(initialState.progress);
 
     const [prevState, setPrevState] = useState(null);
     const [isFinished, setFinished] = useState(false);
@@ -38,7 +47,8 @@ const Sorter = ({ characters }) => {
     const processStepUpdates = ({ leftStep, rightStep, tie = false }) => {
         setPrevState({
             calcState: calcState,
-            ties: ties
+            ties: ties,
+            progress: progress
         });
 
         const currentLList = calcState.extraRound
@@ -99,7 +109,6 @@ const Sorter = ({ characters }) => {
             setCalcState((prev) => ({
                 ...prev,
                 curResList: [],
-                currentRound: prev.currentRound + 1,
                 currentRoundArr: Object.assign([...prev.nextRoundArr], { 0: resList }),
                 currentLList: 0,
                 currentRList: 1,
@@ -114,7 +123,6 @@ const Sorter = ({ characters }) => {
                 setCalcState((prev) => ({
                     ...prev,
                     curResList: [],
-                    currentRound: prev.currentRound + 1,
                     currentRoundArr: [...prev.nextRoundArr, resList],
                     currentLList: 0,
                     currentRList: 1,
@@ -125,17 +133,20 @@ const Sorter = ({ characters }) => {
                     extraRoundList: null
                 }));
             } else {
-                setCalcState((prev) => ({
-                    ...prev,
-                    curResList: [],
-                    currentLList: -1,
-                    currentRList: prev.currentLList + 2,
-                    leftP: 0,
-                    rightP: 0,
-                    nextRoundArr: [...prev.nextRoundArr, resList],
-                    extraRound: true,
-                    extraRoundList: prev.nextRoundArr[0]
-                }));
+                setCalcState((prev) => {
+                    const nextRoundArr = [...prev.nextRoundArr, resList];
+                    return {
+                        ...prev,
+                        curResList: [],
+                        currentLList: -1,
+                        currentRList: prev.currentLList + 2,
+                        leftP: 0,
+                        rightP: 0,
+                        nextRoundArr: nextRoundArr,
+                        extraRound: true,
+                        extraRoundList: nextRoundArr[0]
+                    };
+                });
             }
         } else {
             setCalcState((prev) => ({
@@ -151,8 +162,9 @@ const Sorter = ({ characters }) => {
     };
 
     useEffect(() => {
-        if (calcState.currentRound === nRounds) setFinished(true);
+        if (calcState.currentRoundArr.length === 1) setFinished(true);
         else {
+            if (progress > 0) localStorage.setItem(localStorageKey, JSON.stringify({ calcState, ties, progress, totalOps }));
             const leftChar = calcState.extraRound
                 ? characters[calcState.extraRoundList[calcState.leftP]]
                 : characters[calcState.currentRoundArr[calcState.currentLList][calcState.leftP]];
@@ -193,43 +205,37 @@ const Sorter = ({ characters }) => {
         if (toggleClick && prevState != null) {
             setTies(prevState.ties);
             setCalcState(prevState.calcState);
+            setProgress(prevState.progress);
             setPrevState(null);
         }
     };
 
-    let counter = 1;
-    let limit = 0;
-
     return (
         <>
-            <div>Progress: {Math.round((progress * 100) / totalOps)}%</div>
             {isFinished ? (
-                <div>
-                    {calcState.currentRoundArr[0].map((char, index) => {
-                        if (index > limit) {
-                            counter = index + 1;
-                            limit = 0;
-                        }
-                        if (ties[char]) {
-                            limit = limit === 0 ? index + ties[char] : limit + ties[char];
-                        }
-                        return <div key={char}>{`${counter}. ${characters[char].name}`}</div>;
-                    })}
-                </div>
+                <SorterResults
+                    results={calcState.currentRoundArr[0]}
+                    ties={ties}
+                    characters={characters}
+                    groups={groups}
+                    sorterName={sorterName}
+                    sorterLogo={sorterLogo}
+                />
             ) : (
-                curMatch.left != null &&
-                curMatch.right != null && (
-                    <>
-                        <div onClick={handleLeftClick}>
-                            <img src={curMatch.left.picture} />
-                        </div>
-                        <div onClick={handleTie}>TIE</div>
-                        <div onClick={handleUndo}>UNDO</div>
-                        <div onClick={handleRightClick}>
-                            <img src={curMatch.right.picture} />
-                        </div>
-                    </>
-                )
+                <Space size='large' direction='vertical' style={{ width: '100%' }}>
+                    <SorterProgress progress={progress} total={totalOps} />
+                    {curMatch.left != null && curMatch.right != null && (
+                        <SorterInteractions
+                            charLeft={{ ...curMatch.left, group: groups[curMatch.left.group] }}
+                            charRight={{ ...curMatch.right, group: groups[curMatch.right.group] }}
+                            handleLeftClick={handleLeftClick}
+                            handleRightClick={handleRightClick}
+                            handleTie={handleTie}
+                            handleUndo={handleUndo}
+                            isUndoEnabled={prevState !== null}
+                        />
+                    )}
+                </Space>
             )}
         </>
     );

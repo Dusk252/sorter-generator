@@ -1,4 +1,5 @@
 import axios from 'axios';
+import jsonToFormData from 'json-form-data';
 
 const publicCall = (method, url, body) => {
     return axios({
@@ -46,4 +47,12 @@ export const createSorter = (sorter, accessToken) => {
 
 export const getSorterById = (id, accessToken) => {
     return privateCall('GET', `/api/sorters/${id}`, accessToken);
+};
+
+export const incrementSorterViews = (id) => {
+    return publicCall('POST', `/api/sorters/viewCount`, { id });
+};
+
+export const incrementSorterTake = (id) => {
+    return publicCall('POST', `/api/sorters/takeCount`, { id });
 };

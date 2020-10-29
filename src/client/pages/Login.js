@@ -24,7 +24,7 @@ const Login = ({ authError, localLogin, clearAuthError }) => {
 
     return (
         <LayoutBlockWrapper>
-            <BoxWrapper className='small-box' title='Login'>
+            <BoxWrapper className='small-box' title='Login' style={{ margin: 'auto' }}>
                 <div id='login_form'>
                     <Space size='middle' direction='vertical'>
                         <Button

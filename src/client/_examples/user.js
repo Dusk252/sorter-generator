@@ -1,5 +1,5 @@
 let user = {
-    basic_info: {
+    base_info: {
         id: '',
         username: '',
         icon: '',

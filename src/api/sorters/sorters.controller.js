@@ -33,6 +33,9 @@ router.post(
     schemaValidator(sorterSchema),
     createSorter
 ); // create a new sorter
+router.post('/viewCount', incrementViewCount);
+router.post('/takeCount', incrementTakeCount);
+
 module.exports = router;
 
 function getAll(req, res, next) {
@@ -89,6 +92,16 @@ function createSorter(req, res, next) {
         .insertSorter(sorter)
         .then((insertedSorter) => res.json(insertedSorter))
         .catch((err) => next(err));
+}
+
+function incrementViewCount(req, res, next) {
+    sorterService.updateSorter({ _id: ObjectID(req.body.id) }, { $inc: { 'base_info.views': 1 } }, false);
+    res.sendStatus(200);
+}
+
+function incrementTakeCount(req, res, next) {
+    sorterService.updateSorter({ _id: ObjectID(req.body.id) }, { $inc: { 'base_info.total_plays': 1 } }, false);
+    res.sendStatus(200);
 }
 
 function mapSorterRequest(sorterObj, user) {

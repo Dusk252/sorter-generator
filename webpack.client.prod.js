@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const merge = require('webpack-merge');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const baseConfig = require('./webpack.base');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -19,19 +19,8 @@ const config = {
         children: true
     },
     optimization: {
-        minimizer: [
-            // we specify a custom UglifyJsPlugin here to get source maps in production
-            new UglifyJSPlugin({
-                cache: true,
-                parallel: true,
-                uglifyOptions: {
-                    compress: false,
-                    ecma: 6,
-                    mangle: true
-                },
-                sourceMap: false
-            })
-        ]
+        minimize: true,
+        minimizer: [new TerserPlugin()]
     },
     // Tell webpack to root file of our server app
     entry: './src/client/client.js',

@@ -1,5 +1,5 @@
-export const baseInfo = { 'profile.username': 1, 'profile.icon': 1, role: 1 };
-export const extendedInfo = {
+export const base_info = { 'profile.username': 1, 'profile.icon': 1, role: 1 };
+export const extended_info = {
     joined_date: 1,
     friends: 1,
     favorite_sorters: 1,

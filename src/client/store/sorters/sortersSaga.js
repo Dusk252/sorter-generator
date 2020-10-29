@@ -1,13 +1,15 @@
 import { put, call, takeLatest, all, select, take } from 'redux-saga/effects';
 import * as SorterActions from './sortersActions';
-import { getNewToken, MESSAGES as AUTH_MESSAGES, SIGNALS as AUTH_SIGNALS } from './../auth/authActions';
-import { createSorter, getSorterById } from './../apiCalls';
+import { getNewToken, MESSAGES as AUTH_MESSAGES } from './../auth/authActions';
+import { startRequest, endRequest } from './../app/appActions';
+import { createSorter, getSorterById, incrementSorterViews, incrementSorterTake } from './../apiCalls';
 
 const { SIGNALS, MESSAGES, ...actions } = SorterActions;
 
 const getAccessToken = (state) => state.auth.accessToken;
 
 function* processNewSorterSubmit({ sorter }) {
+    yield put(startRequest());
     yield put(actions.requestNewSorter());
     try {
         let accessToken = yield select(getAccessToken);
@@ -19,13 +21,15 @@ function* processNewSorterSubmit({ sorter }) {
             } else throw new Error('Unauthorized user');
         }
         const res = yield call(createSorter, sorter, accessToken);
-        yield put(actions.resolveNewSorter(res.data.sorter));
+        yield put(actions.resolveNewSorter(res.data));
     } catch {
         yield put(actions.rejectNewSorter());
     }
+    yield put(endRequest());
 }
 
 function* processGetSorter({ id }) {
+    yield put(startRequest());
     yield put(actions.requestGetSorter());
     try {
         let accessToken = yield select(getAccessToken);
@@ -40,10 +44,18 @@ function* processGetSorter({ id }) {
         }
         const res = yield call(getSorterById, id, accessToken);
         yield put(actions.resolveGetSorter(res.data));
-    } catch (err) {
-        console.log(err);
+    } catch {
         yield put(actions.rejectGetSorter());
     }
+    yield put(endRequest());
+}
+
+function* processIncrementViewCount({ id }) {
+    yield call(incrementSorterViews, id);
+}
+
+function* processIncrementTakeCount({ id }) {
+    yield call(incrementSorterTake, id);
 }
 
 function* watchNewSorterSubmit() {
@@ -54,6 +66,14 @@ function* watchGetSorter() {
     yield takeLatest(SIGNALS.GET_SORTER_START, processGetSorter);
 }
 
+function* watchSorterViewCount() {
+    yield takeLatest(SIGNALS.INCREMENT_VIEW_COUNT, processIncrementViewCount);
+}
+
+function* watchSorterTakeCount() {
+    yield takeLatest(SIGNALS.INCREMENT_TAKE_COUNT, processIncrementTakeCount);
+}
+
 export default function* () {
-    yield all([watchNewSorterSubmit(), watchGetSorter()]);
+    yield all([watchNewSorterSubmit(), watchGetSorter(), watchSorterViewCount(), watchSorterTakeCount()]);
 }

@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { submitNewSorter, clearSubmissionError } from '../store/sorters/sortersActions';
-import { Affix, Row, Col, Steps, Form, Button, Space, Typography } from 'antd';
+import { submitNewSorter } from '../store/sorters/sortersActions';
+import { submissionStatus } from '../store/sorters/sortersReducer';
+import { Affix, Row, Col, Steps, Form, Button, Space } from 'antd';
 import { red, volcano, orange, gold, yellow, lime, green, cyan, blue, geekblue, purple, magenta } from '@ant-design/colors';
 import CreateFormBase from '../components/sorters/CreateFormBase';
 import CreateFormGroups from '../components/sorters/CreateFormGroups';
 import CreateFormCharacters from '../components/sorters/CreateFormCharacters';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
+import SorterCharacterListing from './../components/sorters/SorterCharacterListing';
 import { validateData } from './../../schema/clientValidation';
 import { sorterFormSchema } from './../../schema/sorter.schema';
+import { useHistory } from 'react-router-dom';
 
 const lastStep = 3;
 const initialStepStatus = [
@@ -32,32 +35,33 @@ const colorOptions = [
     magenta.primary
 ];
 
-const SorterNew = ({ submitError, submitNewSorter, clearSubmissionError }) => {
+const SorterNew = ({ status, submitNewSorter }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [stepStatus, setStepStatus] = useState(initialStepStatus);
     const stepForms = [...Form.useForm(), ...Form.useForm(), ...Form.useForm()];
     const [charaEditForm] = Form.useForm();
     const [editFormState, setEditFormState] = useState({ index: null, visible: false });
     const [mainFormState, setMainFormState] = useState([]);
-    const [formError, setFormError] = useState(false);
+    const [formError, setFormError] = useState(null);
+
+    const history = useHistory();
 
     useEffect(() => {
-        clearSubmissionError();
-    }, []);
-
-    useEffect(() => {
-        if (submitError) setFormError(true);
-        else setFormError(false);
-    }, [submitError]);
+        if (currentStep === 3 && status === submissionStatus.SUCCESS) history.push('/');
+    }, [status]);
 
     const handleSubmit = () => {
         const validatedData = validateData(mainFormState, sorterFormSchema, null, {
-            abortEarly: true,
+            abortEarly: false,
             allowUnknown: true,
-            stripUnknown: true
+            stripUnknown: true,
+            context: mainFormState != null && mainFormState.groups != null ? { groupLen: mainFormState.groups.length } : {}
         });
-        if (!validatedData.errors) submitNewSorter(validatedData.values);
-        else setFormError(true);
+        if (!validatedData.errors) {
+            submitNewSorter(validatedData.values);
+        } else {
+            setFormError(validatedData.errors);
+        }
     };
 
     const handleFormValidation = (form, formValues) => {
@@ -168,12 +172,30 @@ const SorterNew = ({ submitError, submitNewSorter, clearSubmissionError }) => {
                         )}
                         {/*--------------Step 4 - Submit--------------*/}
                         {currentStep === 3 && (
-                            <>
-                                {formError && <div>submission error goes here</div>}
-                                <Button type='primary' block onClick={handleSubmit}>
+                            <Space size='middle' direction='vertical' style={{ width: '100%' }}>
+                                <SorterCharacterListing
+                                    groups={mainFormState.groups}
+                                    characters={mainFormState.characters ?? []}
+                                    columnsCountBreakPoints={{ 350: 1, 750: 2 }}
+                                />
+
+                                {formError && (
+                                    <div className='form-errors'>
+                                        {Object.values(formError).map((error, index) => (
+                                            <div className='ant-form-item-explain' key={index}>
+                                                {error.message}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                <Button
+                                    type='primary'
+                                    onClick={handleSubmit}
+                                    disabled={status === submissionStatus.INPROGRESS}
+                                >
                                     Submit Sorter
                                 </Button>
-                            </>
+                            </Space>
                         )}
                     </LayoutBlockWrapper>
                 </Col>
@@ -183,12 +205,11 @@ const SorterNew = ({ submitError, submitNewSorter, clearSubmissionError }) => {
 };
 
 const mapStateToProps = (state) => ({
-    submitError: state.sorters.submitSorterError
+    status: state.sorters.submissionStatus
 });
 
 const mapDispatchToProps = {
-    submitNewSorter,
-    clearSubmissionError
+    submitNewSorter
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SorterNew);

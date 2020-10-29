@@ -6,7 +6,7 @@ import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import InfiniteLoader from './../components/general/InfiniteLoader';
 
 const UserItem = ({ data }) => {
-    data.baseInfo.profile.username;
+    data.base_info.profile.username;
 };
 
 const UserList = ({ users, usersPage, getUsersPage }) => {

@@ -4,7 +4,7 @@ const router = express.Router();
 const userService = require('./users.service');
 const authorize = require('../_middleware/authorize');
 const Roles = require('../_helpers/enum').role;
-const { baseInfo, extendedInfo } = require('./users.entity');
+const { base_info, extended_info } = require('./users.entity');
 
 // routes
 router.post('/', /*passport.authenticate('jwt', { session: false }), authorize(Roles.ADMIN),*/ getUserList); // admin only
@@ -39,7 +39,7 @@ function getById(req, res, next) {
             .catch((err) => next(err));
     } else {
         userService
-            .getById(id, { projection: baseInfo })
+            .getById(id, { projection: base_info })
             .then((user) => (user ? res.json(user) : res.sendStatus(404)))
             .catch((err) => next(err));
     }

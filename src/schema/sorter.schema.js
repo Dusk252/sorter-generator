@@ -37,20 +37,22 @@ export const sorterDatabaseSchema = {
 
 export const sorterFormSchema = {
     schema: Joi.object({
-        picture: [
-            Joi.any().meta({ swaggerType: 'file' }).messages({
-                'any.required': 'Please upload a logo or other representative picture.',
-                'any.empty': 'Please upload a logo or other representative picture.'
-            }),
-            Joi.string().regex(/^((https?|ftp|file):\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
-            Joi.string().regex(/^(([a-zA-Z]:)|(\\{2}\w+)\$?)(\\(\w[\w ]*.*))+$/),
-            Joi.string().regex(/([^ !$`&*()+]|(\[ !$`&*()+]))+/)
-        ],
         name: Joi.string().max(50).messages({
             'any.required': 'The sorter needs to have a name.',
             'string.empty': 'The sorter needs to have a name.',
             'string.max': "The name's length can't be over 50 characters."
         }),
+        picture: Joi.alternatives()
+            .try(
+                Joi.any().meta({ swaggerType: 'file' }),
+                Joi.string().regex(/^((https?|ftp|file):\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
+                Joi.string().regex(/^(([a-zA-Z]:)|(\\{2}\w+)\$?)(\\(\w[\w ]*.*))+$/),
+                Joi.string().regex(/([^ !$`&*()+]|(\[ !$`&*()+]))+/)
+            )
+            .messages({
+                'any.required': 'Please upload a logo or other representative picture.',
+                'any.empty': 'Please upload a logo or other representative picture.'
+            }),
         tags: Joi.array().items(Joi.string()),
         description: Joi.string().max(1000).messages({
             'string.max': 'The description field fits a max of 1000 characters.'
@@ -78,19 +80,25 @@ export const sorterFormSchema = {
                         'string.empty': 'A character needs to have a name.',
                         'string.max': "The name's length can't be over 50 characters."
                     }),
-                    picture: [
-                        Joi.any().meta({ swaggerType: 'file' }).messages({
+                    picture: Joi.alternatives()
+                        .try(
+                            Joi.any().meta({ swaggerType: 'file' }),
+                            Joi.string().regex(/^((https?|ftp|file):\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
+                            Joi.string().regex(/^(([a-zA-Z]:)|(\\{2}\w+)\$?)(\\(\w[\w ]*.*))+$/),
+                            Joi.string().regex(/([^ !$`&*()+]|(\[ !$`&*()+]))+/)
+                        )
+                        .messages({
                             'any.required': 'A character needs to have a picture.',
                             'any.empty': 'A character needs to have a picture.'
                         }),
-                        Joi.string().regex(/^((https?|ftp|file):\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
-                        Joi.string().regex(/^(([a-zA-Z]:)|(\\{2}\w+)\$?)(\\(\w[\w ]*.*))+$/),
-                        Joi.string().regex(/([^ !$`&*()+]|(\[ !$`&*()+]))+/)
-                    ],
-                    group: Joi.number().positive().integer().allow(0).less(Joi.ref('groups.length')).optional()
+                    group: Joi.when(Joi.ref('$groupLen'), {
+                        is: Joi.exist(),
+                        then: Joi.number().positive().integer().allow(0).less(Joi.ref('$groupLen')),
+                        otherwise: Joi.number().positive().integer().allow(0)
+                    }).optional()
                 })
             )
-            //.min(3)
+            .min(3)
             .messages({
                 'any.required': "You can't have a sorter without characters!",
                 'array.empty': "You can't have a sorter without characters!",

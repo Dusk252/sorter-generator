@@ -7,17 +7,17 @@ const SorterListItem = ({ data }) => {
     return (
         <div className='sorter-list-item'>
             <div className='sorter-list-item-img'>
-                <img width='200' height='100' src={data.baseInfo.picture}></img>
+                <img width='200' height='100' src={data.base_info.picture}></img>
             </div>
             <div className='sorter-list-item-center'>
-                <Link className='sorter-list-item-title' to={`/sorters/${data.baseInfo._id}`}>
-                    <Typography.Title level={5}>{data.baseInfo.name}</Typography.Title>
+                <Link className='sorter-list-item-title' to={`/sorters/${data._id}`}>
+                    <Typography.Title level={5}>{data.base_info.name}</Typography.Title>
                 </Link>
                 <Typography.Text type='secondary' className='sorter-list-item-description'>
-                    {data.baseInfo.description}
+                    {data.base_info.description}
                 </Typography.Text>
                 <div className='sorter-list-item-tags'>
-                    {data.baseInfo.tags.map((tag, index) => {
+                    {data.base_info.tags.map((tag, index) => {
                         const isLongTag = tag.length > 20;
 
                         const tagElem = (
@@ -39,16 +39,16 @@ const SorterListItem = ({ data }) => {
                 <div className='sorter-list-item-stats'>
                     <div>
                         <Typography.Text type='secondary'>taken </Typography.Text>
-                        <b>{data.baseInfo.total_plays}</b>
+                        <b>{data.base_info.total_plays}</b>
                         <Typography.Text type='secondary'> times</Typography.Text>
                     </div>
                     <div>
                         <Typography.Text type='secondary'>viewed </Typography.Text>
-                        <b>{data.baseInfo.views}</b>
+                        <b>{data.base_info.views}</b>
                         <Typography.Text type='secondary'> times</Typography.Text>
                     </div>
                     <div>
-                        <b>{data.baseInfo.favorites}</b>
+                        <b>{data.base_info.favorites}</b>
                         <Typography.Text type='secondary'> favorites</Typography.Text>
                     </div>
                 </div>
