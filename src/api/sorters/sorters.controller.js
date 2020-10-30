@@ -34,7 +34,6 @@ router.post(
     createSorter
 ); // create a new sorter
 router.post('/viewCount', incrementViewCount);
-router.post('/takeCount', incrementTakeCount);
 
 module.exports = router;
 
@@ -99,22 +98,18 @@ function incrementViewCount(req, res, next) {
     res.sendStatus(200);
 }
 
-function incrementTakeCount(req, res, next) {
-    sorterService.updateSorter({ _id: ObjectID(req.body.id) }, { $inc: { 'base_info.total_plays': 1 } }, false);
-    res.sendStatus(200);
-}
-
 function mapSorterRequest(sorterObj, user) {
+    const currentDate = new Date();
     return {
         base_info: {
             name: sorterObj.name,
             picture: sorterObj.picture,
             description: sorterObj.description,
             created_by: new ObjectID(user.id),
-            created_date: new Date(),
+            created_date: currentDate,
+            version_date: currentDate,
             status: sorterObj.privacy ? sorterStatus.PRIVATE : sorterStatus.PUBLIC,
             favorites: 0,
-            total_plays: 0,
             tags: sorterObj.tags ?? []
         },
         extended_info: {

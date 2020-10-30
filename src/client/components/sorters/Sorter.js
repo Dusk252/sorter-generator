@@ -12,44 +12,15 @@ const copyOverRemaining = (sourceList, destList, startI) => {
     return res;
 };
 
-const Sorter = ({ localStorageKey, sorterName, sorterLogo, characters, groups, initialState }) => {
-    if (!initialState) {
-        initialState = {
-            calcState: {
-                currentRoundArr: characters.map((_, index) => [index]),
-                nextRoundArr: [],
-                currentLList: 0,
-                currentRList: 1,
-                curResList: [],
-                leftP: 0,
-                rightP: 0,
-                extraRound: false,
-                extraRoundList: null
-            },
-            ties: {},
-            progress: 0
-        };
-    }
-
-    const arrLenght = characters.length;
-    const totalOps = Math.ceil(Math.log2(arrLenght)) * (characters.length - 1);
-
+const Sorter = ({ sorterName, sorterLogo, characters, groups, calcState, setCalcState }) => {
     const [curMatch, setCurMatch] = useState({ left: null, right: null });
     const [toggleClick, setToggleClick] = useState(true);
 
-    const [calcState, setCalcState] = useState(initialState.calcState);
-    const [ties, setTies] = useState(initialState.ties);
-    const [progress, setProgress] = useState(initialState.progress);
-
     const [prevState, setPrevState] = useState(null);
-    const [isFinished, setFinished] = useState(false);
+    const [isFinished, setFinished] = useState(calcState.currentRoundArr.length === 1);
 
     const processStepUpdates = ({ leftStep, rightStep, tie = false }) => {
-        setPrevState({
-            calcState: calcState,
-            ties: ties,
-            progress: progress
-        });
+        setPrevState(calcState);
 
         const currentLList = calcState.extraRound
             ? calcState.extraRoundList
@@ -60,13 +31,13 @@ const Sorter = ({ localStorageKey, sorterName, sorterLogo, characters, groups, i
             ? calcState.extraRoundList[calcState.leftP]
             : calcState.currentRoundArr[calcState.currentLList][calcState.leftP];
         const rightChar = calcState.currentRoundArr[calcState.currentRList][calcState.rightP];
-        const leftTieCount = ties[leftChar] ?? 0;
-        const rightTieCount = ties[rightChar] ?? 0;
+        const leftTieCount = calcState.ties[leftChar] ?? 0;
+        const rightTieCount = calcState.ties[rightChar] ?? 0;
 
         if (tie) {
-            setTies((prev) => ({
+            setCalcState((prev) => ({
                 ...prev,
-                [leftChar]: leftTieCount + rightTieCount + 1
+                ties: { ...prev.ties, [leftChar]: leftTieCount + rightTieCount + 1 }
             }));
         }
 
@@ -84,14 +55,17 @@ const Sorter = ({ localStorageKey, sorterName, sorterLogo, characters, groups, i
                 leftP: prev.leftP + leftStep,
                 rightP: prev.rightP + rightStep
             }));
-            setProgress((prev) => prev + leftStep + rightStep);
+            setCalcState((prev) => ({ ...prev, progress: prev.progress + leftStep + rightStep }));
         } else if (calcState.leftP + leftStep >= currentLList.length) {
             const resList = copyOverRemaining(
                 currentRList,
                 [...calcState.curResList, ...addItems],
                 calcState.rightP + rightStep
             );
-            setProgress((prev) => prev + currentRList.length - calcState.rightP + leftStep);
+            setCalcState((prev) => ({
+                ...prev,
+                progress: prev.progress + currentRList.length - calcState.rightP + leftStep
+            }));
             processRoundUpdates(resList);
         } else if (calcState.rightP + rightStep >= currentRList.length) {
             const resList = copyOverRemaining(
@@ -99,7 +73,10 @@ const Sorter = ({ localStorageKey, sorterName, sorterLogo, characters, groups, i
                 [...calcState.curResList, ...addItems],
                 calcState.leftP + leftStep
             );
-            setProgress((prev) => prev + currentLList.length - calcState.leftP + rightStep);
+            setCalcState((prev) => ({
+                ...prev,
+                progress: prev.progress + currentLList.length - calcState.leftP + rightStep
+            }));
             processRoundUpdates(resList);
         }
     };
@@ -164,7 +141,6 @@ const Sorter = ({ localStorageKey, sorterName, sorterLogo, characters, groups, i
     useEffect(() => {
         if (calcState.currentRoundArr.length === 1) setFinished(true);
         else {
-            if (progress > 0) localStorage.setItem(localStorageKey, JSON.stringify({ calcState, ties, progress, totalOps }));
             const leftChar = calcState.extraRound
                 ? characters[calcState.extraRoundList[calcState.leftP]]
                 : characters[calcState.currentRoundArr[calcState.currentLList][calcState.leftP]];
@@ -203,9 +179,7 @@ const Sorter = ({ localStorageKey, sorterName, sorterLogo, characters, groups, i
 
     const handleUndo = () => {
         if (toggleClick && prevState != null) {
-            setTies(prevState.ties);
-            setCalcState(prevState.calcState);
-            setProgress(prevState.progress);
+            setCalcState(prevState);
             setPrevState(null);
         }
     };
@@ -215,7 +189,7 @@ const Sorter = ({ localStorageKey, sorterName, sorterLogo, characters, groups, i
             {isFinished ? (
                 <SorterResults
                     results={calcState.currentRoundArr[0]}
-                    ties={ties}
+                    ties={calcState.ties}
                     characters={characters}
                     groups={groups}
                     sorterName={sorterName}
@@ -223,7 +197,7 @@ const Sorter = ({ localStorageKey, sorterName, sorterLogo, characters, groups, i
                 />
             ) : (
                 <Space size='large' direction='vertical' style={{ width: '100%' }}>
-                    <SorterProgress progress={progress} total={totalOps} />
+                    <SorterProgress progress={calcState.progress} total={calcState.totalOps} />
                     {curMatch.left != null && curMatch.right != null && (
                         <SorterInteractions
                             charLeft={{ ...curMatch.left, group: groups[curMatch.left.group] }}

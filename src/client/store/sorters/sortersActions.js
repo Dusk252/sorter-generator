@@ -15,14 +15,12 @@ export const MESSAGES = keyMirror({
     NEW_SORTER_REQUEST: null,
     NEW_SORTER_RESOLVE: null,
     NEW_SORTER_REJECT: null,
-    INCREMENT_VIEW_COUNT: null,
-    INCREMENT_TAKE_COUNT: null
+    INCREMENT_VIEW_COUNT: null
 });
 
 export const submitNewSorter = (sorter) => ({ type: SIGNALS.NEW_SORTER_SUBMIT, sorter });
 export const getSorter = (id) => ({ type: SIGNALS.GET_SORTER_START, id });
 export const incrementViewCount = (id) => ({ type: SIGNALS.INCREMENT_VIEW_COUNT, id });
-export const incrementTakeCount = (id) => ({ type: SIGNALS.INCREMENT_TAKE_COUNT, id });
 
 export const requestNewSorter = () => ({ type: MESSAGES.NEW_SORTER_REQUEST });
 export const resolveNewSorter = (sorter) => ({ type: MESSAGES.NEW_SORTER_RESOLVE, payload: sorter });

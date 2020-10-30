@@ -2,7 +2,7 @@ import { put, call, takeLatest, all, select, take } from 'redux-saga/effects';
 import * as SorterActions from './sortersActions';
 import { getNewToken, MESSAGES as AUTH_MESSAGES } from './../auth/authActions';
 import { startRequest, endRequest } from './../app/appActions';
-import { createSorter, getSorterById, incrementSorterViews, incrementSorterTake } from './../apiCalls';
+import { createSorter, getSorterById, incrementSorterViews } from './../apiCalls';
 
 const { SIGNALS, MESSAGES, ...actions } = SorterActions;
 
@@ -54,10 +54,6 @@ function* processIncrementViewCount({ id }) {
     yield call(incrementSorterViews, id);
 }
 
-function* processIncrementTakeCount({ id }) {
-    yield call(incrementSorterTake, id);
-}
-
 function* watchNewSorterSubmit() {
     yield takeLatest(SIGNALS.NEW_SORTER_SUBMIT, processNewSorterSubmit);
 }
@@ -70,10 +66,6 @@ function* watchSorterViewCount() {
     yield takeLatest(SIGNALS.INCREMENT_VIEW_COUNT, processIncrementViewCount);
 }
 
-function* watchSorterTakeCount() {
-    yield takeLatest(SIGNALS.INCREMENT_TAKE_COUNT, processIncrementTakeCount);
-}
-
 export default function* () {
-    yield all([watchNewSorterSubmit(), watchGetSorter(), watchSorterViewCount(), watchSorterTakeCount()]);
+    yield all([watchNewSorterSubmit(), watchGetSorter(), watchSorterViewCount()]);
 }

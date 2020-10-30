@@ -52,7 +52,3 @@ export const getSorterById = (id, accessToken) => {
 export const incrementSorterViews = (id) => {
     return publicCall('POST', `/api/sorters/viewCount`, { id });
 };
-
-export const incrementSorterTake = (id) => {
-    return publicCall('POST', `/api/sorters/takeCount`, { id });
-};

@@ -3,7 +3,7 @@ import Image from './../general/ImageWithFallback';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { hexToRGBA } from './../../../helpers/hexToRGBA';
 
-const GroupMap = ({ characters, groups }) =>
+const groupedMap = (characters, groups) =>
     groups.map((group, index) => (
         <div className='group-info-wrapper' style={{ border: `2px solid ${group.color}`, borderRadius: '5px' }} key={index}>
             <div className='group-info-title' style={{ backgroundColor: hexToRGBA(group.color, 0.5) }}>
@@ -21,7 +21,7 @@ const GroupMap = ({ characters, groups }) =>
             </div>
         </div>
     ));
-const UngroupedMap = ({ ungroupedCharacters }) => (
+const ungroupedMap = (ungroupedCharacters) => (
     <div className='group-info-wrapper' style={{ border: `2px solid rgba(255, 255, 255, 0.5)`, borderRadius: '5px' }}>
         <div className='group-info-title' style={{ backgroundColor: 'rgba(255, 255, 255, 0.25)' }}>
             Ungrouped characters
@@ -46,13 +46,13 @@ const SorterCharacterListing = ({ characters, groups, columnsCountBreakPoints = 
                 <Masonry gutter={gutter}>
                     {groups != null && groups.length > 0 && ungroupedCharacters.length > 0 ? (
                         <>
-                            <GroupMap characters={characters} groups={groups} />
-                            <UngroupedMap ungroupedCharacters={ungroupedCharacters} />
+                            {groupedMap(characters, groups)}
+                            {ungroupedMap(ungroupedCharacters)}
                         </>
                     ) : groups != null && groups.length > 0 && ungroupedCharacters.length === 0 ? (
-                        <GroupMap characters={characters} groups={groups} />
+                        groupedMap(characters, groups)
                     ) : groups == null || groups.length === 0 ? (
-                        <UngroupedMap ungroupedCharacters={ungroupedCharacters} />
+                        ungroupedMap(ungroupedCharacters)
                     ) : (
                         <></>
                     )}
