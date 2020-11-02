@@ -16,9 +16,8 @@ const ObjectID = require('mongodb').ObjectID;
 // routes
 router.post('/', getPublic);
 router.get('/all', getAll); // sorters list
-//router.get('/:status', getByStatus); // get public, awaiting approval, private, etc
-router.get('/:id', extractUser(), getById); // view a sorter
 router.get('/mySorters', getUserCreated); // sorters created by specific user
+//router.get('/:status', getByStatus); // get public, awaiting approval, private, etc
 router.post(
     '/create',
     passport.authenticate('jwt', { session: false }),
@@ -34,6 +33,7 @@ router.post(
     createSorter
 ); // create a new sorter
 router.post('/viewCount', incrementViewCount);
+router.post('/:id', extractUser(), getById); // view a sorter
 
 module.exports = router;
 
@@ -49,7 +49,7 @@ function getAll(req, res, next) {
 function getPublic(req, res, next) {
     if (Number.isInteger(req.body.page)) {
         sorterService
-            .getSorterList({ 'base_info.status': sorterStatus.PUBLIC }, req.body.page)
+            .getSorterList({ 'meta.status': sorterStatus.PUBLIC }, req.body.page)
             .then((sorters) => res.json(sorters))
             .catch((err) => next(err));
     }
@@ -76,9 +76,10 @@ function getUserCreated(req, res, next) {}
 
 function getById(req, res, next) {
     const id = req.params.id;
+    const getUserInfo = req.body.getUserInfo;
     const userId = req.user ? req.user.id : null;
     sorterService
-        .getById(id, userId)
+        .getById(id, userId, getUserInfo)
         .then((sorter) => (sorter ? res.json(sorter) : res.sendStatus(404)))
         .catch((err) => next(err));
 }
@@ -94,28 +95,35 @@ function createSorter(req, res, next) {
 }
 
 function incrementViewCount(req, res, next) {
-    sorterService.updateSorter({ _id: ObjectID(req.body.id) }, { $inc: { 'base_info.views': 1 } }, false);
-    res.sendStatus(200);
+    sorterService
+        .updateSorter({ _id: ObjectID(req.body.id) }, { $inc: { 'meta.views': 1 } }, false)
+        .then(() => res.sendStatus(200))
+        .catch((err) => next(err));
 }
 
 function mapSorterRequest(sorterObj, user) {
     const currentDate = new Date();
     return {
-        base_info: {
-            name: sorterObj.name,
-            picture: sorterObj.picture,
-            description: sorterObj.description,
+        meta: {
             created_by: new ObjectID(user.id),
             created_date: currentDate,
-            version_date: currentDate,
+            updated_date: currentDate,
             status: sorterObj.privacy ? sorterStatus.PRIVATE : sorterStatus.PUBLIC,
-            favorites: 0,
-            tags: sorterObj.tags ?? []
+            views: 0,
+            favorites: 0
         },
-        extended_info: {
-            groups: sorterObj.groups ?? [],
-            characters: sorterObj.characters
-        }
+        data: [
+            {
+                version_id: new ObjectID(),
+                created_date: currentDate,
+                name: sorterObj.name,
+                picture: sorterObj.picture,
+                description: sorterObj.description,
+                tags: sorterObj.tags ?? [],
+                groups: sorterObj.groups ?? [],
+                characters: sorterObj.characters
+            }
+        ]
     };
 }
 

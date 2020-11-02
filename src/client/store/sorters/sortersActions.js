@@ -19,7 +19,7 @@ export const MESSAGES = keyMirror({
 });
 
 export const submitNewSorter = (sorter) => ({ type: SIGNALS.NEW_SORTER_SUBMIT, sorter });
-export const getSorter = (id) => ({ type: SIGNALS.GET_SORTER_START, id });
+export const getSorter = (id, getUserInfo) => ({ type: SIGNALS.GET_SORTER_START, id, getUserInfo });
 export const incrementViewCount = (id) => ({ type: SIGNALS.INCREMENT_VIEW_COUNT, id });
 
 export const requestNewSorter = () => ({ type: MESSAGES.NEW_SORTER_REQUEST });

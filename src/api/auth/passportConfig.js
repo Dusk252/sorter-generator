@@ -22,14 +22,14 @@ passport.use(
             secretOrKey: config.auth_token_secret,
             //we expect the user to send the access token in the header
             jwtFromRequest: (req) => {
-                if (!req.headers.authorization) throw new UnauthorizedError(401, { message: 'Access token not provided.' });
+                if (!req.headers.authorization) return null;
                 const tokenFromHeader = req.headers.authorization.replace('Bearer ', '').trim();
                 return tokenFromHeader;
             }
         },
         (token, done) => {
             try {
-                if (token.type !== tokenType.ACCESS_TOKEN) {
+                if (!token || token.type !== tokenType.ACCESS_TOKEN) {
                     throw new UnauthorizedError(401, { message: 'Access token not provided.' });
                 }
                 done(null, JSON.parse(token.sub));

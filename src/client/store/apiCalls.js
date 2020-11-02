@@ -45,10 +45,15 @@ export const createSorter = (sorter, accessToken) => {
     );
 };
 
-export const getSorterById = (id, accessToken) => {
-    return privateCall('GET', `/api/sorters/${id}`, accessToken);
+export const getSorterById = (id, getUserInfo = false) => {
+    return publicCall('POST', `/api/sorters/${id}`, { getUserInfo });
 };
 
 export const incrementSorterViews = (id) => {
-    return publicCall('POST', `/api/sorters/viewCount`, { id });
+    return publicCall('POST', '/api/sorters/viewCount', { id });
+};
+
+export const saveSorterResult = (result, accessToken) => {
+    if (accessToken) return privateCall('POST', '/api/sorter_results/new', { result }, accessToken);
+    else return publicCall('POST', '/api/sorter_results/new', { result });
 };

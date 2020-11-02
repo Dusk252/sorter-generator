@@ -24,14 +24,14 @@ async function getSorterList(query, page) {
             {
                 $lookup: {
                     from: 'users',
-                    localField: 'base_info.created_by',
+                    localField: 'meta.created_by',
                     foreignField: '_id',
                     as: 'user_info_array'
                 }
             },
             {
                 $project: {
-                    base_info: 1,
+                    meta: 1,
                     user_info: {
                         username: {
                             $arrayElemAt: ['$user_info_array.profile.username', 0]
@@ -42,6 +42,13 @@ async function getSorterList(query, page) {
                         role: {
                             $arrayElemAt: ['$user_info_array.role', 0]
                         }
+                    },
+                    info: {
+                        version_id: { $arrayElemAt: ['$data.version_id', 0] },
+                        name: { $arrayElemAt: ['$data.name', 0] },
+                        picture: { $arrayElemAt: ['$data.picture', 0] },
+                        description: { $arrayElemAt: ['$data.description', 0] },
+                        tags: { $arrayElemAt: ['$data.tags', 0] }
                     }
                 }
             }
@@ -49,14 +56,58 @@ async function getSorterList(query, page) {
         .toArray();
 }
 
-async function getById(id, userId) {
-    return await db
-        .get()
-        .collection('sorters')
-        .findOne({
-            _id: new ObjectID(id),
-            $or: [{ 'base_info.status': sorterStatus.PUBLIC }, { 'base_info.created_by': new ObjectID(userId) }]
-        });
+async function getById(id, userId, getUserInfo = false) {
+    if (getUserInfo) {
+        const resList = await db
+            .get()
+            .collection('sorters')
+            .aggregate([
+                {
+                    $match: {
+                        _id: new ObjectID(id),
+                        $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': new ObjectID(userId) }]
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'meta.created_by',
+                        foreignField: '_id',
+                        as: 'user_info_array'
+                    }
+                },
+                {
+                    $project: {
+                        meta: 1,
+                        user_info: {
+                            username: {
+                                $arrayElemAt: ['$user_info_array.profile.username', 0]
+                            },
+                            icon: {
+                                $arrayElemAt: ['$user_info_array.profile.icon', 0]
+                            },
+                            role: {
+                                $arrayElemAt: ['$user_info_array.role', 0]
+                            }
+                        },
+                        info: { $arrayElemAt: ['$data', 0] }
+                    }
+                }
+            ])
+            .toArray();
+        if (resList.length > 0) return resList[0];
+    } else {
+        return await db
+            .get()
+            .collection('sorters')
+            .findOne(
+                {
+                    _id: new ObjectID(id),
+                    $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': new ObjectID(userId) }]
+                },
+                { fields: { meta: 1, info: { $arrayElemAt: ['$data', 0] } } }
+            );
+    }
 }
 
 async function insertSorter(sorter) {

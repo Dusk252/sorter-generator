@@ -7,8 +7,8 @@ function extractUser() {
         (req, res, next) => {
             passport.authenticate('jwt', function (err, user, info) {
                 if (err) {
-                    console.log(err);
-                    return next(err);
+                    req.user = null;
+                    return next();
                 } else {
                     req.user = user;
                     return next();

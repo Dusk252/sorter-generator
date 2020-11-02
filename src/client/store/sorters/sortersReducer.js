@@ -20,24 +20,20 @@ const sortersReducer = (state = initialState, action) => {
         case MESSAGES.NEW_SORTER_RESOLVE:
             return {
                 sorterList: Object.assign({}, state.sorterList, { [payload._id]: payload }),
-                submissionStatus: 0
+                submissionStatus: submissionStatus.SUCCESS
             };
         case MESSAGES.NEW_SORTER_REJECT:
             return { ...state, submissionStatus: submissionStatus.ERROR };
         case MESSAGES.GET_SORTER_RESOLVE:
             return {
                 ...state,
-                sorterList: Object.assign({}, state.sorterList, { [payload._id]: payload }),
-                submissionStatus: submissionStatus.SUCCESS
+                sorterList: Object.assign({}, state.sorterList, { [payload._id]: payload })
             };
         case PAGEMESSAGES.POPULATE_SORTERS_STATE:
             let sorterList = { ...state.sorterList };
             payload.forEach((sorter) => {
                 if (!sorterList[sorter._id]) sorterList[sorter._id] = {};
-                let sorterObj = Object.assign({}, sorterList[sorter._id]);
-                sorterObj._id = sorter._id;
-                sorterObj.base_info = { ...sorter.base_info };
-                sorterObj.user_info = sorter.user_info;
+                let sorterObj = Object.assign({}, sorterList[sorter._id], sorter);
                 sorterList[sorter._id] = sorterObj;
             });
             return { ...state, sorterList };

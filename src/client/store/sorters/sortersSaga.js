@@ -28,7 +28,7 @@ function* processNewSorterSubmit({ sorter }) {
     yield put(endRequest());
 }
 
-function* processGetSorter({ id }) {
+function* processGetSorter({ id, getUserInfo }) {
     yield put(startRequest());
     yield put(actions.requestGetSorter());
     try {
@@ -42,7 +42,7 @@ function* processGetSorter({ id }) {
                 accessToken = null;
             }
         }
-        const res = yield call(getSorterById, id, accessToken);
+        const res = yield call(getSorterById, id, getUserInfo);
         yield put(actions.resolveGetSorter(res.data));
     } catch {
         yield put(actions.rejectGetSorter());
@@ -51,7 +51,9 @@ function* processGetSorter({ id }) {
 }
 
 function* processIncrementViewCount({ id }) {
-    yield call(incrementSorterViews, id);
+    try {
+        yield call(incrementSorterViews, id);
+    } catch (err) {}
 }
 
 function* watchNewSorterSubmit() {

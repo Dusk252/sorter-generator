@@ -1,39 +1,39 @@
 const Joi = require('joi');
 
-export const sorterDatabaseSchema = {
-    schema: Joi.object({
-        base_info: Joi.object({
-            name: Joi.string().max(50).required,
-            picture: Joi.string().required(),
-            tags: Joi.array().items(Joi.string()).required(),
-            description: Joi.string().max(1000),
-            privacy: Joi.string().max(30).required(),
-            creator_id: Joi.string().required(),
-            favorites: Joi.number().positive().integer().required(),
-            totalPlays: Joi.number().positive().integer().required()
-        }).required(),
-        extended_info: Joi.object({
-            groups: Joi.array()
-                .items(
-                    Joi.object({
-                        name: Joi.string().max(50).required(),
-                        color: Joi.string().regex(/^#([A-Fa-f0-9]{3,4}){1,2}$/)
-                    })
-                )
-                .required(),
-            characters: Joi.array()
-                .items(
-                    Joi.object({
-                        name: Joi.string().max(50).required(),
-                        picture: Joi.any().meta({ swaggerType: 'file' }),
-                        group: Joi.number().positive().integer()
-                    })
-                )
-                .min(3)
-                .required()
-        }).required()
-    })
-};
+// export const sorterDatabaseSchema = {
+//     schema: Joi.object({
+//         base_info: Joi.object({
+//             name: Joi.string().max(50).required,
+//             picture: Joi.string().required(),
+//             tags: Joi.array().items(Joi.string()).required(),
+//             description: Joi.string().max(1000),
+//             privacy: Joi.string().max(30).required(),
+//             creator_id: Joi.string().required(),
+//             favorites: Joi.number().positive().integer().required(),
+//             totalPlays: Joi.number().positive().integer().required()
+//         }).required(),
+//         extended_info: Joi.object({
+//             groups: Joi.array()
+//                 .items(
+//                     Joi.object({
+//                         name: Joi.string().max(50).required(),
+//                         color: Joi.string().regex(/^#([A-Fa-f0-9]{3,4}){1,2}$/)
+//                     })
+//                 )
+//                 .required(),
+//             characters: Joi.array()
+//                 .items(
+//                     Joi.object({
+//                         name: Joi.string().max(50).required(),
+//                         picture: Joi.any().meta({ swaggerType: 'file' }),
+//                         group: Joi.number().positive().integer()
+//                     })
+//                 )
+//                 .min(3)
+//                 .required()
+//         }).required()
+//     })
+// };
 
 export const sorterFormSchema = {
     schema: Joi.object({

@@ -12,7 +12,7 @@ function* processGetPage({ name, page, isPrivate }) {
         const res = yield call(requestList, name, page);
         yield put(actions.populateState({ name, payload: res.data }));
         yield put(actions.resolveRequest({ name, meta: null, payload: { page: page, items: res.data } }));
-    } catch {
+    } catch (err) {
         yield put(actions.rejectRequest({ error: err.error }));
     }
     yield put(endRequest());
