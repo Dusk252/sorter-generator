@@ -1,27 +1,25 @@
+import { push } from 'connected-react-router';
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getNewToken, clearAuthError } from '../store/auth/authActions';
 import { Spin, Alert } from 'antd';
 import BoxWrapper from '../components/general/BoxWrapper';
 import LayoutBlockWrapper from '../components/general/LayoutBlockWrapper';
 
-const LoginResult = ({ isFetching, authError, getNewToken, clearAuthError }) => {
-    const history = useHistory();
+const LoginResult = ({ isFetching, authError, getNewToken, clearAuthError, push }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!isFetching && !authError) {
-            getNewToken(() => {
-                setLoading(false);
-                setTimeout(() => history.push('/'), 3000);
-            });
-        }
-    }, [isFetching, authError]);
+        getNewToken(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isFetching) setLoading(false);
+    }, [isFetching]);
 
     const handleReturn = () => {
         clearAuthError();
-        history.push('/login');
+        push('/login');
     };
 
     return (
@@ -63,7 +61,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
     getNewToken,
-    clearAuthError
+    clearAuthError,
+    push
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginResult);

@@ -4,11 +4,16 @@ import authReducer from './auth/authReducer';
 import paginationReducer from './pagination/paginationReducer';
 import usersReducer from './users/usersReducer';
 import sortersReducer from './sorters/sortersReducer';
+import { connectRouter } from 'connected-react-router';
 
-export default combineReducers({
-    app: appReducer,
-    auth: authReducer,
-    pages: paginationReducer,
-    users: usersReducer,
-    sorters: sortersReducer
-});
+const createRootReducer = (history) =>
+    combineReducers({
+        router: connectRouter(history),
+        app: appReducer,
+        auth: authReducer,
+        pages: paginationReducer,
+        users: usersReducer,
+        sorters: sortersReducer
+    });
+
+export default createRootReducer;

@@ -3,19 +3,20 @@ import '@babel/polyfill';
 import express from 'express';
 import React from 'react';
 import bodyParser from 'body-parser';
+import url from 'url';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import db from './api/db';
 import errorHandler from './api/_helpers/error-handler';
-//import { matchRoutes } from 'react-router-config';
 import compression from 'compression';
 import renderer from './helpers/renderer';
 import { createStore } from 'redux';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
+import createRootReducer from './client/store/rootReducer';
+import ignoreFavicon from './api/_middleware/ignoreFavicon';
 require('./api/auth/passportConfig');
-//import Routes from './client/Routes';
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -49,15 +50,18 @@ app.use('/api/auth', require('./api/auth/auth.controller'));
 // global error handler
 app.use(errorHandler);
 
+//ignore favicon request
+app.use(ignoreFavicon);
+
 // let router handle routes for server side rendering
 app.use(/\/((?!api).)*/, (req, res) => {
     // We create store before rendering html
-    const store = createStore(require('./client/store/rootReducer').default, {
-        auth: {
-            isFetching: false,
-            accessToken: null,
-            currentUser: null,
-            authError: false
+    console.log(req.baseUrl);
+    let parsedUrl = url.parse(req.originalUrl);
+    const store = createStore(createRootReducer({}), {
+        router: {
+            location: { pathname: parsedUrl.path, search: parsedUrl.search, hash: parsedUrl.hash },
+            action: 'PUSH'
         }
     });
     const context = {};

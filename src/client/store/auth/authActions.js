@@ -13,8 +13,8 @@ export const MESSAGES = keyMirror({
     CLEAR_AUTH_ERROR: null
 });
 
-export const getNewToken = (callback) => ({ type: SIGNALS.GET_NEW_TOKEN, callback });
-export const localLogin = (email, password, callback) => ({ type: SIGNALS.LOCAL_LOGIN, email, password, callback });
+export const getNewToken = (redirect) => ({ type: SIGNALS.GET_NEW_TOKEN, redirect });
+export const localLogin = (email, password) => ({ type: SIGNALS.LOCAL_LOGIN, email, password });
 
 export const requestAuth = () => ({ type: MESSAGES.AUTH_REQUESTED });
 export const resolveAuth = () => ({ type: MESSAGES.AUTH_RESOLVED });

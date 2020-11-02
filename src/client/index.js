@@ -4,14 +4,16 @@ import ReactDOM from 'react-dom';
 import { renderRoutes } from 'react-router-config';
 import createStore from './store/index';
 import routes from './routes';
-import { BrowserRouter } from 'react-router-dom';
+import { ConnectedRouter } from 'connected-react-router';
 import StyleContext from 'isomorphic-style-loader/StyleContext';
 import { Provider } from 'react-redux';
+import { createBrowserHistory } from 'history';
 
 const state = window.__PRELOADED_STATE__;
 delete window.__PRELOADED_STATE__;
 
-const store = createStore(state);
+const history = createBrowserHistory();
+const store = createStore(state, history);
 const insertCss = (...styles) => {
     const removeCss = styles.map((style) => style._insertCss());
     return () => removeCss.forEach((dispose) => dispose());
@@ -19,9 +21,9 @@ const insertCss = (...styles) => {
 
 ReactDOM.hydrate(
     <Provider store={store}>
-        <BrowserRouter>
+        <ConnectedRouter history={history} noInitialPop>
             <StyleContext.Provider value={{ insertCss }}>{renderRoutes(routes)}</StyleContext.Provider>
-        </BrowserRouter>
+        </ConnectedRouter>
     </Provider>,
     document.getElementById('app')
 );

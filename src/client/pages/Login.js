@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { localLogin, clearAuthError } from './../store/auth/authActions';
 import { Form, Input, Button, Space, message } from 'antd';
@@ -9,10 +8,8 @@ import BoxWrapper from '../components/general/BoxWrapper';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 
 const Login = ({ authError, localLogin, clearAuthError }) => {
-    const history = useHistory();
-
     const handleSubmit = (values) => {
-        localLogin(values.email, values.password, () => history.push('/Login/result'));
+        localLogin(values.email, values.password);
     };
 
     useEffect(() => {

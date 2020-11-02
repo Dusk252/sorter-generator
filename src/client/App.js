@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { renderRoutes } from 'react-router-config';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Layout, Menu, BackTop } from 'antd';
 import Loading from './components/general/Loading';
 import useStyles from 'isomorphic-style-loader/useStyles';
@@ -9,15 +9,14 @@ import style from './../client/styles/styles.less';
 
 const { Header, Content, Footer } = Layout;
 
-const App = ({ route, isLoading }) => {
+const App = ({ route, isLoading, pathname }) => {
     useStyles(style);
-    const pathName = useLocation().pathname;
 
     return (
         <Layout className='layout'>
             <Loading isAnimating={isLoading} />
             <Header>
-                <Menu theme='dark' mode='horizontal' defaultSelectedKeys={[pathName]}>
+                <Menu theme='dark' mode='horizontal' defaultSelectedKeys={[pathname]}>
                     <Menu.Item key='/'>
                         <Link to='/'>Home</Link>
                     </Menu.Item>
@@ -45,7 +44,8 @@ const App = ({ route, isLoading }) => {
 };
 
 const mapStateToProps = (state) => ({
-    isLoading: state.app.isLoading
+    isLoading: state.app.isLoading,
+    pathname: state.router.location.pathname
 });
 
 export default connect(mapStateToProps)(App);

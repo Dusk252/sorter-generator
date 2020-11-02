@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { getSorter, incrementViewCount } from '../store/sorters/sortersActions';
 import { Button, Space, Divider, Row, Typography } from 'antd';
@@ -11,16 +11,14 @@ import SorterCharacterListing from './../components/sorters/SorterCharacterListi
 
 const LOCAL_STORAGE_STRING = 'SORTER_PROGRESS_';
 
-const SorterPage = ({ sorters, getSorter, incrementViewCount, match }) => {
+const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, router }) => {
     const sorterId = match.params.id;
     const [sorter, setSorter] = useState();
     const [sorterGroups, setSorterGroups] = useState();
     const [selectedCharacters, setSelectedCharacters] = useState();
     const [isSorting, setIsSorting] = useState(false);
     const [calcState, setCalcState] = useState();
-    const history = useHistory();
     useEffect(() => {
-        console.log('increment view');
         incrementViewCount(sorterId);
     }, []);
     useEffect(() => {
@@ -28,14 +26,13 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match }) => {
             localStorage.setItem(LOCAL_STORAGE_STRING + sorterId, JSON.stringify({ calcState, selectedCharacters }));
     }, [calcState]);
     useEffect(() => {
-        if (isSorting) history.push(history.location.href);
-        const unlisten = history.listen((_, action) => {
-            if (action === 'POP' && isSorting) {
-                setIsSorting(false);
-            }
-        });
-        return unlisten;
+        if (isSorting) history.push(router.location.pathname);
     }, [isSorting]);
+    useEffect(() => {
+        if (router.action === 'POP') {
+            setIsSorting(false);
+        }
+    }, [router.location, router.action]);
     useEffect(() => {
         if (sorters[sorterId] && sorters[sorterId].extended_info) {
             setSorter(sorters[sorterId]);
@@ -48,7 +45,6 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match }) => {
                 setCalcState(initialState.calcState);
                 setSelectedCharacters(initialState.selectedCharacters);
             }
-
             setSorterGroups(sorter.extended_info.groups.map((_, index) => index));
         }
     }, [sorter]);
@@ -192,12 +188,14 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match }) => {
 };
 
 const mapStateToProps = (state) => ({
-    sorters: state.sorters.sorterList
+    sorters: state.sorters.sorterList,
+    router: { location: state.router.location, action: state.router.action }
 });
 
 const mapDispatchToProps = {
     getSorter,
-    incrementViewCount
+    incrementViewCount,
+    history: { push }
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SorterPage);

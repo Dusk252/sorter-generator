@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { submitNewSorter } from '../store/sorters/sortersActions';
 import { submissionStatus } from '../store/sorters/sortersReducer';
@@ -11,7 +12,6 @@ import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import SorterCharacterListing from './../components/sorters/SorterCharacterListing';
 import { validateData } from './../../schema/clientValidation';
 import { sorterFormSchema } from './../../schema/sorter.schema';
-import { useHistory } from 'react-router-dom';
 
 const lastStep = 3;
 const initialStepStatus = [
@@ -35,7 +35,7 @@ const colorOptions = [
     magenta.primary
 ];
 
-const SorterNew = ({ status, submitNewSorter }) => {
+const SorterNew = ({ status, submitNewSorter, history }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [stepStatus, setStepStatus] = useState(initialStepStatus);
     const stepForms = [...Form.useForm(), ...Form.useForm(), ...Form.useForm()];
@@ -43,8 +43,6 @@ const SorterNew = ({ status, submitNewSorter }) => {
     const [editFormState, setEditFormState] = useState({ index: null, visible: false });
     const [mainFormState, setMainFormState] = useState([]);
     const [formError, setFormError] = useState(null);
-
-    const history = useHistory();
 
     useEffect(() => {
         if (currentStep === 3 && status === submissionStatus.SUCCESS) history.push('/');
@@ -209,7 +207,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-    submitNewSorter
+    submitNewSorter,
+    history: { push }
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SorterNew);

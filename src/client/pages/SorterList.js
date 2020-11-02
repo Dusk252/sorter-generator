@@ -1,5 +1,4 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getSortersPage, resetHasMoreCheck } from '../store/pagination/paginationActions';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
