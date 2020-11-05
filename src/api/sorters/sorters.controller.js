@@ -33,6 +33,7 @@ router.post(
     createSorter
 ); // create a new sorter
 router.post('/viewCount', incrementViewCount);
+router.post('/getVersion/:id', extractUser(), getSorterVersion);
 router.post('/:id', extractUser(), getById); // view a sorter
 
 module.exports = router;
@@ -77,10 +78,21 @@ function getUserCreated(req, res, next) {}
 function getById(req, res, next) {
     const id = req.params.id;
     const getUserInfo = req.body.getUserInfo;
+    const versionId = req.body.versionId;
     const userId = req.user ? req.user.id : null;
     sorterService
-        .getById(id, userId, getUserInfo)
+        .getById(id, userId, getUserInfo, versionId)
         .then((sorter) => (sorter ? res.json(sorter) : res.sendStatus(404)))
+        .catch((err) => next(err));
+}
+
+function getSorterVersion(req, res, next) {
+    const id = req.params.id;
+    const sorterVersion = req.body.versionId;
+    const userId = req.user ? req.user.id : null;
+    sorterService
+        .getSorterVersion(id, userId, sorterVersion)
+        .then((ver) => (ver && ver.data && ver.data.length ? res.json(ver.data[0]) : res.sendStatus(404)))
         .catch((err) => next(err));
 }
 

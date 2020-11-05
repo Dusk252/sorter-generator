@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SorterInteractions from './SorterInteractions';
 import SorterProgress from './SorterProgress';
-import SorterResults from './SorterResults';
 import { Space } from 'antd';
 
 const copyOverRemaining = (sourceList, destList, startI) => {
@@ -17,7 +16,6 @@ const Sorter = ({ sorterName, sorterLogo, characters, groups, calcState, setCalc
     const [toggleClick, setToggleClick] = useState(true);
 
     const [prevState, setPrevState] = useState(null);
-    const [isFinished, setFinished] = useState(calcState.currentRoundArr.length === 1);
 
     const processStepUpdates = ({ leftStep, rightStep, tie = false }) => {
         setPrevState(calcState);
@@ -139,8 +137,7 @@ const Sorter = ({ sorterName, sorterLogo, characters, groups, calcState, setCalc
     };
 
     useEffect(() => {
-        if (calcState.currentRoundArr.length === 1) setFinished(true);
-        else {
+        if (calcState.currentRoundArr.length !== 1) {
             const leftChar = calcState.extraRound
                 ? characters[calcState.extraRoundList[calcState.leftP]]
                 : characters[calcState.currentRoundArr[calcState.currentLList][calcState.leftP]];
@@ -185,33 +182,20 @@ const Sorter = ({ sorterName, sorterLogo, characters, groups, calcState, setCalc
     };
 
     return (
-        <>
-            {isFinished ? (
-                <SorterResults
-                    results={calcState.currentRoundArr[0]}
-                    ties={calcState.ties}
-                    characters={characters}
-                    groups={groups}
-                    sorterName={sorterName}
-                    sorterLogo={sorterLogo}
+        <Space size='large' direction='vertical' style={{ width: '100%' }}>
+            <SorterProgress progress={calcState.progress} total={calcState.totalOps} />
+            {curMatch.left != null && curMatch.right != null && (
+                <SorterInteractions
+                    charLeft={{ ...curMatch.left, group: groups[curMatch.left.group] }}
+                    charRight={{ ...curMatch.right, group: groups[curMatch.right.group] }}
+                    handleLeftClick={handleLeftClick}
+                    handleRightClick={handleRightClick}
+                    handleTie={handleTie}
+                    handleUndo={handleUndo}
+                    isUndoEnabled={prevState !== null}
                 />
-            ) : (
-                <Space size='large' direction='vertical' style={{ width: '100%' }}>
-                    <SorterProgress progress={calcState.progress} total={calcState.totalOps} />
-                    {curMatch.left != null && curMatch.right != null && (
-                        <SorterInteractions
-                            charLeft={{ ...curMatch.left, group: groups[curMatch.left.group] }}
-                            charRight={{ ...curMatch.right, group: groups[curMatch.right.group] }}
-                            handleLeftClick={handleLeftClick}
-                            handleRightClick={handleRightClick}
-                            handleTie={handleTie}
-                            handleUndo={handleUndo}
-                            isUndoEnabled={prevState !== null}
-                        />
-                    )}
-                </Space>
             )}
-        </>
+        </Space>
     );
 };
 

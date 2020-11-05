@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { getSorter, incrementViewCount } from '../store/sorters/sortersActions';
+import { newSorterResult } from '../store/sorterResults/sorterResultsActions';
 import { Button, Space, Divider, Row, Typography } from 'antd';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import Sorter from './../components/sorters/Sorter';
@@ -11,7 +12,7 @@ import SorterCharacterListing from './../components/sorters/SorterCharacterListi
 
 const LOCAL_STORAGE_STRING = 'SORTER_PROGRESS_';
 
-const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, router }) => {
+const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, match, history, router }) => {
     const sorterId = match.params.id;
     const [sorter, setSorter] = useState();
     const [sorterGroups, setSorterGroups] = useState();
@@ -22,7 +23,14 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, ro
         incrementViewCount(sorterId);
     }, []);
     useEffect(() => {
-        if (calcState && calcState.progress > 0)
+        if (calcState && calcState.currentRoundArr.length === 1) {
+            newSorterResult({
+                sorter_id: sorterId,
+                sorter_version_id: sorter.info[0].version_id,
+                results: calcState.currentRoundArr[0],
+                ties: calcState.ties
+            });
+        } else if (calcState && calcState.progress > 0)
             localStorage.setItem(LOCAL_STORAGE_STRING + sorterId, JSON.stringify({ calcState, selectedCharacters }));
     }, [calcState]);
     useEffect(() => {
@@ -34,7 +42,7 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, ro
         }
     }, [router.location, router.action]);
     useEffect(() => {
-        if (sorters[sorterId] && sorters[sorterId].info.characters) {
+        if (sorters[sorterId] && sorters[sorterId].info[0].characters) {
             setSorter(sorters[sorterId]);
         } else getSorter(sorterId, sorters[sorterId] ? false : true);
     }, [sorters]);
@@ -45,7 +53,7 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, ro
                 setCalcState(initialState.calcState);
                 setSelectedCharacters(initialState.selectedCharacters);
             }
-            setSorterGroups(sorter.info.groups.map((_, index) => index));
+            setSorterGroups(sorter.info[0].groups.map((_, index) => index));
         }
     }, [sorter]);
 
@@ -71,9 +79,9 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, ro
     const handleRestart = () => {
         localStorage.removeItem(LOCAL_STORAGE_STRING + sorterId);
         const characters =
-            sorter.info.groups && sorter.info.groups.length
-                ? sorter.info.characters.filter((char) => sorterGroups.includes(char.group))
-                : sorter.info.characters;
+            sorter.info[0].groups && sorter.info[0].groups.length
+                ? sorter.info[0].characters.filter((char) => sorterGroups.includes(char.group))
+                : sorter.info[0].characters;
         setSelectedCharacters(characters);
         setCalcState({
             currentRoundArr: characters.map((_, index) => [index]),
@@ -107,7 +115,7 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, ro
         });
     };
     const toggleSelectAll = (check) => {
-        setSorterGroups(check ? sorter.info.groups.map((_, index) => index) : []);
+        setSorterGroups(check ? sorter.info[0].groups.map((_, index) => index) : []);
     };
 
     return (
@@ -117,17 +125,17 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, ro
                 {isSorting && calcState != null && selectedCharacters != null ? (
                     <Sorter
                         characters={selectedCharacters}
-                        groups={sorter.info.groups}
-                        sorterName={sorter.info.name}
-                        sorterLogo={sorter.info.picture}
+                        groups={sorter.info[0].groups}
+                        sorterName={sorter.info[0].name}
+                        sorterLogo={sorter.info[0].picture}
                         calcState={calcState}
                         setCalcState={setCalcState}
                     />
                 ) : (
                     <Space size='large' direction='vertical' style={{ width: '100%' }}>
                         <SorterHeader
-                            sorterName={sorter.info.name}
-                            sorterLogo={sorter.info.picture}
+                            sorterName={sorter.info[0].name}
+                            sorterLogo={sorter.info[0].picture}
                             className='sorter-header'
                         />
                         {calcState && calcState.progress > 0 && (
@@ -136,7 +144,7 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, ro
                                     You have progress saved for this sorter. Current progress:{' '}
                                     {Math.round((calcState.progress * 100) / calcState.totalOps)}%
                                 </Typography.Paragraph>
-                                {sorter.info.groups != null && sorter.info.groups.length > 0 && (
+                                {sorter.info[0].groups != null && sorter.info[0].groups.length > 0 && (
                                     <Typography.Paragraph type='warning'>
                                         If you decide to continue with your previous progress your group selection in this
                                         page will be ignored.
@@ -166,9 +174,9 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, ro
                                 </Button>
                             )}
                         </Row>
-                        {sorter.info.groups != null && sorter.info.groups.length !== 0 && (
+                        {sorter.info[0].groups != null && sorter.info[0].groups.length !== 0 && (
                             <SorterGroupSelect
-                                groups={sorter.info.groups}
+                                groups={sorter.info[0].groups}
                                 selectedGroups={sorterGroups}
                                 handleCheckGroup={handleCheckGroup}
                                 toggleSelectAll={toggleSelectAll}
@@ -176,7 +184,7 @@ const SorterPage = ({ sorters, getSorter, incrementViewCount, match, history, ro
                             />
                         )}
                         <Divider orientation='left'>Sorter Info</Divider>
-                        <SorterCharacterListing groups={sorter.info.groups} characters={sorter.info.characters} />
+                        <SorterCharacterListing groups={sorter.info[0].groups} characters={sorter.info[0].characters} />
                     </Space>
                 )}
             </LayoutBlockWrapper>
@@ -192,6 +200,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
     getSorter,
     incrementViewCount,
+    newSorterResult,
     history: { push }
 };
 

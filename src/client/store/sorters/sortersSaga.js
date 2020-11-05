@@ -2,7 +2,7 @@ import { put, call, takeLatest, all, select, take } from 'redux-saga/effects';
 import * as SorterActions from './sortersActions';
 import { getNewToken, MESSAGES as AUTH_MESSAGES } from './../auth/authActions';
 import { startRequest, endRequest } from './../app/appActions';
-import { createSorter, getSorterById, incrementSorterViews } from './../apiCalls';
+import { createSorter, getSorterById, getSorterVersionById, incrementSorterViews } from './../apiCalls';
 
 const { SIGNALS, MESSAGES, ...actions } = SorterActions;
 
@@ -28,7 +28,7 @@ function* processNewSorterSubmit({ sorter }) {
     yield put(endRequest());
 }
 
-function* processGetSorter({ id, getUserInfo }) {
+function* processGetSorter({ id, getUserInfo, versionId }) {
     yield put(startRequest());
     yield put(actions.requestGetSorter());
     try {
@@ -42,10 +42,32 @@ function* processGetSorter({ id, getUserInfo }) {
                 accessToken = null;
             }
         }
-        const res = yield call(getSorterById, id, getUserInfo);
+        const res = yield call(getSorterById, id, getUserInfo, versionId);
         yield put(actions.resolveGetSorter(res.data));
     } catch {
         yield put(actions.rejectGetSorter());
+    }
+    yield put(endRequest());
+}
+
+function* processGetSorterVersion({ id, versionId }) {
+    yield put(startRequest());
+    yield put(actions.requestGetSorterVersion());
+    try {
+        let accessToken = yield select(getAccessToken);
+        if (!accessToken) {
+            yield put(getNewToken());
+            const action = yield take([AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED, AUTH_MESSAGES.AUTH_REJECTED]);
+            if (action.type === AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED) {
+                accessToken = yield select(getAccessToken);
+            } else {
+                accessToken = null;
+            }
+        }
+        const res = yield call(getSorterVersionById, id, versionId);
+        yield put(actions.resolveGetSorterVersion(id, res.data));
+    } catch {
+        //yield put(actions.rejectGetSorterVersion());
     }
     yield put(endRequest());
 }
@@ -64,10 +86,14 @@ function* watchGetSorter() {
     yield takeLatest(SIGNALS.GET_SORTER_START, processGetSorter);
 }
 
+function* watchGetSorterVersion() {
+    yield takeLatest(SIGNALS.GET_SORTER_VERSION_START, processGetSorterVersion);
+}
+
 function* watchSorterViewCount() {
     yield takeLatest(SIGNALS.INCREMENT_VIEW_COUNT, processIncrementViewCount);
 }
 
 export default function* () {
-    yield all([watchNewSorterSubmit(), watchGetSorter(), watchSorterViewCount()]);
+    yield all([watchNewSorterSubmit(), watchGetSorter(), watchGetSorterVersion(), watchSorterViewCount()]);
 }

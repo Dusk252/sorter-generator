@@ -4,6 +4,7 @@ import authReducer from './auth/authReducer';
 import paginationReducer from './pagination/paginationReducer';
 import usersReducer from './users/usersReducer';
 import sortersReducer from './sorters/sortersReducer';
+import sorterResultsReducer from './sorterResults/sorterResultsReducer';
 import { connectRouter } from 'connected-react-router';
 
 const createRootReducer = (history) =>
@@ -13,7 +14,8 @@ const createRootReducer = (history) =>
         auth: authReducer,
         pages: paginationReducer,
         users: usersReducer,
-        sorters: sortersReducer
+        sorters: sortersReducer,
+        results: sorterResultsReducer
     });
 
 export default createRootReducer;

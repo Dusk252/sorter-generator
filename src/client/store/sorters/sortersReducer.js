@@ -1,5 +1,6 @@
 import { MESSAGES } from './sortersActions';
 import { MESSAGES as PAGEMESSAGES } from './../pagination/paginationActions';
+import merge from 'lodash.merge';
 
 export const submissionStatus = {
     SUCCESS: 0,
@@ -27,7 +28,34 @@ const sortersReducer = (state = initialState, action) => {
         case MESSAGES.GET_SORTER_RESOLVE:
             return {
                 ...state,
-                sorterList: Object.assign({}, state.sorterList, { [payload._id]: payload })
+                sorterList: Object.assign({}, state.sorterList, {
+                    [payload._id]: merge({}, state.sorterList[payload._id], payload)
+                })
+            };
+        case MESSAGES.GET_SORTER_VERSION_RESOLVE:
+            let updatedSorter = state.sorterList[payload.id];
+            if (updatedSorter) {
+                const infoIndex = updatedSorter.info.findIndex((el) => el.version_id === payload.version.version_id);
+                if (infoIndex > -1)
+                    updatedSorter = Object.assign({}, updatedSorter, {
+                        info: Object.assign([], [...updatedSorter.info], {
+                            [infoIndex]: merge({}, updatedSorter.info[infoIndex], payload.version)
+                        })
+                    });
+                else updatedSorter = Object.assign({}, updatedSorter, { info: [...updatedSorter.info, payload.version] });
+                return {
+                    ...state,
+                    sorterList: Object.assign({}, state.sorterList, { [payload.id]: updatedSorter })
+                };
+            } else return state;
+        case MESSAGES.INCREMENT_TAKE_COUNT:
+            return {
+                ...state,
+                sorterList: Object.assign({}, state.sorterList, {
+                    [payload]: merge({}, state.sorterList[payload], {
+                        meta: { times_taken: state.sorterList[payload].meta.times_taken + 1 }
+                    })
+                })
             };
         case PAGEMESSAGES.POPULATE_SORTERS_STATE:
             let sorterList = { ...state.sorterList };

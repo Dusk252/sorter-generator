@@ -45,8 +45,12 @@ export const createSorter = (sorter, accessToken) => {
     );
 };
 
-export const getSorterById = (id, getUserInfo = false) => {
-    return publicCall('POST', `/api/sorters/${id}`, { getUserInfo });
+export const getSorterById = (id, getUserInfo = false, versionId = null) => {
+    return publicCall('POST', `/api/sorters/${id}`, { getUserInfo, versionId });
+};
+
+export const getSorterVersionById = (id, versionId) => {
+    return publicCall('POST', `/api/sorters/getVersion/${id}`, { versionId });
 };
 
 export const incrementSorterViews = (id) => {
@@ -54,6 +58,10 @@ export const incrementSorterViews = (id) => {
 };
 
 export const saveSorterResult = (result, accessToken) => {
-    if (accessToken) return privateCall('POST', '/api/sorter_results/new', { result }, accessToken);
-    else return publicCall('POST', '/api/sorter_results/new', { result });
+    if (accessToken) return privateCall('POST', '/api/sorter_results/new', result, accessToken);
+    else return publicCall('POST', '/api/sorter_results/new', result);
+};
+
+export const getSorterResultById = (id) => {
+    return publicCall('GET', `/api/sorter_results/${id}`);
 };

@@ -16,6 +16,7 @@ import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import createRootReducer from './client/store/rootReducer';
 import ignoreFavicon from './api/_middleware/ignoreFavicon';
+import querystring from 'querystring';
 require('./api/auth/passportConfig');
 
 const port = process.env.PORT || 3000;
@@ -45,6 +46,7 @@ app.use(
 app.post('/api/test', (req, res) => res.json({ message: req.body.message + ' from server' }));
 app.use('/api/users', require('./api/users/users.controller'));
 app.use('/api/sorters', require('./api/sorters/sorters.controller'));
+app.use('/api/sorter_results', require('./api/sorterResults/sorterResults.controller'));
 app.use('/api/auth', require('./api/auth/auth.controller'));
 
 // global error handler
@@ -56,11 +58,15 @@ app.use(ignoreFavicon);
 // let router handle routes for server side rendering
 app.use(/\/((?!api).)*/, (req, res) => {
     // We create store before rendering html
-    console.log(req.baseUrl);
     let parsedUrl = url.parse(req.originalUrl);
     const store = createStore(createRootReducer({}), {
         router: {
-            location: { pathname: parsedUrl.path, search: parsedUrl.search, hash: parsedUrl.hash },
+            location: {
+                pathname: parsedUrl.path,
+                search: parsedUrl.search,
+                hash: parsedUrl.hash,
+                query: querystring.parse(parsedUrl.query)
+            },
             action: 'PUSH'
         }
     });

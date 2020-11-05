@@ -9,7 +9,8 @@ module.exports = {
     getSorterList,
     getById,
     insertSorter,
-    updateSorter
+    updateSorter,
+    getSorterVersion
 };
 
 async function getSorterList(query, page) {
@@ -30,6 +31,19 @@ async function getSorterList(query, page) {
                 }
             },
             {
+                $lookup: {
+                    from: 'sorter_results',
+                    localField: '_id',
+                    foreignField: 'sorter_id',
+                    as: 'sorter_results'
+                }
+            },
+            {
+                $addFields: {
+                    'meta.times_taken': { $size: '$sorter_results' }
+                }
+            },
+            {
                 $project: {
                     meta: 1,
                     user_info: {
@@ -43,20 +57,49 @@ async function getSorterList(query, page) {
                             $arrayElemAt: ['$user_info_array.role', 0]
                         }
                     },
-                    info: {
-                        version_id: { $arrayElemAt: ['$data.version_id', 0] },
-                        name: { $arrayElemAt: ['$data.name', 0] },
-                        picture: { $arrayElemAt: ['$data.picture', 0] },
-                        description: { $arrayElemAt: ['$data.description', 0] },
-                        tags: { $arrayElemAt: ['$data.tags', 0] }
-                    }
+                    info: [
+                        {
+                            version_id: { $arrayElemAt: ['$data.version_id', 0] },
+                            name: { $arrayElemAt: ['$data.name', 0] },
+                            picture: { $arrayElemAt: ['$data.picture', 0] },
+                            description: { $arrayElemAt: ['$data.description', 0] },
+                            tags: { $arrayElemAt: ['$data.tags', 0] }
+                        }
+                    ]
                 }
             }
         ])
         .toArray();
 }
 
-async function getById(id, userId, getUserInfo = false) {
+async function getById(id, userId, getUserInfo = false, versionId = null) {
+    const infoQuery =
+        versionId != null
+            ? {
+                  $concatArrays: [
+                      { $ifNull: [{ $slice: ['$data', 1] }, []] },
+                      {
+                          $ifNull: [
+                              {
+                                  $slice: [
+                                      {
+                                          $filter: {
+                                              input: '$data',
+                                              as: 'item',
+                                              cond: {
+                                                  $eq: ['$$item.version_id', new ObjectID(versionId)]
+                                              }
+                                          }
+                                      },
+                                      1
+                                  ]
+                              },
+                              []
+                          ]
+                      }
+                  ]
+              }
+            : { $slice: ['$data', 1] };
     if (getUserInfo) {
         const resList = await db
             .get()
@@ -90,7 +133,7 @@ async function getById(id, userId, getUserInfo = false) {
                                 $arrayElemAt: ['$user_info_array.role', 0]
                             }
                         },
-                        info: { $arrayElemAt: ['$data', 0] }
+                        info: infoQuery
                     }
                 }
             ])
@@ -105,9 +148,24 @@ async function getById(id, userId, getUserInfo = false) {
                     _id: new ObjectID(id),
                     $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': new ObjectID(userId) }]
                 },
-                { fields: { meta: 1, info: { $arrayElemAt: ['$data', 0] } } }
+                {
+                    fields: { meta: 1, info: infoQuery }
+                }
             );
     }
+}
+
+async function getSorterVersion(id, userId, versionId) {
+    return await db
+        .get()
+        .collection('sorters')
+        .findOne(
+            {
+                _id: new ObjectID(id),
+                $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': new ObjectID(userId) }]
+            },
+            { fields: { data: { $elemMatch: { version_id: new ObjectID(versionId) } } } }
+        );
 }
 
 async function insertSorter(sorter) {
