@@ -15,7 +15,7 @@ const SorterPage = ({ results, sorters, getSorterResult, getSorter, getSorterVer
     const [result, setResult] = useState();
     const [urlCopied, setUrlCopied] = useState(false);
     useEffect(() => {
-        if (results[resultId]) {
+        if (results[resultId] && results[resultId].results) {
             setResult(results[resultId]);
         } else getSorterResult(resultId);
     }, [results]);
@@ -50,9 +50,9 @@ const SorterPage = ({ results, sorters, getSorterResult, getSorter, getSorterVer
             .then(function (dataUrl) {
                 const date = new Date();
                 let link = document.createElement('a');
-                link.download = `${toUrlSlug(
-                    sorterName
-                )}_${date.getFullYear()}-${date.getMonth()}-${date.getDate()}_${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}.jpg`;
+                link.download = `${toUrlSlug(sorterName)}_${date.getFullYear()}-${
+                    date.getMonth() + 1
+                }-${date.getDate()}_${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}.jpg`;
                 link.href = dataUrl;
                 link.click();
             });

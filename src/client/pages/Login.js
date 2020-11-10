@@ -7,7 +7,7 @@ import SlideBox from '../components/general/SlideBox';
 import BoxWrapper from '../components/general/BoxWrapper';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 
-const Login = ({ authError, localLogin, clearAuthError }) => {
+const Login = ({ authError, localLogin }) => {
     const handleSubmit = (values) => {
         localLogin(values.email, values.password);
     };
@@ -15,7 +15,6 @@ const Login = ({ authError, localLogin, clearAuthError }) => {
     useEffect(() => {
         if (authError) {
             message.error('Invalid email and password combination.');
-            clearAuthError();
         }
     }, [authError]);
 

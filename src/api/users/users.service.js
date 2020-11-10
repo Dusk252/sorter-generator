@@ -29,13 +29,35 @@ async function getUserList(page) {
     return users;
 }
 
-async function getById(id, options) {
+async function getById(id, projection = {}) {
     let query = { _id: new ObjectID(id) };
-    if (options) query = { query, options };
-    const user = await db.get().collection('users').findOne(query);
-    if (!user) return;
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    const userMatch = await db
+        .get()
+        .collection('users')
+        .aggregate([
+            { $match: query },
+            {
+                $lookup: {
+                    from: 'sorter_results',
+                    let: { userId: '$_id' },
+                    pipeline: [
+                        {
+                            $match: { $expr: { $eq: ['$user_id', '$$userId'] } }
+                        },
+                        { $sort: { _id: -1 } },
+                        { $limit: pageSize },
+                        { $project: { _id: 1 } }
+                    ],
+                    as: 'sorter_history'
+                }
+            },
+            {
+                $project: projection
+            }
+        ])
+        .toArray();
+    if (userMatch.length > 0) return userMatch[0];
+    return null;
 }
 
 async function getByEmail(email) {
@@ -46,7 +68,7 @@ async function getByEmail(email) {
             email: { $regex: new RegExp(email, 'i') }
         })
         .toArray();
-    if (users.length >= 1) {
+    if (users.length > 0) {
         const user = users[0];
         const { password, ...userWithoutPassword } = user;
         return userWithoutPassword;

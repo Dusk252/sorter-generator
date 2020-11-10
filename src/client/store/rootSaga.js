@@ -6,5 +6,5 @@ import sorterResultsSaga from './sorterResults/sorterResultsSaga';
 import paginationSaga from './pagination/paginationSaga';
 
 export default function* rootSaga() {
-    yield all([authSaga(), paginationSaga(), sortersSaga(), sorterResultsSaga()]);
+    yield all([authSaga(), paginationSaga(), usersSaga(), sortersSaga(), sorterResultsSaga()]);
 }

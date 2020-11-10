@@ -8,7 +8,7 @@ const { base_info, extended_info } = require('./users.entity');
 
 // routes
 router.post('/', /*passport.authenticate('jwt', { session: false }), authorize(Roles.ADMIN),*/ getUserList); // admin only
-router.get('/self', passport.authenticate('jwt', { session: false }), getSelf); // all authenticated users
+///router.get('/self', passport.authenticate('jwt', { session: false }), getSelf); // all authenticated users
 router.get('/:id', passport.authenticate('jwt', { session: false }), getById); // all authenticated users
 module.exports = router;
 
@@ -21,25 +21,18 @@ function getUserList(req, res, next) {
     }
 }
 
-function getSelf(req, res, next) {
-    userService
-        .getById(req.user.id)
-        .then((user) => (user ? res.json(user) : res.sendStatus(404)))
-        .catch((err) => next(err));
-}
-
 function getById(req, res, next) {
     const currentUser = req.user;
     const id = parseInt(req.params.id);
-    // only allow admins to access other user records
-    if (currentUser.role === Roles.ADMIN) {
+    // only allow admins to access other user details
+    if (currentUser.role === Roles.ADMIN || currentUser.id === id) {
         userService
-            .getById(id)
+            .getById(id, extended_info)
             .then((user) => (user ? res.json(user) : res.sendStatus(404)))
             .catch((err) => next(err));
     } else {
         userService
-            .getById(id, { projection: base_info })
+            .getById(id, base_info)
             .then((user) => (user ? res.json(user) : res.sendStatus(404)))
             .catch((err) => next(err));
     }

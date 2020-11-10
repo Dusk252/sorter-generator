@@ -1,5 +1,4 @@
 import { MESSAGES } from './sortersActions';
-import { MESSAGES as PAGEMESSAGES } from './../pagination/paginationActions';
 import merge from 'lodash.merge';
 
 export const submissionStatus = {
@@ -57,11 +56,11 @@ const sortersReducer = (state = initialState, action) => {
                     })
                 })
             };
-        case PAGEMESSAGES.POPULATE_SORTERS_STATE:
+        case MESSAGES.POPULATE_SORTERS_STATE:
             let sorterList = { ...state.sorterList };
             payload.forEach((sorter) => {
                 if (!sorterList[sorter._id]) sorterList[sorter._id] = {};
-                let sorterObj = Object.assign({}, sorterList[sorter._id], sorter);
+                let sorterObj = merge({}, state.sorterList[sorter._id], sorter);
                 sorterList[sorter._id] = sorterObj;
             });
             return { ...state, sorterList };

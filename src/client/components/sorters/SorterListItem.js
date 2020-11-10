@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from './../general/ImageWithFallback';
 import { Link } from 'react-router-dom';
 import { Typography, Tag } from 'antd';
 import { HeartOutlined } from '@ant-design/icons';
@@ -7,7 +8,7 @@ const SorterListItem = ({ data }) => {
     return (
         <div className='sorter-list-item'>
             <div className='sorter-list-item-img'>
-                <img width='200' height='100' src={data.info[0].picture}></img>
+                <Image width='200' height='100' src={data.info[0].picture} />
             </div>
             <div className='sorter-list-item-center'>
                 <Link className='sorter-list-item-title' to={`/sorters/${data._id}`}>

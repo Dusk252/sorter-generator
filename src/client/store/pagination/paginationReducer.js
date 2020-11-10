@@ -9,7 +9,8 @@ const baseState = {
 
 export const initialState = {
     users: baseState,
-    sorters: baseState
+    sorters: baseState,
+    sorter_history: baseState
 };
 
 const paginationReducer = (state = initialState, action) => {

@@ -2,11 +2,12 @@ import App from './App';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import LoginResult from './pages/LoginResult';
-import UserList from './pages/UserList';
+//import UserList from './pages/UserList';
 import SorterList from './pages/SorterList';
 import SorterNew from './pages/SorterNew';
 import SorterPage from './pages/SorterPage';
 import SorterResults from './pages/SorterResultsPage';
+import ProfilePage from './pages/ProfilePage';
 
 const routes = [
     {
@@ -25,13 +26,14 @@ const routes = [
             {
                 component: LoginResult,
                 path: '/login/result',
-                exact: true
+                exact: true,
+                restricted: '/login'
             },
-            {
-                component: UserList,
-                path: '/users',
-                exact: true
-            },
+            // {
+            //     component: UserList,
+            //     path: '/users',
+            //     exact: true
+            // },
             {
                 component: SorterList,
                 path: '/sorters',
@@ -40,7 +42,8 @@ const routes = [
             {
                 component: SorterNew,
                 path: '/sorters/new',
-                exact: true
+                exact: true,
+                private: true
             },
             {
                 component: SorterPage,
@@ -51,6 +54,12 @@ const routes = [
                 component: SorterResults,
                 path: '/results/:id',
                 exact: true
+            },
+            {
+                component: ProfilePage,
+                path: '/profile',
+                exact: true,
+                private: true
             }
         ]
     }

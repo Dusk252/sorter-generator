@@ -2,7 +2,8 @@ const keyMirror = require('keyMirror');
 
 const pageTypes = keyMirror({
     users: null,
-    sorters: null
+    sorters: null,
+    sorter_results: null
 });
 
 export const SIGNALS = keyMirror({
@@ -13,9 +14,7 @@ export const MESSAGES = keyMirror({
     REQUEST_STARTED: null,
     REQUEST_RESOLVED: null,
     REQUEST_REJECTED: null,
-    RESET_HASMORE_CHECK: null,
-    POPULATE_USERS_STATE: null,
-    POPULATE_SORTERS_STATE: null
+    RESET_HASMORE_CHECK: null
 });
 
 const genStateMessage = (name) => `POPULATE_${name.toUpperCase()}_STATE`;
@@ -32,10 +31,16 @@ export const getSortersPage = (pageNumber) => ({
     page: pageNumber,
     isPrivate: false
 });
+export const getSorterResultsPage = (pageNumber) => ({
+    type: SIGNALS.GET_PAGE,
+    name: pageTypes.sorter_results,
+    page: pageNumber,
+    isPrivate: true
+});
 
 export const startRequest = () => ({ type: MESSAGES.REQUEST_STARTED });
 export const resolveRequest = ({ name, meta, payload }) => ({ type: MESSAGES.REQUEST_RESOLVED, name, meta, payload });
 export const rejectRequest = (payload) => ({ type: MESSAGES.REQUEST_REJECTED, payload });
 
 export const resetHasMoreCheck = (name) => ({ type: MESSAGES.RESET_HASMORE_CHECK, name });
-export const populateState = ({ name, payload }) => ({ type: MESSAGES[genStateMessage(name)], payload });
+export const populateState = ({ name, payload }) => ({ type: genStateMessage(name), payload });

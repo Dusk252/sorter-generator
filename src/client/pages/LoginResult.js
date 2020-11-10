@@ -24,7 +24,7 @@ const LoginResult = ({ isFetching, authError, getNewToken, clearAuthError, push 
 
     return (
         <LayoutBlockWrapper>
-            <BoxWrapper className='small-box'>
+            <BoxWrapper className='small-box' style={{ margin: 'auto' }}>
                 {loading && !authError ? (
                     <div style={{ textAlign: 'center' }}>
                         <Spin tip='Logging in...'></Spin>

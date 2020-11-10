@@ -57,11 +57,18 @@ export const incrementSorterViews = (id) => {
     return publicCall('POST', '/api/sorters/viewCount', { id });
 };
 
-export const saveSorterResult = (result, accessToken) => {
-    if (accessToken) return privateCall('POST', '/api/sorter_results/new', result, accessToken);
-    else return publicCall('POST', '/api/sorter_results/new', result);
+export const saveSorterResult = (result) => {
+    return publicCall('POST', '/api/sorter_results/new', result);
 };
 
 export const getSorterResultById = (id) => {
     return publicCall('GET', `/api/sorter_results/${id}`);
+};
+
+export const getSorterResultList = (ids) => {
+    return publicCall('POST', `/api/sorter_results/idList`, { idList: ids });
+};
+
+export const getUserProfile = (id, accessToken) => {
+    return privateCall('GET', `/api/users/${id}`, null, accessToken);
 };

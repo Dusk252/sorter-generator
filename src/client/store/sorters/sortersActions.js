@@ -18,6 +18,7 @@ export const MESSAGES = keyMirror({
     NEW_SORTER_REQUEST: null,
     NEW_SORTER_RESOLVE: null,
     NEW_SORTER_REJECT: null,
+    POPULATE_SORTERS_STATE: null,
     INCREMENT_TAKE_COUNT: null
 });
 

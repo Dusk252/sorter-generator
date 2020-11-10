@@ -6,6 +6,7 @@ const config = require('../config.json');
 const crypto = require('crypto');
 const querystring = require('querystring');
 const OAuth = require('oauth-1.0a');
+const { base_info, extended_info } = require('./../users/users.entity');
 const userService = require('../users/users.service');
 const authService = require('./auth.service');
 const { tokenType, accountState } = require('../_helpers/enum');
@@ -73,7 +74,7 @@ async function refreshToken(req, res, next) {
         const validToken =
             tokenObj.type === tokenType.REFRESH_TOKEN && (await authService.isValidRefreshToken(sub.id, old_token));
         if (validToken) {
-            const user = await userService.getById(sub.id);
+            const user = await userService.getById(sub.id, extended_info);
             const accessToken = generateAccessToken({ id: user._id, role: user.role });
             const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
             //invalidate old token and save the new one

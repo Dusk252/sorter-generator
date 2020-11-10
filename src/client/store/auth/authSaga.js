@@ -1,6 +1,7 @@
 import { push } from 'connected-react-router';
 import { put, call, delay, takeLatest, all } from 'redux-saga/effects';
 import * as AuthActions from './authActions';
+import { processGetResults } from './../sorterResults/sorterResultsSaga';
 import { refreshToken, localLogin } from './../apiCalls';
 
 const { SIGNALS, MESSAGES, ...actions } = AuthActions;
@@ -21,11 +22,14 @@ function* processGetNewToken({ redirect }) {
     try {
         const res = yield call(refreshToken);
         yield put(actions.resolveGetNewToken({ accessToken: res.data.accessToken, currentUser: res.data.user }));
+        yield call(processGetResults, { idList: res.data.user.sorter_history });
         if (redirect) {
             yield delay(2000);
             yield put(push('/'));
         }
-    } catch {
+        yield put(actions.resolveAuth());
+    } catch (err) {
+        console.log(err);
         yield put(actions.rejectAuth());
     }
 }
