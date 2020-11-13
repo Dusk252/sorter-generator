@@ -24,7 +24,7 @@ const SorterPage = ({ results, sorters, getSorterResult, getSorter, getSorterVer
             if (!sorters[result.sorter_id]) getSorter(result.sorter_id, true, result.version_id);
             else {
                 const version = sorters[result.sorter_id].info.find((el) => el.version_id === result.sorter_version_id);
-                if (version && version.characters && version.groups) setSorter(version);
+                if (version && version.items && version.groups) setSorter(version);
                 else getSorterVersion(result.sorter_id, result.sorter_version_id);
             }
         }
@@ -101,12 +101,7 @@ const SorterPage = ({ results, sorters, getSorterResult, getSorter, getSorterVer
                     <></>
                 )}
 
-                <SorterResults
-                    results={result.results}
-                    ties={result.ties}
-                    characters={sorter.characters}
-                    groups={sorter.groups}
-                />
+                <SorterResults results={result.results} ties={result.ties} items={sorter.items} groups={sorter.groups} />
             </div>
         </LayoutBlockWrapper>
     ) : (

@@ -8,7 +8,7 @@ import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import Sorter from './../components/sorters/Sorter';
 import SorterGroupSelect from './../components/sorters/SorterGroupSelect';
 import SorterHeader from './../components/sorters/SorterHeader';
-import SorterCharacterListing from './../components/sorters/SorterCharacterListing';
+import SorterItemListing from './../components/sorters/SorterItemListing';
 
 const LOCAL_STORAGE_STRING = 'SORTER_PROGRESS_';
 
@@ -16,7 +16,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
     const sorterId = match.params.id;
     const [sorter, setSorter] = useState();
     const [sorterGroups, setSorterGroups] = useState();
-    const [selectedCharacters, setSelectedCharacters] = useState();
+    const [selectedItems, setSelectedItems] = useState();
     const [isSorting, setIsSorting] = useState(false);
     const [calcState, setCalcState] = useState();
     useEffect(() => {
@@ -31,7 +31,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
                 ties: calcState.ties
             });
         } else if (calcState && calcState.progress > 0)
-            localStorage.setItem(LOCAL_STORAGE_STRING + sorterId, JSON.stringify({ calcState, selectedCharacters }));
+            localStorage.setItem(LOCAL_STORAGE_STRING + sorterId, JSON.stringify({ calcState, selectedItems }));
     }, [calcState]);
     useEffect(() => {
         if (isSorting) history.push(router.location.pathname);
@@ -42,7 +42,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
         }
     }, [router.location, router.action]);
     useEffect(() => {
-        if (sorters[sorterId] && sorters[sorterId].info[0].characters) {
+        if (sorters[sorterId] && sorters[sorterId].info[0].items) {
             setSorter(sorters[sorterId]);
         } else getSorter(sorterId, sorters[sorterId] ? false : true);
     }, [sorters]);
@@ -51,7 +51,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
             const initialState = JSON.parse(localStorage.getItem(LOCAL_STORAGE_STRING + sorterId));
             if (initialState) {
                 setCalcState(initialState.calcState);
-                setSelectedCharacters(initialState.selectedCharacters);
+                setSelectedItems(initialState.selectedItems);
             }
             setSorterGroups(sorter.info[0].groups.map((_, index) => index));
         }
@@ -78,13 +78,13 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
 
     const handleRestart = () => {
         localStorage.removeItem(LOCAL_STORAGE_STRING + sorterId);
-        const characters =
+        const items =
             sorter.info[0].groups && sorter.info[0].groups.length
-                ? sorter.info[0].characters.filter((char) => sorterGroups.includes(char.group))
-                : sorter.info[0].characters;
-        setSelectedCharacters(characters);
+                ? sorter.info[0].items.filter((char) => sorterGroups.includes(char.group))
+                : sorter.info[0].items;
+        setSelectedItems(items);
         setCalcState({
-            currentRoundArr: characters.map((_, index) => [index]),
+            currentRoundArr: items.map((_, index) => [index]),
             nextRoundArr: [],
             currentLList: 0,
             currentRList: 1,
@@ -95,7 +95,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
             extraRoundList: null,
             ties: {},
             progress: 0,
-            totalOps: getTotalOps(characters.length)
+            totalOps: getTotalOps(items.length)
         });
         setIsSorting(true);
     };
@@ -122,9 +122,9 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
         sorter != null &&
         sorterGroups != null && (
             <LayoutBlockWrapper>
-                {isSorting && calcState != null && selectedCharacters != null ? (
+                {isSorting && calcState != null && selectedItems != null ? (
                     <Sorter
-                        characters={selectedCharacters}
+                        items={selectedItems}
                         groups={sorter.info[0].groups}
                         sorterName={sorter.info[0].name}
                         sorterLogo={sorter.info[0].picture}
@@ -184,7 +184,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
                             />
                         )}
                         <Divider orientation='left'>Sorter Info</Divider>
-                        <SorterCharacterListing groups={sorter.info[0].groups} characters={sorter.info[0].characters} />
+                        <SorterItemListing groups={sorter.info[0].groups} items={sorter.info[0].items} />
                     </Space>
                 )}
             </LayoutBlockWrapper>

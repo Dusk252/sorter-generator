@@ -11,7 +11,7 @@ const copyOverRemaining = (sourceList, destList, startI) => {
     return res;
 };
 
-const Sorter = ({ characters, groups, calcState, setCalcState }) => {
+const Sorter = ({ items, groups, calcState, setCalcState }) => {
     const [curMatch, setCurMatch] = useState({ left: null, right: null });
     const [toggleClick, setToggleClick] = useState(true);
 
@@ -139,9 +139,9 @@ const Sorter = ({ characters, groups, calcState, setCalcState }) => {
     useEffect(() => {
         if (calcState.currentRoundArr.length !== 1) {
             const leftChar = calcState.extraRound
-                ? characters[calcState.extraRoundList[calcState.leftP]]
-                : characters[calcState.currentRoundArr[calcState.currentLList][calcState.leftP]];
-            const rightChar = characters[calcState.currentRoundArr[calcState.currentRList][calcState.rightP]];
+                ? items[calcState.extraRoundList[calcState.leftP]]
+                : items[calcState.currentRoundArr[calcState.currentLList][calcState.leftP]];
+            const rightChar = items[calcState.currentRoundArr[calcState.currentRList][calcState.rightP]];
 
             if (leftChar && rightChar) {
                 setCurMatch({

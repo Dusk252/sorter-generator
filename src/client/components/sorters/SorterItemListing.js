@@ -1,16 +1,16 @@
 import React from 'react';
-import Image from './../general/ImageWithFallback';
+import Image from '../general/ImageWithFallback';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
-import { hexToRGBA } from './../../../helpers/hexToRGBA';
+import { hexToRGBA } from '../../../helpers/hexToRGBA';
 
-const groupedMap = (characters, groups, pictureField) =>
+const groupedMap = (items, groups, pictureField) =>
     groups.map((group, index) => (
         <div className='group-info-wrapper' style={{ border: `2px solid ${group.color}`, borderRadius: '5px' }} key={index}>
             <div className='group-info-title' style={{ backgroundColor: hexToRGBA(group.color, 0.5) }}>
-                {group.name} characters
+                {group.name} items
             </div>
             <div className='group-info-char-list'>
-                {characters
+                {items
                     .filter((char) => char.group === index)
                     .map((char, index) => (
                         <div className='group-info-char' key={index}>
@@ -21,13 +21,13 @@ const groupedMap = (characters, groups, pictureField) =>
             </div>
         </div>
     ));
-const ungroupedMap = (ungroupedCharacters, pictureField) => (
+const ungroupedMap = (ungroupedItems, pictureField) => (
     <div className='group-info-wrapper' style={{ border: `2px solid rgba(255, 255, 255, 0.5)`, borderRadius: '5px' }}>
         <div className='group-info-title' style={{ backgroundColor: 'rgba(255, 255, 255, 0.25)' }}>
-            Ungrouped characters
+            Ungrouped items
         </div>
         <div className='group-info-char-list'>
-            {ungroupedCharacters.map((char, index) => (
+            {ungroupedItems.map((char, index) => (
                 <div className='group-info-char' key={index}>
                     {char[pictureField] ? <Image src={char[pictureField]} /> : <></>}
                     <div>{char.name}</div>
@@ -37,28 +37,28 @@ const ungroupedMap = (ungroupedCharacters, pictureField) => (
     </div>
 );
 
-const SorterCharacterListing = ({
-    characters,
+const SorterItemListing = ({
+    items,
     groups,
     pictureField = 'picture',
     columnsCountBreakPoints = { 350: 2, 750: 3 },
     gutter = '15px'
 }) => {
-    const ungroupedCharacters = characters == null ? [] : characters.filter((char) => char.group == null);
+    const ungroupedItems = items == null ? [] : items.filter((char) => char.group == null);
 
     return (
         <div className='group-info'>
             <ResponsiveMasonry columnsCountBreakPoints={columnsCountBreakPoints}>
                 <Masonry gutter={gutter}>
-                    {groups != null && groups.length > 0 && ungroupedCharacters.length > 0 ? (
+                    {groups != null && groups.length > 0 && ungroupedItems.length > 0 ? (
                         <>
-                            {groupedMap(characters, groups, pictureField)}
-                            {ungroupedMap(ungroupedCharacters, pictureField)}
+                            {groupedMap(items, groups, pictureField)}
+                            {ungroupedMap(ungroupedItems, pictureField)}
                         </>
-                    ) : groups != null && groups.length > 0 && ungroupedCharacters.length === 0 ? (
-                        groupedMap(characters, groups, pictureField)
+                    ) : groups != null && groups.length > 0 && ungroupedItems.length === 0 ? (
+                        groupedMap(items, groups, pictureField)
                     ) : groups == null || groups.length === 0 ? (
-                        ungroupedMap(ungroupedCharacters, pictureField)
+                        ungroupedMap(ungroupedItems, pictureField)
                     ) : (
                         <></>
                     )}
@@ -68,4 +68,4 @@ const SorterCharacterListing = ({
     );
 };
 
-export default SorterCharacterListing;
+export default SorterItemListing;

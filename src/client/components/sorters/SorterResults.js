@@ -2,7 +2,7 @@ import React from 'react';
 import { Space, Typography } from 'antd';
 import Image from './../general/ImageWithFallback';
 
-const SorterResults = ({ results, ties, characters, groups }) => {
+const SorterResults = ({ results, ties, items, groups }) => {
     let counter = 1;
     let limit = 0;
 
@@ -24,18 +24,18 @@ const SorterResults = ({ results, ties, characters, groups }) => {
                             <div className='sorter-results-rank-top'>{counter}</div>
                         </div>
                         <div className='sorter-results-img'>
-                            <Image src={characters[char].picture} />
+                            <Image src={items[char].picture} />
                         </div>
                         <div className='sorter-results-name'>
                             <div className='chara-form-text chara-form-text-name'>
                                 <Typography.Title level={5} style={{ display: 'inline' }}>
                                     {' '}
-                                    {characters[char].name}
+                                    {items[char].name}
                                 </Typography.Title>
                             </div>
-                            {characters[char].group != null && (
+                            {items[char].group != null && (
                                 <div className='chara-form-text chara-form-text-group'>
-                                    <i>{groups[characters[char].group].name}</i>
+                                    <i>{groups[items[char].group].name}</i>
                                 </div>
                             )}
                         </div>
@@ -43,8 +43,8 @@ const SorterResults = ({ results, ties, characters, groups }) => {
                             className='sorter-results-group-color'
                             style={{
                                 background:
-                                    groups[characters[char].group] != null
-                                        ? groups[characters[char].group].color
+                                    groups[items[char].group] != null
+                                        ? groups[items[char].group].color
                                         : 'rgba(255, 255, 255, 0.5)'
                             }}
                         ></div>

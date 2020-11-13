@@ -15,7 +15,7 @@ let sorter = {
                 color: ''
             }
         ],
-        characters: [
+        items: [
             {
                 name: '',
                 picture: '',

@@ -33,20 +33,20 @@ const defaultGroupInfo = {
     color: 'rgba(255,255,255,0.5)'
 };
 
-const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState, setEditFormState, onValuesChange }) => {
+const CreateFormItems = ({ form, formName, groups, editForm, editFormState, setEditFormState, onValuesChange }) => {
     const [formType, setFormType] = useState(0);
     const onPictureChange = (picture) => editForm.setFieldsValue([picture]);
-    const onRemoveCharacter = (e, index) => {
+    const onRemoveItem = (e, index) => {
         e.stopPropagation();
-        const characters = form.getFieldValue('characters');
-        form.setFieldsValue({ characters: characters.filter((_, i) => i != index) });
+        const items = form.getFieldValue('items');
+        form.setFieldsValue({ items: items.filter((_, i) => i != index) });
     };
-    const onEditCharacter = (index) => {
-        const characters = form.getFieldValue('characters');
+    const onEditItem = (index) => {
+        const items = form.getFieldValue('items');
         editForm.setFieldsValue({
-            name: characters[index].name,
-            group: characters[index].group,
-            picture: characters[index].picture
+            name: items[index].name,
+            group: items[index].group,
+            picture: items[index].picture
         });
         setEditFormState({ index: index, visible: true });
     };
@@ -57,7 +57,7 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
 
     return (
         <>
-            <Radio.Group onChange={onFormTypeChange} value={formType} className='character-form-type'>
+            <Radio.Group onChange={onFormTypeChange} value={formType} className='item-form-type'>
                 <Radio value={0}>URL</Radio>
                 <Radio value={1}>Image Upload</Radio>
             </Radio.Group>
@@ -65,17 +65,17 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                 onFormFinish={async (name, { values, forms }) => {
                     if (name === 'charaForm') {
                         const { charaForm, step3 } = forms;
-                        const characters = step3.getFieldValue('characters') || [];
+                        const items = step3.getFieldValue('items') || [];
                         if (values.picture && typeof values.picture !== 'string')
                             values.displayPicture = await getBase64(values.picture);
                         else values.displayPicture = values.picture ?? '';
                         if (editFormState.index != null)
                             step3.setFieldsValue({
-                                characters: Object.assign([], [...characters], { [editFormState.index]: values })
+                                items: Object.assign([], [...items], { [editFormState.index]: values })
                             });
                         else
                             step3.setFieldsValue({
-                                characters: [...characters, values]
+                                items: [...items, values]
                             });
                         onValuesChange(step3);
                         setEditFormState({ index: null, visible: true });
@@ -84,10 +84,10 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                 }}
             >
                 {editFormState.visible ? (
-                    <Form form={editForm} name='charaForm' autoComplete='off' className='character-form'>
-                        <div className='character-form-wrapper'>
+                    <Form form={editForm} name='charaForm' autoComplete='off' className='item-form'>
+                        <div className='item-form-wrapper'>
                             {formType === 1 ? (
-                                <Form.Item className='character-form-picture-field' name='picture'>
+                                <Form.Item className='item-form-picture-field' name='picture'>
                                     <ImageUpload
                                         checkers={pictureChekcers}
                                         onChange={onPictureChange}
@@ -97,13 +97,13 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                             ) : (
                                 <></>
                             )}
-                            <div className='character-form-right'>
+                            <div className='item-form-right'>
                                 <Form.Item
                                     name='name'
                                     rules={[
                                         {
                                             required: true,
-                                            message: "Please type in the character's name."
+                                            message: "Please type in the item's name."
                                         }
                                     ]}
                                 >
@@ -150,29 +150,29 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                 ) : (
                     <Button
                         type='dashed'
-                        className='add-character-button'
+                        className='add-item-button'
                         onClick={() => {
                             setEditFormState({ visible: true });
                         }}
                         block
                     >
-                        <PlusOutlined /> Add character
+                        <PlusOutlined /> Add item
                     </Button>
                 )}
                 <Form form={form} name={formName} autoComplete='off' className='chara-form'>
-                    <Form.Item shouldUpdate={(prevValues, curValues) => prevValues.characters !== curValues.characters}>
+                    <Form.Item shouldUpdate={(prevValues, curValues) => prevValues.items !== curValues.items}>
                         {({ getFieldValue }) => {
-                            const characters = getFieldValue('characters') || [];
-                            return characters.length ? (
+                            const items = getFieldValue('items') || [];
+                            return items.length ? (
                                 <Row gutter={[16, 16]}>
-                                    {characters.map((chara, index) => {
+                                    {items.map((chara, index) => {
                                         const group = groups && groups[chara.group] ? groups[chara.group] : defaultGroupInfo;
                                         return (
                                             <Col xs={24} md={12} xxl={8} key={index}>
                                                 <div
                                                     className='chara-form-item'
                                                     style={{ borderColor: group.color }}
-                                                    onClick={() => onEditCharacter(index)}
+                                                    onClick={() => onEditItem(index)}
                                                 >
                                                     {chara.displayPicture ? (
                                                         <img
@@ -197,7 +197,7 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                                                     </div>
                                                     <MinusSquareOutlined
                                                         className='chara-form-item-remove'
-                                                        onClick={(e) => onRemoveCharacter(e, index)}
+                                                        onClick={(e) => onRemoveItem(e, index)}
                                                     />
                                                 </div>
                                             </Col>
@@ -205,14 +205,14 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
                                     })}
                                 </Row>
                             ) : (
-                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='No Characters' />
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='No Items' />
                             );
                         }}
                     </Form.Item>
                     <Form.Item
-                        name='characters'
+                        name='items'
                         className='chara-form-error'
-                        rules={[{ required: true, message: "You can't create a sorter without characters!" }]}
+                        rules={[{ required: true, message: "You can't create a sorter without items!" }]}
                     >
                         <Input type='hidden'></Input>
                     </Form.Item>
@@ -222,4 +222,4 @@ const CreateFormCharacters = ({ form, formName, groups, editForm, editFormState,
     );
 };
 
-export default CreateFormCharacters;
+export default CreateFormItems;

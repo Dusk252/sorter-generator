@@ -2,12 +2,12 @@ import React from 'react';
 import Image from './../general/ImageWithFallback';
 import { Row, Col, Button, Typography } from 'antd';
 
-const CharacterButton = ({ character, onClick }) => {
+const ItemButton = ({ item, onClick }) => {
     return (
         <Button type='text' htmlType='button' className='sorter-item' onClick={onClick}>
-            {character.picture ? (
+            {item.picture ? (
                 <div className='sorter-item-img'>
-                    <Image className='sorter-item-img' src={character.picture} />
+                    <Image className='sorter-item-img' src={item.picture} />
                 </div>
             ) : (
                 <></>
@@ -16,12 +16,12 @@ const CharacterButton = ({ character, onClick }) => {
                 <div className='chara-form-text chara-form-text-name'>
                     <Typography.Title level={5} style={{ display: 'inline' }}>
                         {' '}
-                        {character.name}
+                        {item.name}
                     </Typography.Title>
                 </div>
-                {character.group != null && (
+                {item.group != null && (
                     <div className='chara-form-text chara-form-text-group'>
-                        <i>{character.group.name}</i>
+                        <i>{item.group.name}</i>
                     </div>
                 )}
             </div>
@@ -41,7 +41,7 @@ const SorterInteractions = ({
     return (
         <Row justify='center'>
             <Col sm={8} md={7} lg={6} xl={5}>
-                <CharacterButton character={charLeft} onClick={handleLeftClick} />
+                <ItemButton item={charLeft} onClick={handleLeftClick} />
             </Col>
             <Col sm={8} md={7} lg={6} xl={5} className='sorter-item-buttons'>
                 <Button type='primary' htmlType='button' onClick={handleTie}>
@@ -52,7 +52,7 @@ const SorterInteractions = ({
                 </Button>
             </Col>
             <Col sm={8} md={7} lg={6} xl={5}>
-                <CharacterButton character={charRight} onClick={handleRightClick} />
+                <ItemButton item={charRight} onClick={handleRightClick} />
             </Col>
         </Row>
     );

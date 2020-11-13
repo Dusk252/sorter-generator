@@ -149,7 +149,7 @@ function mapSorterRequest(sorterObj, user) {
                 description: sorterObj.description,
                 tags: sorterObj.tags ?? [],
                 groups: sorterObj.groups ?? [],
-                characters: sorterObj.characters
+                items: sorterObj.items
             }
         ]
     };

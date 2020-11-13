@@ -7,9 +7,9 @@ import { Affix, Row, Col, Steps, Form, Button, Space } from 'antd';
 import { red, volcano, orange, gold, yellow, lime, green, cyan, blue, geekblue, purple, magenta } from '@ant-design/colors';
 import CreateFormBase from '../components/sorters/CreateFormBase';
 import CreateFormGroups from '../components/sorters/CreateFormGroups';
-import CreateFormCharacters from '../components/sorters/CreateFormCharacters';
+import CreateFormItems from '../components/sorters/CreateFormItems';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
-import SorterCharacterListing from './../components/sorters/SorterCharacterListing';
+import SorterItemListing from './../components/sorters/SorterItemListing';
 import { validateData } from './../../schema/clientValidation';
 import { sorterFormSchema } from './../../schema/sorter.schema';
 
@@ -128,11 +128,7 @@ const SorterNew = ({ status, submitNewSorter, history }) => {
                                     description='Sorter name, etc...'
                                 />
                                 <Steps.Step title='Groups' status={stepStatus[1].cur} description='Add selectable groups' />
-                                <Steps.Step
-                                    title='Characters'
-                                    status={stepStatus[2].cur}
-                                    description='Add characters and pictures'
-                                />
+                                <Steps.Step title='Items' status={stepStatus[2].cur} description='Add items and pictures' />
                                 <Steps.Step title='Submit' status={stepStatus[3].cur} description='Review and submit' />
                             </Steps>
                         </LayoutBlockWrapper>
@@ -153,9 +149,9 @@ const SorterNew = ({ status, submitNewSorter, history }) => {
                                 onValuesChange={handleFormValidation}
                             />
                         )}
-                        {/*--------------Step 3 - Characters--------------*/}
+                        {/*--------------Step 3 - Items--------------*/}
                         {currentStep === 2 && (
-                            <CreateFormCharacters
+                            <CreateFormItems
                                 form={stepForms[2]}
                                 formName='step3'
                                 groups={(() => {
@@ -171,9 +167,9 @@ const SorterNew = ({ status, submitNewSorter, history }) => {
                         {/*--------------Step 4 - Submit--------------*/}
                         {currentStep === 3 && (
                             <Space size='middle' direction='vertical' style={{ width: '100%' }}>
-                                <SorterCharacterListing
+                                <SorterItemListing
                                     groups={mainFormState.groups}
-                                    characters={mainFormState.characters ?? []}
+                                    items={mainFormState.items ?? []}
                                     pictureField={'displayPicture'}
                                     columnsCountBreakPoints={{ 350: 1, 750: 2 }}
                                 />

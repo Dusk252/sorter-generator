@@ -81,7 +81,6 @@ async function createUser(username, email, password, icon, account_status, integ
         joined_date: new Date(),
         friends: [],
         favorite_sorters: [],
-        sorter_history: [],
         profile: {
             username: username,
             about_me: '',
