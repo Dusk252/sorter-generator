@@ -14,7 +14,7 @@ const groupedMap = (characters, groups, pictureField) =>
                     .filter((char) => char.group === index)
                     .map((char, index) => (
                         <div className='group-info-char' key={index}>
-                            <Image src={char[pictureField]} />
+                            {char[pictureField] ? <Image src={char[pictureField]} /> : <></>}
                             <div>{char.name}</div>
                         </div>
                     ))}
@@ -29,7 +29,7 @@ const ungroupedMap = (ungroupedCharacters, pictureField) => (
         <div className='group-info-char-list'>
             {ungroupedCharacters.map((char, index) => (
                 <div className='group-info-char' key={index}>
-                    <Image src={char[pictureField]} />
+                    {char[pictureField] ? <Image src={char[pictureField]} /> : <></>}
                     <div>{char.name}</div>
                 </div>
             ))}

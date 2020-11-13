@@ -7,9 +7,13 @@ import { HeartOutlined } from '@ant-design/icons';
 const SorterListItem = ({ data }) => {
     return (
         <div className='sorter-list-item'>
-            <div className='sorter-list-item-img'>
-                <Image width='200' height='100' src={data.info[0].picture} />
-            </div>
+            {data.info[0].picture ? (
+                <div className='sorter-list-item-img'>
+                    <Image width='200' height='100' src={data.info[0].picture} />
+                </div>
+            ) : (
+                <></>
+            )}
             <div className='sorter-list-item-center'>
                 <Link className='sorter-list-item-title' to={`/sorters/${data._id}`}>
                     <Typography.Title level={5}>{data.info[0].name}</Typography.Title>

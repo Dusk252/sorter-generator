@@ -174,7 +174,7 @@ const SorterNew = ({ status, submitNewSorter, history }) => {
                                 <SorterCharacterListing
                                     groups={mainFormState.groups}
                                     characters={mainFormState.characters ?? []}
-                                    pictureField={'base64picture'}
+                                    pictureField={'displayPicture'}
                                     columnsCountBreakPoints={{ 350: 1, 750: 2 }}
                                 />
 

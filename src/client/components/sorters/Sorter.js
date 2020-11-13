@@ -11,7 +11,7 @@ const copyOverRemaining = (sourceList, destList, startI) => {
     return res;
 };
 
-const Sorter = ({ sorterName, sorterLogo, characters, groups, calcState, setCalcState }) => {
+const Sorter = ({ characters, groups, calcState, setCalcState }) => {
     const [curMatch, setCurMatch] = useState({ left: null, right: null });
     const [toggleClick, setToggleClick] = useState(true);
 

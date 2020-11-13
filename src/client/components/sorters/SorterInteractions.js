@@ -2,6 +2,33 @@ import React from 'react';
 import Image from './../general/ImageWithFallback';
 import { Row, Col, Button, Typography } from 'antd';
 
+const CharacterButton = ({ character, onClick }) => {
+    return (
+        <Button type='text' htmlType='button' className='sorter-item' onClick={onClick}>
+            {character.picture ? (
+                <div className='sorter-list-item-img'>
+                    <Image className='sorter-item-img' src={character.picture} />
+                </div>
+            ) : (
+                <></>
+            )}
+            <div className='sorter-item-text'>
+                <div className='chara-form-text chara-form-text-name'>
+                    <Typography.Title level={5} style={{ display: 'inline' }}>
+                        {' '}
+                        {character.name}
+                    </Typography.Title>
+                </div>
+                {character.group != null && (
+                    <div className='chara-form-text chara-form-text-group'>
+                        <i>{character.group.name}</i>
+                    </div>
+                )}
+            </div>
+        </Button>
+    );
+};
+
 const SorterInteractions = ({
     charLeft,
     charRight,
@@ -14,22 +41,7 @@ const SorterInteractions = ({
     return (
         <Row justify='center'>
             <Col sm={8} md={7} lg={6} xl={5}>
-                <Button type='text' htmlType='button' className='sorter-item' onClick={handleLeftClick}>
-                    <Image className='sorter-item-img' src={charLeft.picture} />
-                    <div className='sorter-item-text'>
-                        <div className='chara-form-text chara-form-text-name'>
-                            <Typography.Title level={5} style={{ display: 'inline' }}>
-                                {' '}
-                                {charLeft.name}
-                            </Typography.Title>
-                        </div>
-                        {charLeft.group != null && (
-                            <div className='chara-form-text chara-form-text-group'>
-                                <i>{charLeft.group.name}</i>
-                            </div>
-                        )}
-                    </div>
-                </Button>
+                <CharacterButton character={charLeft} onClick={handleLeftClick} />
             </Col>
             <Col sm={8} md={7} lg={6} xl={5} className='sorter-item-buttons'>
                 <Button type='primary' htmlType='button' onClick={handleTie}>
@@ -40,22 +52,7 @@ const SorterInteractions = ({
                 </Button>
             </Col>
             <Col sm={8} md={7} lg={6} xl={5}>
-                <Button type='text' htmlType='button' className='sorter-item' onClick={handleRightClick}>
-                    <Image className='sorter-item-img' src={charRight.picture} />
-                    <div className='sorter-item-text'>
-                        <div className='chara-form-text chara-form-text-name'>
-                            <Typography.Title level={5} style={{ display: 'inline' }}>
-                                {' '}
-                                {charRight.name}
-                            </Typography.Title>
-                        </div>
-                        {charRight.group != null && (
-                            <div className='chara-form-text chara-form-text-group'>
-                                <i>{charRight.group.name}</i>
-                            </div>
-                        )}
-                    </div>
-                </Button>
+                <CharacterButton character={charRight} onClick={handleRightClick} />
             </Col>
         </Row>
     );

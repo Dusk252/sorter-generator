@@ -28,7 +28,7 @@ const ImageUpload = ({ checkers, onChange, value }) => {
                 setLoading(false);
             };
             processValue();
-        }
+        } else setBase64Value('');
     }, [value]);
 
     const beforeUpload = (file) => {
