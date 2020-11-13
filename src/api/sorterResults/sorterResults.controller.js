@@ -71,7 +71,7 @@ function getResultCount(req, res, next) {
 
 function createNewResultEntry(req, res, next) {
     const results = mapSorterResultRequest(req.body, req.user);
-
+    console.log(req.user);
     sorterResultsService
         .insertResults(results)
         .then((insertedResults) => res.json(insertedResults))
@@ -81,7 +81,7 @@ function createNewResultEntry(req, res, next) {
 function mapSorterResultRequest(resObj, user) {
     return {
         sorter_id: new ObjectID(resObj.sorter_id),
-        user_id: new ObjectID(user.id),
+        user_id: user != null ? new ObjectID(user.id) : null,
         created_date: new Date(),
         sorter_version_id: new ObjectID(resObj.sorter_version_id),
         results: resObj.results,

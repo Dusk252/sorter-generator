@@ -23,15 +23,14 @@ function* processGetNewToken({ redirect }) {
     try {
         const res = yield call(refreshToken);
         yield put(actions.resolveGetNewToken({ accessToken: res.data.accessToken, currentUser: res.data.user }));
-        yield call(processGetResults, { idList: res.data.user.sorter_history });
+        //yield call(processGetResults, { idList: res.data.user.sorter_history });
         if (redirect) {
             const previousLocation = yield select(getPrevLocation);
             yield delay(2000);
             yield put(replace(previousLocation ?? '/profile'));
         }
         yield put(actions.resolveAuth());
-    } catch (err) {
-        console.log(err);
+    } catch {
         yield put(actions.rejectAuth());
     }
 }

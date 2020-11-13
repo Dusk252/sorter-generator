@@ -1,5 +1,5 @@
-import React from 'react';
-import { Form, Input, Checkbox } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Checkbox, Radio } from 'antd';
 import ImageUpload from '../general/ImageUpload';
 import TagGroup from '../general/TagGroup';
 
@@ -15,39 +15,61 @@ const pictureChekcers = [
 ];
 
 const CreateFormBase = ({ form, formName, onValuesChange }) => {
+    const [formType, setFormType] = useState(0);
     const onPictureChange = (picture) => form.setFieldsValue([picture]);
+    const onFormTypeChange = (e) => {
+        setFormType(e.target.value);
+        form.setFieldsValue({ picture: '' });
+    };
     const localOnValuesChange = (_, allValues) => {
         onValuesChange(form, allValues);
     };
     return (
-        <Form form={form} name={formName} autoComplete='off' className='base-form' onValuesChange={localOnValuesChange}>
-            <div className='base-form-wrapper'>
-                <Form.Item className='base-form-picture-field' name='picture'>
-                    <ImageUpload
-                        checkers={pictureChekcers}
-                        onChange={onPictureChange}
-                        value={form.getFieldValue('picture')}
-                    />
-                </Form.Item>
-                <div className='base-form-right'>
-                    <Form.Item name='name'>
-                        <Input placeholder='Name' autoComplete='off' />
-                    </Form.Item>
-                    <Form.Item name='tags'>
-                        <TagGroup
-                            initialTags={form.getFieldValue('tags')}
-                            onChange={(tags) => form.setFieldsValue({ tags: tags })}
-                        />
-                    </Form.Item>
-                    <Form.Item name='isPrivate' valuePropName='checked' className='checkbox-input'>
-                        <Checkbox defaultChecked={false}>Private Sorter</Checkbox>
-                    </Form.Item>
+        <>
+            <Radio.Group onChange={onFormTypeChange} value={formType} className='base-form-type'>
+                <Radio value={0}>URL</Radio>
+                <Radio value={1}>Image Upload</Radio>
+            </Radio.Group>
+            <Form form={form} name={formName} autoComplete='off' className='base-form' onValuesChange={localOnValuesChange}>
+                <div className='base-form-wrapper'>
+                    {formType === 1 ? (
+                        <Form.Item className='base-form-picture-field' name='picture'>
+                            <ImageUpload
+                                checkers={pictureChekcers}
+                                onChange={onPictureChange}
+                                value={form.getFieldValue('picture')}
+                            />
+                        </Form.Item>
+                    ) : (
+                        <></>
+                    )}
+                    <div className='base-form-right'>
+                        <Form.Item name='name'>
+                            <Input placeholder='Name' autoComplete='off' />
+                        </Form.Item>
+                        {formType === 0 ? (
+                            <Form.Item name='picture'>
+                                <Input placeholder='Image url' autoComplete='off' />
+                            </Form.Item>
+                        ) : (
+                            <></>
+                        )}
+                        <Form.Item name='tags'>
+                            <TagGroup
+                                initialTags={form.getFieldValue('tags')}
+                                onChange={(tags) => form.setFieldsValue({ tags: tags })}
+                            />
+                        </Form.Item>
+                        <Form.Item name='isPrivate' valuePropName='checked' className='checkbox-input'>
+                            <Checkbox defaultChecked={false}>Private Sorter</Checkbox>
+                        </Form.Item>
+                    </div>
                 </div>
-            </div>
-            <Form.Item name='description'>
-                <Input.TextArea placeholder='Description' autoComplete='off' rows='4' />
-            </Form.Item>
-        </Form>
+                <Form.Item name='description'>
+                    <Input.TextArea placeholder='Description' autoComplete='off' rows='4' />
+                </Form.Item>
+            </Form>
+        </>
     );
 };
 

@@ -26,8 +26,7 @@ function* processNewResultSubmit({ sorterResult }) {
         yield put(actions.resolveNewSorterResult(res.data));
         yield put(incrementTakeCount(sorterResult.sorter_id));
         yield put(push(`/results/${res.data._id}?share=true`));
-    } catch (err) {
-        console.log(err);
+    } catch {
         //TODO general frontend handling of errors
         //yield put(actions.rejectNewSorter());
     }

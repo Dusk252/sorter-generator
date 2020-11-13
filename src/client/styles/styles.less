@@ -128,6 +128,7 @@ p:last-child {
 
 .base-form {
     &-picture-field {
+        margin-right: 24px;
         .picture-uploader,
         img {
             height: 150px;
@@ -135,11 +136,16 @@ p:last-child {
             object-fit: contain;
         }
     }
+    &-type {
+        padding: 8px 24px;
+        width: 100%;
+        background-color: @background-color-light;
+        margin-bottom: 24px;
+    }
     &-wrapper {
         display: flex;
     }
     &-right {
-        margin-left: 24px;
         width: 100%;
     }
 }
@@ -274,6 +280,9 @@ p:last-child {
 
 //SorterPage
 .sorter-header {
+    .img-element {
+        width: 100%;
+    }
     img {
         height: 200px;
         object-fit: contain;
@@ -329,12 +338,15 @@ p:last-child {
         background-color: #1f1f1f;
     }
 
+    &-img {
+        margin-bottom: 10px;
+    }
+
     &-text {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        margin-top: 10px;
         min-height: 50px;
 
         .chara-form-text-name {

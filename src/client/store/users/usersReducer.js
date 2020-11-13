@@ -18,10 +18,10 @@ const usersReducer = (state = initialState, action) => {
             });
             return { ...state, userList };
         case MESSAGES.GET_USER_RESOLVE:
-            console.log(payload);
+            //console.log(payload);
             return state;
         case MESSAGES.GET_SELF_RESOLVE:
-            console.log(payload);
+            //console.log(payload);
             return state;
         default:
             return state;

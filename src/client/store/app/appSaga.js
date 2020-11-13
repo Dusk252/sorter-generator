@@ -21,7 +21,7 @@ function* processInitialLoad({ path }) {
         try {
             const res = yield call(refreshToken);
             yield put(authActions.resolveGetNewToken({ accessToken: res.data.accessToken, currentUser: res.data.user }));
-            yield call(processGetResults, { idList: res.data.user.sorter_history });
+            //yield call(processGetResults, { idList: res.data.user.sorter_history });
             yield put(authActions.resolveAuth());
             yield put(push(path));
         } catch {
@@ -43,7 +43,7 @@ function* processRouteChange({ path }) {
         try {
             const res = yield call(refreshToken);
             yield put(authActions.resolveGetNewToken({ accessToken: res.data.accessToken, currentUser: res.data.user }));
-            yield call(processGetResults, { idList: res.data.user.sorter_history });
+            //yield call(processGetResults, { idList: res.data.user.sorter_history });
             yield put(authActions.resolveAuth());
             yield put(push(path));
         } catch {

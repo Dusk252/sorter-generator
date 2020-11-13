@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Button, Space, Divider, Row, Col, Typography, Skeleton } from 'antd';
+import { Space, Divider, Row, Col, Typography } from 'antd';
+import { getSelf } from '../store/users/usersActions';
 import Image from './../components/general/ImageWithFallback';
 import SorterHistoryItem from './../components/users/SorterHistoryItem';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import { formatDate } from './../../helpers/formatDate';
 
-const ProfilePage = ({ user, sorterResults }) => {
+const ProfilePage = ({ user, sorterResults, getSelf }) => {
+    useEffect(() => {
+        getSelf();
+    }, []);
     return (
         user &&
         user.profile && (
@@ -52,4 +56,8 @@ const mapStateToProps = (state) => ({
     sorterResults: state.results.resultsList
 });
 
-export default connect(mapStateToProps)(ProfilePage);
+const mapDispatchToProps = {
+    getSelf
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProfilePage);

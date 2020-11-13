@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getUsersPage, resetHasMoreCheck } from '../store/pagination/paginationActions';
+import { pageTypes, getPage, resetHasMoreCheck } from '../store/pagination/paginationActions';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import InfiniteLoader from './../components/general/InfiniteLoader';
 
@@ -8,7 +8,7 @@ const UserItem = ({ data }) => {
     data.base_info.profile.username;
 };
 
-const UserList = ({ users, usersPage, getUsersPage }) => {
+const UserList = ({ users, usersPage, getPage }) => {
     return (
         <LayoutBlockWrapper>
             <div className='user-list'>
@@ -16,7 +16,7 @@ const UserList = ({ users, usersPage, getUsersPage }) => {
                     data={users}
                     page={usersPage}
                     pageName='users'
-                    getPage={getUsersPage}
+                    getPage={(page) => getPage(page, pageTypes.users)}
                     resetHasMoreCheck={resetHasMoreCheck}
                     ListItem={UserItem}
                 ></InfiniteLoader>
@@ -31,7 +31,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-    getUsersPage,
+    getPage,
     resetHasMoreCheck
 };
 

@@ -67,8 +67,9 @@ export const incrementSorterViews = (id) => {
     return publicCall('POST', '/api/sorters/viewCount', { id });
 };
 
-export const saveSorterResult = (result) => {
-    return publicCall('POST', '/api/sorter_results/new', result);
+export const saveSorterResult = (result, accessToken = null) => {
+    if (accessToken) return privateCall('POST', '/api/sorter_results/new', result, accessToken);
+    else return publicCall('POST', '/api/sorter_results/new', result);
 };
 
 export const getSorterResultById = (id) => {

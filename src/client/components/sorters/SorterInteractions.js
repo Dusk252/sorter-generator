@@ -6,7 +6,7 @@ const CharacterButton = ({ character, onClick }) => {
     return (
         <Button type='text' htmlType='button' className='sorter-item' onClick={onClick}>
             {character.picture ? (
-                <div className='sorter-list-item-img'>
+                <div className='sorter-item-img'>
                     <Image className='sorter-item-img' src={character.picture} />
                 </div>
             ) : (

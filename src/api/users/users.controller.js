@@ -23,7 +23,7 @@ function getUserList(req, res, next) {
 
 function getById(req, res, next) {
     const currentUser = req.user;
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     // only allow admins to access other user details
     if (currentUser.role === Roles.ADMIN || currentUser.id === id) {
         userService

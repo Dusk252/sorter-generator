@@ -2,6 +2,7 @@ import { put, call, takeLatest, all, select, take } from 'redux-saga/effects';
 import * as UserActions from './usersActions';
 import { getNewToken, MESSAGES as AUTH_MESSAGES } from './../auth/authActions';
 import { startRequest, endRequest } from './../app/appActions';
+import { processGetResults } from './../sorterResults/sorterResultsSaga';
 import { requestList, getUserProfile } from './../apiCalls';
 
 const { SIGNALS, MESSAGES, ...actions } = UserActions;
@@ -20,7 +21,7 @@ function* processGetUser({ id }) {
                 accessToken = yield select(getAccessToken);
             } else throw new Error('Unauthorized user');
         }
-        const res = yield call(getUserProfile(id));
+        const res = yield call(getUserProfile, id);
         yield put(actions.resolveGetUser(res.data));
     } catch {
         yield put(actions.rejectGetUser());
@@ -41,8 +42,9 @@ function* processGetSelf() {
         }
         const id = yield select(getCurrentUserId);
         if (id) {
-            const res = yield call(getUserProfile(id));
+            const res = yield call(getUserProfile, id, accessToken);
             yield put(actions.resolveGetSelf(res.data));
+            yield call(processGetResults, { idList: res.data.sorter_history });
         }
     } catch {
         yield put(actions.rejectGetSelf());

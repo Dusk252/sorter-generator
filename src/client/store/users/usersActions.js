@@ -13,6 +13,9 @@ export const MESSAGES = keyMirror({
     POPULATE_USERS_STATE: null
 });
 
+export const getUser = (id) => ({ type: SIGNALS.GET_USER_START, id });
+export const getSelf = () => ({ type: SIGNALS.GET_SELF_START });
+
 export const resolveGetUser = (user) => ({ type: MESSAGES.GET_USER_RESOLVE, payload: user });
 export const rejectGetUser = () => ({ type: MESSAGES.GET_USER_REJECT });
 export const resolveGetSelf = (user) => ({ type: MESSAGES.GET_USER_RESOLVE, payload: user });
