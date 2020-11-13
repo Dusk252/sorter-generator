@@ -15,7 +15,9 @@ const ObjectID = require('mongodb').ObjectID;
 
 // routes
 router.post('/', getPublic);
-router.get('/all', getAll); // sorters list
+//router.get('/all', getAll); // sorters list
+router.post('/checkNew', checkForUpdates);
+router.post('/getNew', getNew);
 router.get('/mySorters', getUserCreated); // sorters created by specific user
 //router.get('/:status', getByStatus); // get public, awaiting approval, private, etc
 router.post(
@@ -38,22 +40,36 @@ router.post('/:id', extractUser(), getById); // view a sorter
 
 module.exports = router;
 
-function getAll(req, res, next) {
-    if (Number.isInteger(req.body.page)) {
+function getAll(req, res, next) {}
+
+function checkForUpdates(req, res, next) {
+    sorterService
+        .checkNew(req.body.lastUpdated)
+        .then((count) => res.json(count))
+        .catch((err) => next(err));
+}
+
+function getNew(req, res, next) {
+    const date = new Date(req.body.lastUpdated);
+    if (date.valueOf()) {
         sorterService
-            .getSorterList({}, req.body.page)
+            .getSorterList({ $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_date': { $gte: date } }] }, 0)
             .then((sorters) => res.json(sorters))
             .catch((err) => next(err));
-    }
+    } else return res.status(400).json({ message: 'Bad Request' });
 }
 
 function getPublic(req, res, next) {
-    if (Number.isInteger(req.body.page)) {
+    const date = new Date(req.body.lastUpdated);
+    if (Number.isInteger(req.body.count) && date.valueOf()) {
         sorterService
-            .getSorterList({ 'meta.status': sorterStatus.PUBLIC }, req.body.page)
+            .getSorterList(
+                { $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_date': { $lt: date } }] },
+                req.body.count
+            )
             .then((sorters) => res.json(sorters))
             .catch((err) => next(err));
-    }
+    } else return res.status(400).json({ message: 'Bad Request' });
 }
 
 function getByStatus(req, res, next) {

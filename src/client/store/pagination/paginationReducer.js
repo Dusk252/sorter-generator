@@ -1,9 +1,8 @@
 import { MESSAGES } from './paginationActions';
 
 const baseState = {
-    currentPage: 0,
     hasMore: true,
-    lastUpdated: new Date(0),
+    lastUpdated: new Date(),
     items: []
 };
 
@@ -14,29 +13,42 @@ export const initialState = {
 };
 
 const paginationReducer = (state = initialState, action) => {
-    const { type, name, meta, payload } = action;
+    const { type, name, payload } = action;
     switch (type) {
         case MESSAGES.REQUEST_STARTED:
             return { ...state, isFetching: true };
-        case MESSAGES.REQUEST_RESOLVED:
+        case MESSAGES.REQUEST_RESOLVED: {
             const newState = {
-                currentPage: payload.items.length > 0 ? payload.page : payload.page - 1,
                 hasMore: payload.items.length > 0,
                 lastUpdated: Date.now(),
                 filter: state[name].filter,
                 items: [...state[name].items]
-                // items: meta.prepend
-                //     ? [...state[name].items].unshift(payload.items)
-                //     : [...state[name].items].push(payload.items)
             };
-            payload.items.forEach((item) => {
-                newState.items.push(item._id);
-            });
+            newState.items.push(...payload.items.map((item) => item._id));
             return { ...state, [name]: newState, isFetching: false };
+        }
         case MESSAGES.REQUEST_REJECTED:
             return { ...state, isFetching: false, error: payload.error };
         case MESSAGES.RESET_HASMORE_CHECK:
-            return { ...state, [name]: { ...[name], hasMore: true } };
+            return { ...state, [name]: { ...state[name], hasMore: true } };
+        // case MESSAGES.REQUEST_CHECK_NEW_RESOLVED:
+        //     return { ...state, [name]: { ...state[name], hasNew: payload ? true : false } };
+        case MESSAGES.REQUEST_NEW_RESOLVED: {
+            const newState = {
+                hasMore: state[name].hasMore,
+                lastUpdated: Date.now(),
+                filter: state[name].filter,
+                items: [...state[name].items]
+            };
+            newState.items.unshift(...payload.items.map((item) => item._id));
+            return { ...state, [name]: newState, isFetching: false };
+        }
+
+        // case SORTER_MESSAGES.NEW_SORTER_RESOLVE:
+        //     return {
+        //         ...state,
+        //         sorters: { ...state.sorters, items: Object.assign([], [payload._id], state.sorters.items) }
+        //     };
         default:
             return state;
     }

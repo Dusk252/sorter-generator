@@ -19,7 +19,7 @@ const sortersReducer = (state = initialState, action) => {
             return { ...state, submissionStatus: submissionStatus.INPROGRESS };
         case MESSAGES.NEW_SORTER_RESOLVE:
             return {
-                sorterList: Object.assign({}, state.sorterList, { [payload._id]: payload }),
+                ...state,
                 submissionStatus: submissionStatus.SUCCESS
             };
         case MESSAGES.NEW_SORTER_REJECT:

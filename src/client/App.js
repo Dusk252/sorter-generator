@@ -1,32 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { matchRoutes, renderRoutes } from 'react-router-config';
-import { Link } from 'react-router-dom';
-import { push } from 'connected-react-router';
+import { renderRoutes } from 'react-router-config';
+import Link from './components/general/Link';
 import { Layout, Menu, BackTop } from 'antd';
 import Loading from './components/general/Loading';
-import { getNewToken, clearAuthError } from './store/auth/authActions';
+import { initialLogin } from './store/app/appActions';
 import useStyles from 'isomorphic-style-loader/useStyles';
 import style from './../client/styles/styles.less';
 
 const { Header, Content, Footer } = Layout;
 
-const App = ({ route, isLoading, pathname, authStatus, clearAuthError, user, getNewToken, history }) => {
-    const [renderRoute, setRenderRoute] = useState(false);
+const App = ({ route, isLoading, isFirstRender, pathname, initialLogin, isLoggedIn }) => {
     useStyles(style);
     useEffect(() => {
-        const match = matchRoutes(route.routes, pathname);
-        if (match.length && match[0].route.private) {
-            if (!user) {
-                setRenderRoute(false);
-                if (!authStatus.authError) getNewToken();
-                else {
-                    clearAuthError();
-                    history.push('/login');
-                }
-            } else setRenderRoute(true);
-        } else setRenderRoute(true);
-    }, [user, authStatus.authError, pathname]);
+        if (isFirstRender) initialLogin(pathname);
+    }, []);
 
     return (
         <Layout className='layout'>
@@ -36,15 +24,18 @@ const App = ({ route, isLoading, pathname, authStatus, clearAuthError, user, get
                     <Menu.Item key='/'>
                         <Link to='/'>Home</Link>
                     </Menu.Item>
-                    <Menu.Item key='/login'>
-                        <Link to='/login'>Login</Link>
-                    </Menu.Item>
-                    <Menu.Item key='/profile'>
-                        <Link to='/profile'>Profile</Link>
-                    </Menu.Item>
-                    <Menu.Item key='/users'>
+                    {isLoggedIn ? (
+                        <Menu.Item key='/profile'>
+                            <Link to='/profile'>Profile</Link>
+                        </Menu.Item>
+                    ) : (
+                        <Menu.Item key='/login'>
+                            <Link to='/login'>Login</Link>
+                        </Menu.Item>
+                    )}
+                    {/* <Menu.Item key='/users'>
                         <Link to='/users'>Users</Link>
-                    </Menu.Item>
+                    </Menu.Item> */}
                     <Menu.Item key='/sorters'>
                         <Link to='/sorters'>Sorters</Link>
                     </Menu.Item>
@@ -53,9 +44,9 @@ const App = ({ route, isLoading, pathname, authStatus, clearAuthError, user, get
                     </Menu.Item>
                 </Menu>
             </Header>
-            <Content style={{ padding: '0 50px' }}>
+            <Content style={{ padding: '50px 50px 0 50px' }}>
                 <BackTop />
-                {renderRoute ? <div className='container'>{renderRoutes(route.routes)}</div> : <></>}
+                <div className='container'>{renderRoutes(route.routes)}</div>
             </Content>
             <Footer style={{ textAlign: 'center' }}>Sorter Generator @2020 - created by Dusk252</Footer>
         </Layout>
@@ -63,16 +54,14 @@ const App = ({ route, isLoading, pathname, authStatus, clearAuthError, user, get
 };
 
 const mapStateToProps = (state) => ({
-    isLoading: state.app.isLoading,
-    authStatus: { isFetching: state.auth.isFetching, authError: state.auth.authError },
+    isLoading: state.app.isLoading ?? false,
+    isFirstRender: state.app.isFirstRender,
     pathname: state.router.location.pathname,
-    user: state.auth.currentUser
+    isLoggedIn: state.auth.currentUser != null
 });
 
 const mapDispatchToProps = {
-    history: { push },
-    getNewToken,
-    clearAuthError
+    initialLogin
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

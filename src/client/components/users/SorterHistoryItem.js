@@ -24,4 +24,8 @@ const SorterHistoryItem = ({ data }) => {
     );
 };
 
+SorterHistoryItem.Skeleton = () => {
+    return <div className='sorter-history-item'></div>;
+};
+
 export default SorterHistoryItem;

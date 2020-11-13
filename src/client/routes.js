@@ -26,8 +26,7 @@ const routes = [
             {
                 component: LoginResult,
                 path: '/login/result',
-                exact: true,
-                restricted: '/login'
+                exact: true
             },
             // {
             //     component: UserList,

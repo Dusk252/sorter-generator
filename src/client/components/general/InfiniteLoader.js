@@ -1,12 +1,25 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-scroll';
 
-const InfiniteLoader = ({ data, page, pageName, getPage, resetHasMoreCheck, ListItem }) => {
-    const loader = useRef(null);
+const InfiniteLoader = ({ data, page, pageName, getPage, getNewItems, resetHasMoreCheck, ListItem, ToTopComponent }) => {
+    const topLoader = useRef(null);
+    const bottomLoader = useRef(null);
+    const [hasNew, setHasNew] = useState(false);
+    const [toTopVisible, setToTopVisible] = useState(false);
+    const [loadingNew, setLoadingNew] = useState(false);
 
-    const handleObserver = (entities) => {
+    const handleTopObserver = (entities) => {
+        const target = entities[0];
+        if (target.isIntersecting) {
+            setHasNew(false);
+        }
+    };
+
+    const handleBottomObserver = (entities) => {
         const target = entities[0];
         if (target.isIntersecting && page.hasMore) {
-            getPage(page.currentPage + 1);
+            setLoadingNew(false);
+            getPage();
         }
     };
 
@@ -17,22 +30,81 @@ const InfiniteLoader = ({ data, page, pageName, getPage, resetHasMoreCheck, List
             threshold: 1.0
         };
 
-        const observer = new IntersectionObserver(handleObserver, options);
-        if (loader.current) {
-            observer.observe(loader.current);
+        const topObserver = new IntersectionObserver(handleTopObserver, options);
+        if (topLoader.current) {
+            topObserver.observe(topLoader.current);
         }
+
+        const bottomObserver = new IntersectionObserver(handleBottomObserver, options);
+        if (bottomLoader.current) {
+            bottomObserver.observe(bottomLoader.current);
+        }
+
+        const getNew = setInterval(() => {
+            setLoadingNew(true);
+            getNewItems();
+        }, 120000);
+
+        return () => {
+            topObserver.disconnect();
+            bottomObserver.disconnect();
+            clearInterval(getNew);
+        };
     }, [page]);
 
     useEffect(() => {
+        if (loadingNew) {
+            setLoadingNew(false);
+            setHasNew(true);
+        }
+    }, [page.items]);
+
+    useEffect(() => {
+        let showTimeout = null;
+        if (hasNew)
+            showTimeout = setTimeout(() => {
+                setToTopVisible(true);
+            }, 2000);
+        else {
+            clearTimeout(showTimeout);
+            setToTopVisible(false);
+        }
+        return () => clearTimeout(showTimeout);
+    }, [hasNew]);
+
+    useEffect(() => {
+        setLoadingNew(true);
+        getNewItems();
         return () => resetHasMoreCheck(pageName);
     }, []);
 
     return (
         <>
+            {toTopVisible ? (
+                <Link
+                    activeClass='active'
+                    to='top'
+                    className='infinite-loader-new-button'
+                    style={{
+                        position: 'fixed',
+                        width: '150px',
+                        left: 'calc(50% - 75px)',
+                        top: '20px'
+                    }}
+                    spy={true}
+                    smooth={true}
+                    duration={500}
+                >
+                    <ToTopComponent />
+                </Link>
+            ) : (
+                <></>
+            )}
+            <div id='top' ref={topLoader}></div>
             {page.items.map((id) => {
                 return <ListItem data={data[id]} key={id}></ListItem>;
             })}
-            <div ref={loader}></div>
+            <div ref={bottomLoader}></div>
         </>
     );
 };

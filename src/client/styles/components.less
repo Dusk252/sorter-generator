@@ -77,6 +77,24 @@
     border-color: @error-color;
 }
 
+//Infinite loader component
+
+.infinite-loader {
+    &-new-button {
+        background: @primary-color;
+        color: @text-color;
+        border-radius: 7px;
+        padding: 4px 8px;
+        display: flex;
+        margin: auto;
+        align-items: center;
+        justify-content: center;
+        &:hover {
+            color: @text-color;
+        }
+    }
+}
+
 //loading
 @keyframes spinner {
     0% {

@@ -60,6 +60,10 @@ app.use(/\/((?!api).)*/, (req, res) => {
     // We create store before rendering html
     let parsedUrl = url.parse(req.originalUrl);
     const store = createStore(createRootReducer({}), {
+        app: {
+            //currentLocation: parsedUrl.path,
+            isFirstRender: true
+        },
         router: {
             location: {
                 pathname: parsedUrl.path,

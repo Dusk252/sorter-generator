@@ -72,6 +72,7 @@
         "react-responsive-masonry": "^2.1.0",
         "react-router-config": "5.1.1",
         "react-router-dom": "5.1.2",
+        "react-scroll": "^1.8.1",
         "react-spring": "^8.0.27",
         "redux": "4.0.5",
         "redux-immutable-state-invariant": "^2.1.0",

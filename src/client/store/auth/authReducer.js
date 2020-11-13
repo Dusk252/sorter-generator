@@ -25,7 +25,7 @@ const authReducer = (state = initialState, action) => {
             if (state.currentUser && state.currentUser.sorter_history) {
                 const sorterHistory = state.currentUser.sorter_history.slice(0, -1);
                 sorterHistory.unshift({ _id: payload._id });
-                return { ...state, currentUser: { sorter_history: sorterHistory, ...currentUser } };
+                return { ...state, currentUser: { sorter_history: sorterHistory, ...state.currentUser } };
             }
         default:
             return state;

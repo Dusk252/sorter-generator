@@ -3,9 +3,10 @@ const db = require('./../db');
 const ObjectID = require('mongodb').ObjectID;
 const sorterStatus = require('./../_helpers/enum').sorterStatus;
 
-const pageSize = 10;
+const pageSize = 15;
 
 module.exports = {
+    checkNew,
     getSorterList,
     getById,
     insertSorter,
@@ -13,15 +14,22 @@ module.exports = {
     getSorterVersion
 };
 
-async function getSorterList(query, page) {
+async function checkNew(lastUpdated) {
+    return await db
+        .get()
+        .collection('sorters')
+        .count({ $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_date': { $gte: new Date(lastUpdated) } }] });
+}
+
+async function getSorterList(query, count) {
     return await db
         .get()
         .collection('sorters')
         .aggregate([
             { $match: query },
             { $sort: { _id: -1 } },
-            { $skip: (page - 1) * pageSize },
-            { $limit: pageSize },
+            { $skip: count },
+            { $limit: count ? pageSize : Number.MAX_SAFE_INTEGER },
             {
                 $lookup: {
                     from: 'users',
