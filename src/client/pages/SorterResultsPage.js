@@ -4,12 +4,12 @@ import { getSorterResult } from '../store/sorterResults/sorterResultsActions';
 import { getSorter, getSorterVersion } from '../store/sorters/sortersActions';
 import SorterResults from './../components/sorters/SorterResults';
 import SorterHeader from './../components/sorters/SorterHeader';
-import { Button, Space, Row, Col, Input, Tooltip } from 'antd';
+import { Button, Row, Col, Input, Tooltip } from 'antd';
 import { CopyOutlined, CheckOutlined } from '@ant-design/icons';
 import * as htmlToImage from 'html-to-image';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 
-const SorterPage = ({ results, sorters, getSorterResult, getSorter, getSorterVersion, match, location }) => {
+const SorterResultsPage = ({ results, sorters, getSorterResult, getSorter, getSorterVersion, match, location }) => {
     const resultId = match.params.id;
     const [sorter, setSorter] = useState();
     const [result, setResult] = useState();
@@ -121,4 +121,4 @@ const mapDispatchToProps = {
     getSorterVersion
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SorterPage);
+export default connect(mapStateToProps, mapDispatchToProps)(SorterResultsPage);
