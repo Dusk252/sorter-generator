@@ -26,8 +26,8 @@ const SorterList = ({ sorters, sortersPage, getPage, getNewItems }) => {
                     getPage={() => getPage(sortersPage.items.length, sortersPage.lastUpdated, pageTypes.sorters)}
                     getNewItems={() => getNewItems(sortersPage.lastUpdated, pageTypes.sorters)}
                     resetHasMoreCheck={resetHasMoreCheck}
-                    ListItem={SorterListItem}
                     ToTopComponent={ToTopComponent}
+                    render={(items, data) => items.map((id) => <SorterListItem data={data[id]} key={id} />)}
                 ></InfiniteLoader>
             </div>
         </LayoutBlockWrapper>

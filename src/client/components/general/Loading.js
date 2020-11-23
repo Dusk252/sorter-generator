@@ -11,7 +11,8 @@ const Container = ({ children, isFinished, animationDuration }) => (
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100%'
+            width: '100%',
+            zIndex: 999
         }}
     >
         {children}

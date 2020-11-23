@@ -7,6 +7,7 @@ import SorterList from './pages/SorterList';
 import SorterNew from './pages/SorterNew';
 import SorterPage from './pages/SorterPage';
 import SorterResults from './pages/SorterResultsPage';
+import SorterResultsList from './pages/SorterResultsList';
 import ProfilePage from './pages/ProfilePage';
 
 const routes = [
@@ -48,6 +49,12 @@ const routes = [
                 component: SorterPage,
                 path: '/sorters/:id',
                 exact: true
+            },
+            {
+                component: SorterResultsList,
+                path: '/results/history',
+                exact: true,
+                private: true
             },
             {
                 component: SorterResults,

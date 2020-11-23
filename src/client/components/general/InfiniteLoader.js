@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-scroll';
 
-const InfiniteLoader = ({ data, page, pageName, getPage, getNewItems, resetHasMoreCheck, ListItem, ToTopComponent }) => {
+const InfiniteLoader = ({ data, page, pageName, getPage, getNewItems, resetHasMoreCheck, render, ToTopComponent }) => {
     const topLoader = useRef(null);
     const bottomLoader = useRef(null);
     const [hasNew, setHasNew] = useState(false);
@@ -101,9 +101,7 @@ const InfiniteLoader = ({ data, page, pageName, getPage, getNewItems, resetHasMo
                 <></>
             )}
             <div id='top' ref={topLoader}></div>
-            {page.items.map((id) => {
-                return <ListItem data={data[id]} key={id}></ListItem>;
-            })}
+            {render(page.items, data)}
             <div ref={bottomLoader}></div>
         </>
     );

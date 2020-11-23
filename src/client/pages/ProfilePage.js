@@ -6,6 +6,7 @@ import Image from './../components/general/ImageWithFallback';
 import SorterHistoryItem from './../components/users/SorterHistoryItem';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import { formatDate } from './../../helpers/formatDate';
+import Link from './../components/general/Link';
 
 const ProfilePage = ({ user, sorterResults, getSelf }) => {
     useEffect(() => {
@@ -36,7 +37,7 @@ const ProfilePage = ({ user, sorterResults, getSelf }) => {
                     <Row className='sorter-history' gutter={'10'}>
                         {user.sorter_history &&
                             user.sorter_history.map((res, index) => (
-                                <Col key={index} span={12}>
+                                <Col key={index} span={24} lg={12}>
                                     {sorterResults[res._id] ? (
                                         <SorterHistoryItem data={sorterResults[res._id]} />
                                     ) : (
@@ -45,6 +46,9 @@ const ProfilePage = ({ user, sorterResults, getSelf }) => {
                                 </Col>
                             ))}
                     </Row>
+                    <Link to='/results/history' style={{ display: 'block', textAlign: 'center' }}>
+                        View More
+                    </Link>
                 </Space>
             </LayoutBlockWrapper>
         )
