@@ -7,7 +7,7 @@ const SorterHeader = ({ sorterName, sorterLogo, className, user }) => {
         <Row className={className} justify='center'>
             <Col sm={24} md={21} lg={18} xl={15}>
                 <Image src={sorterLogo} />
-                <Typography.Title level={2} style={{ textAlign: 'center' }}>
+                <Typography.Title level={2} style={{ textAlign: 'center', marginTop: '0.5em' }}>
                     {sorterName}
                 </Typography.Title>
             </Col>

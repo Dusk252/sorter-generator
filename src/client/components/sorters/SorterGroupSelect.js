@@ -1,9 +1,20 @@
 import React from 'react';
 import { Row, Col, Checkbox, Divider } from 'antd';
 
-const SorterGroupSelect = ({ groups, selectedGroups, handleCheckGroup, toggleSelectAll, className }) => {
+const SorterGroupSelect = ({
+    groups,
+    selectedGroups,
+    handleCheckGroup,
+    toggleSelectAll,
+    toggleSelectUngrouped,
+    className
+}) => {
     const handleSelectAll = (e) => {
         toggleSelectAll(e.target.checked);
+    };
+
+    const handleSelectUngrouped = (e) => {
+        toggleSelectUngrouped(e.target.checked);
     };
 
     const onChange = (e, index) => {
@@ -29,6 +40,15 @@ const SorterGroupSelect = ({ groups, selectedGroups, handleCheckGroup, toggleSel
                                 </Checkbox>
                             </Col>
                         ))}
+                        {toggleSelectUngrouped != null ? (
+                            <Col span={8}>
+                                <Checkbox defaultChecked={true} onChange={(e) => handleSelectUngrouped(e)}>
+                                    Ungrouped
+                                </Checkbox>
+                            </Col>
+                        ) : (
+                            <></>
+                        )}
                     </Row>
                 </Col>
             </Row>

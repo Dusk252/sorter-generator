@@ -27,14 +27,14 @@ const SorterResults = ({ results, ties, items, groups }) => {
                             <Image src={items[char].picture} />
                         </div>
                         <div className='sorter-results-name'>
-                            <div className='chara-form-text chara-form-text-name'>
+                            <div className='item-form-text item-form-text-name'>
                                 <Typography.Title level={5} style={{ display: 'inline' }}>
                                     {' '}
                                     {items[char].name}
                                 </Typography.Title>
                             </div>
                             {items[char].group != null && (
-                                <div className='chara-form-text chara-form-text-group'>
+                                <div className='item-form-text item-form-text-group'>
                                     <i>{groups[items[char].group].name}</i>
                                 </div>
                             )}

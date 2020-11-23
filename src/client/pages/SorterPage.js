@@ -16,7 +16,8 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
     const sorterId = match.params.id;
     const [sorter, setSorter] = useState();
     const [sorterGroups, setSorterGroups] = useState();
-    const [selectedItems, setSelectedItems] = useState();
+    const [hasUngrouped, setHasUngrouped] = useState(false);
+    const [selectUngrouped, setSelectUngrouped] = useState(true);
     const [isSorting, setIsSorting] = useState(false);
     const [calcState, setCalcState] = useState();
     useEffect(() => {
@@ -54,6 +55,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
                 setSelectedItems(initialState.selectedItems);
             }
             setSorterGroups(sorter.info[0].groups.map((_, index) => index));
+            setHasUngrouped(sorter.info[0].items == null ? false : sorter.info[0].items.some((item) => item.group == null));
         }
     }, [sorter]);
 
@@ -77,14 +79,15 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
     };
 
     const handleRestart = () => {
-        localStorage.removeItem(LOCAL_STORAGE_STRING + sorterId);
-        const items =
+        const itemIndices =
             sorter.info[0].groups && sorter.info[0].groups.length
-                ? sorter.info[0].items.filter((char) => sorterGroups.includes(char.group))
-                : sorter.info[0].items;
-        setSelectedItems(items);
+                ? sorter.info[0].items.reduce((acc, item, index) => {
+                      if (sorterGroups.includes(item.group) || (selectUngrouped && item.group == null)) acc.push([index]);
+                      return acc;
+                  }, [])
+                : sorter.info[0].items.map((_, index) => [index]);
         setCalcState({
-            currentRoundArr: items.map((_, index) => [index]),
+            currentRoundArr: itemIndices,
             nextRoundArr: [],
             currentLList: 0,
             currentRList: 1,
@@ -95,7 +98,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
             extraRoundList: null,
             ties: {},
             progress: 0,
-            totalOps: getTotalOps(items.length)
+            totalOps: getTotalOps(itemIndices.length)
         });
         setIsSorting(true);
     };
@@ -122,9 +125,9 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
         sorter != null &&
         sorterGroups != null && (
             <LayoutBlockWrapper>
-                {isSorting && calcState != null && selectedItems != null ? (
+                {isSorting && calcState != null ? (
                     <Sorter
-                        items={selectedItems}
+                        items={sorter.info[0].items}
                         groups={sorter.info[0].groups}
                         sorterName={sorter.info[0].name}
                         sorterLogo={sorter.info[0].picture}
@@ -180,6 +183,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
                                 selectedGroups={sorterGroups}
                                 handleCheckGroup={handleCheckGroup}
                                 toggleSelectAll={toggleSelectAll}
+                                toggleSelectUngrouped={hasUngrouped ? (check) => setSelectUngrouped(check) : null}
                                 className='sorter-group-select'
                             />
                         )}

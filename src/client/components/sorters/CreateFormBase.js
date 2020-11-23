@@ -15,22 +15,29 @@ const pictureChekcers = [
 ];
 
 const CreateFormBase = ({ form, formName, onValuesChange }) => {
-    const [formType, setFormType] = useState(0);
+    const [formType, setFormType] = useState(form.getFieldValue('baseFormType') ?? 0);
     const onPictureChange = (picture) => form.setFieldsValue([picture]);
     const onFormTypeChange = (e) => {
         setFormType(e.target.value);
-        form.setFieldsValue({ picture: '' });
+        const pictureError = form.getFieldError('picture');
+        form.setFieldsValue({ picture: undefined });
+        if (pictureError && pictureError.length) {
+            form.setFieldsValue({ picture: '' });
+            setTimeout(() => onValuesChange(form, form.getFieldsValue()), 0);
+        } else form.setFieldsValue({ picture: undefined });
     };
     const localOnValuesChange = (_, allValues) => {
         onValuesChange(form, allValues);
     };
     return (
         <>
-            <Radio.Group onChange={onFormTypeChange} value={formType} className='base-form-type'>
-                <Radio value={0}>URL</Radio>
-                <Radio value={1}>Image Upload</Radio>
-            </Radio.Group>
             <Form form={form} name={formName} autoComplete='off' className='base-form' onValuesChange={localOnValuesChange}>
+                <Form.Item name='baseFormType' initialValue={0}>
+                    <Radio.Group onChange={onFormTypeChange} className='base-form-type'>
+                        <Radio value={0}>URL</Radio>
+                        <Radio value={1}>Image Upload</Radio>
+                    </Radio.Group>
+                </Form.Item>
                 <div className='base-form-wrapper'>
                     {formType === 1 ? (
                         <Form.Item className='base-form-picture-field' name='picture'>

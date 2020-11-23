@@ -34,7 +34,7 @@ const defaultGroupInfo = {
 };
 
 const CreateFormItems = ({ form, formName, groups, editForm, editFormState, setEditFormState, onValuesChange }) => {
-    const [formType, setFormType] = useState(0);
+    const [formType, setFormType] = useState(editForm.getFieldValue('itemFormType') ?? 0);
     const onPictureChange = (picture) => editForm.setFieldsValue([picture]);
     const onRemoveItem = (e, index) => {
         e.stopPropagation();
@@ -46,25 +46,31 @@ const CreateFormItems = ({ form, formName, groups, editForm, editFormState, setE
         editForm.setFieldsValue({
             name: items[index].name,
             group: items[index].group,
-            picture: items[index].picture
+            picture: items[index].picture,
+            itemFormType: items[index].itemFormType
         });
         setEditFormState({ index: index, visible: true });
     };
     const onFormTypeChange = (e) => {
         setFormType(e.target.value);
-        editForm.setFieldsValue({ picture: '' });
+        editForm.setFieldsValue({ picture: undefined });
+    };
+
+    const resetEditFormFields = () => {
+        editForm.setFieldsValue({
+            name: undefined,
+            group: undefined,
+            picture: undefined,
+            itemFormType: formType
+        });
     };
 
     return (
         <>
-            <Radio.Group onChange={onFormTypeChange} value={formType} className='item-form-type'>
-                <Radio value={0}>URL</Radio>
-                <Radio value={1}>Image Upload</Radio>
-            </Radio.Group>
             <Form.Provider
                 onFormFinish={async (name, { values, forms }) => {
-                    if (name === 'charaForm') {
-                        const { charaForm, step3 } = forms;
+                    if (name === 'itemForm') {
+                        const { itemForm, step3 } = forms;
                         const items = step3.getFieldValue('items') || [];
                         if (values.picture && typeof values.picture !== 'string')
                             values.displayPicture = await getBase64(values.picture);
@@ -77,89 +83,98 @@ const CreateFormItems = ({ form, formName, groups, editForm, editFormState, setE
                             step3.setFieldsValue({
                                 items: [...items, values]
                             });
-                        onValuesChange(step3);
+                        onValuesChange(step3, step3.getFieldsValue());
                         setEditFormState({ index: null, visible: true });
-                        charaForm.resetFields();
+                        resetEditFormFields();
                     }
                 }}
             >
-                {editFormState.visible ? (
-                    <Form form={editForm} name='charaForm' autoComplete='off' className='item-form'>
-                        <div className='item-form-wrapper'>
-                            {formType === 1 ? (
-                                <Form.Item className='item-form-picture-field' name='picture'>
-                                    <ImageUpload
-                                        checkers={pictureChekcers}
-                                        onChange={onPictureChange}
-                                        value={editForm.getFieldValue('picture')}
-                                    />
-                                </Form.Item>
-                            ) : (
-                                <></>
-                            )}
-                            <div className='item-form-right'>
-                                <Form.Item
-                                    name='name'
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: "Please type in the item's name."
-                                        }
-                                    ]}
-                                >
-                                    <Input placeholder='Name' autoComplete='off' />
-                                </Form.Item>
-                                {formType === 0 ? (
-                                    <Form.Item name='picture'>
-                                        <Input placeholder='Image url' autoComplete='off' />
+                <Form form={editForm} name='itemForm' autoComplete='off' className='item-form'>
+                    <Form.Item name='itemFormType' initialValue={0}>
+                        <Radio.Group onChange={onFormTypeChange} className='item-form-type'>
+                            <Radio value={0}>URL</Radio>
+                            <Radio value={1}>Image Upload</Radio>
+                        </Radio.Group>
+                    </Form.Item>
+                    {editFormState.visible ? (
+                        <>
+                            <div className='item-form-wrapper'>
+                                {formType === 1 ? (
+                                    <Form.Item className='item-form-picture-field' name='picture'>
+                                        <ImageUpload
+                                            checkers={pictureChekcers}
+                                            onChange={onPictureChange}
+                                            value={editForm.getFieldValue('picture')}
+                                        />
                                     </Form.Item>
                                 ) : (
                                     <></>
                                 )}
-                                <Form.Item name='group'>
-                                    <Select style={{ width: '100%' }} showArrow placeholder='Select group'>
-                                        {groups != null &&
-                                            groups.map((group, index) => {
-                                                return (
-                                                    <Select.Option key={index} value={index} label={group.name}>
-                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                            <span>{group.name}</span>
-                                                            <span
-                                                                style={{
-                                                                    backgroundColor: group.color,
-                                                                    borderRadius: '2px',
-                                                                    border: '1px solid rgba(255, 255, 255, 0.5)',
-                                                                    display: 'inline-block',
-                                                                    marginLeft: '5px',
-                                                                    width: '40px',
-                                                                    height: '15px'
-                                                                }}
-                                                            ></span>
-                                                        </div>
-                                                    </Select.Option>
-                                                );
-                                            })}
-                                    </Select>
-                                </Form.Item>
+                                <div className='item-form-right'>
+                                    <Form.Item
+                                        name='name'
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: "Please type in the item's name."
+                                            }
+                                        ]}
+                                    >
+                                        <Input placeholder='Name' autoComplete='off' />
+                                    </Form.Item>
+                                    {formType === 0 ? (
+                                        <Form.Item name='picture'>
+                                            <Input placeholder='Image url' autoComplete='off' />
+                                        </Form.Item>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    <Form.Item name='group'>
+                                        <Select style={{ width: '100%' }} showArrow placeholder='Select group'>
+                                            {groups != null &&
+                                                groups.map((group, index) => {
+                                                    return (
+                                                        <Select.Option key={index} value={index} label={group.name}>
+                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                <span>{group.name}</span>
+                                                                <span
+                                                                    style={{
+                                                                        backgroundColor: group.color,
+                                                                        borderRadius: '2px',
+                                                                        border: '1px solid rgba(255, 255, 255, 0.5)',
+                                                                        display: 'inline-block',
+                                                                        marginLeft: '5px',
+                                                                        width: '40px',
+                                                                        height: '15px'
+                                                                    }}
+                                                                ></span>
+                                                            </div>
+                                                        </Select.Option>
+                                                    );
+                                                })}
+                                        </Select>
+                                    </Form.Item>
+                                </div>
                             </div>
-                        </div>
-                        <Button type='primary' htmlType='submit' block>
-                            {editFormState.index == null ? 'Add' : 'Edit'}
+                            <Button type='primary' htmlType='submit' block>
+                                {editFormState.index == null ? 'Add' : 'Edit'}
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            type='dashed'
+                            className='add-item-button'
+                            onClick={() => {
+                                setEditFormState({ visible: true });
+                            }}
+                            block
+                        >
+                            <PlusOutlined /> Add item
                         </Button>
-                    </Form>
-                ) : (
-                    <Button
-                        type='dashed'
-                        className='add-item-button'
-                        onClick={() => {
-                            setEditFormState({ visible: true });
-                        }}
-                        block
-                    >
-                        <PlusOutlined /> Add item
-                    </Button>
-                )}
-                <Form form={form} name={formName} autoComplete='off' className='chara-form'>
+                    )}
+                </Form>
+
+                <Form form={form} name={formName} autoComplete='off' className='item-form'>
                     <Form.Item shouldUpdate={(prevValues, curValues) => prevValues.items !== curValues.items}>
                         {({ getFieldValue }) => {
                             const items = getFieldValue('items') || [];
@@ -170,7 +185,7 @@ const CreateFormItems = ({ form, formName, groups, editForm, editFormState, setE
                                         return (
                                             <Col xs={24} md={12} xxl={8} key={index}>
                                                 <div
-                                                    className='chara-form-item'
+                                                    className='item-form-item'
                                                     style={{ borderColor: group.color }}
                                                     onClick={() => onEditItem(index)}
                                                 >
@@ -184,19 +199,19 @@ const CreateFormItems = ({ form, formName, groups, editForm, editFormState, setE
                                                     ) : (
                                                         <></>
                                                     )}
-                                                    <div className='chara-form-info'>
-                                                        <div className='chara-form-text'>
+                                                    <div className='item-form-info'>
+                                                        <div className='item-form-text'>
                                                             <Typography.Title level={5} style={{ display: 'inline' }}>
                                                                 {' '}
                                                                 {chara.name}
                                                             </Typography.Title>
                                                         </div>
-                                                        <div className='chara-form-text'>
+                                                        <div className='item-form-text'>
                                                             <i>{group.name ?? 'no group'}</i>
                                                         </div>
                                                     </div>
                                                     <MinusSquareOutlined
-                                                        className='chara-form-item-remove'
+                                                        className='item-form-item-remove'
                                                         onClick={(e) => onRemoveItem(e, index)}
                                                     />
                                                 </div>
@@ -211,7 +226,7 @@ const CreateFormItems = ({ form, formName, groups, editForm, editFormState, setE
                     </Form.Item>
                     <Form.Item
                         name='items'
-                        className='chara-form-error'
+                        className='item-form-error'
                         rules={[{ required: true, message: "You can't create a sorter without items!" }]}
                     >
                         <Input type='hidden'></Input>
