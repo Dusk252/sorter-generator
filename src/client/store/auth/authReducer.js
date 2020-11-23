@@ -1,6 +1,8 @@
 import { MESSAGES } from './authActions';
 import { MESSAGES as SORTER_RESULT_MESSAGES } from './../sorterResults/sorterResultsActions';
 
+const sorter_history_len = 12;
+
 export const initialState = {
     isFetching: false,
     accessToken: null,
@@ -23,7 +25,10 @@ const authReducer = (state = initialState, action) => {
             return { ...state, authError: false };
         case SORTER_RESULT_MESSAGES.NEW_SORTER_RESULT_RESOLVE:
             if (state.currentUser && state.currentUser.sorter_history) {
-                const sorterHistory = state.currentUser.sorter_history.slice(0, -1);
+                const sorterHistory =
+                    state.currentUser.sorter_history.length < sorter_history_len
+                        ? [...state.currentUser.sorter_history]
+                        : state.currentUser.sorter_history.slice(0, -1);
                 sorterHistory.unshift({ _id: payload._id });
                 return { ...state, currentUser: { ...state.currentUser, sorter_history: sorterHistory } };
             }

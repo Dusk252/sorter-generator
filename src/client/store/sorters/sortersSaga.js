@@ -1,12 +1,16 @@
-import { put, call, takeLatest, all, select, take } from 'redux-saga/effects';
+import { put, call, takeLatest, all, select, take, debounce } from 'redux-saga/effects';
 import * as SorterActions from './sortersActions';
 import { getNewToken, MESSAGES as AUTH_MESSAGES } from './../auth/authActions';
 import { startRequest, endRequest } from './../app/appActions';
 import { createSorter, getSorterById, getSorterVersionById, incrementSorterViews } from './../apiCalls';
+import { set, del } from 'idb-keyval';
 
 const { SIGNALS, MESSAGES, ...actions } = SorterActions;
 
+const STORAGE_KEY = 'NEW_SORTER_DRAFT';
+
 const getAccessToken = (state) => state.auth.accessToken;
+const getIdbStore = (state) => state.app.idbStore;
 
 function* processNewSorterSubmit({ sorter }) {
     yield put(startRequest());
@@ -22,10 +26,19 @@ function* processNewSorterSubmit({ sorter }) {
         }
         const res = yield call(createSorter, sorter, accessToken);
         yield put(actions.resolveNewSorter(res.data));
+        const idbStore = yield select(getIdbStore);
+        if (idbStore) yield call(del, STORAGE_KEY, idbStore);
     } catch {
         yield put(actions.rejectNewSorter());
     }
     yield put(endRequest());
+}
+
+function* processUpdateSorterDraft({ newFormState }) {
+    const idbStore = yield select(getIdbStore);
+    if (idbStore) {
+        yield call(set, STORAGE_KEY, { submissionForm: newFormState }, idbStore);
+    }
 }
 
 function* processGetSorter({ id, getUserInfo, versionId }) {
@@ -82,6 +95,10 @@ function* watchNewSorterSubmit() {
     yield takeLatest(SIGNALS.NEW_SORTER_SUBMIT, processNewSorterSubmit);
 }
 
+function* watchUpdateSorterDraft() {
+    yield debounce(1000, SIGNALS.UPDATE_SORTER_DRAFT, processUpdateSorterDraft);
+}
+
 function* watchGetSorter() {
     yield takeLatest(SIGNALS.GET_SORTER_START, processGetSorter);
 }
@@ -95,5 +112,11 @@ function* watchSorterViewCount() {
 }
 
 export default function* () {
-    yield all([watchNewSorterSubmit(), watchGetSorter(), watchGetSorterVersion(), watchSorterViewCount()]);
+    yield all([
+        watchNewSorterSubmit(),
+        watchUpdateSorterDraft(),
+        watchGetSorter(),
+        watchGetSorterVersion(),
+        watchSorterViewCount()
+    ]);
 }

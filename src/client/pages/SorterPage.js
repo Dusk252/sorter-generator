@@ -9,10 +9,12 @@ import Sorter from './../components/sorters/Sorter';
 import SorterGroupSelect from './../components/sorters/SorterGroupSelect';
 import SorterHeader from './../components/sorters/SorterHeader';
 import SorterItemListing from './../components/sorters/SorterItemListing';
+import { get, set, del } from 'idb-keyval';
+import { shuffleArray } from './../../helpers/shuffleArray';
 
-const LOCAL_STORAGE_STRING = 'SORTER_PROGRESS_';
+const STORAGE_KEY = 'SORTER_PROGRESS_';
 
-const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, match, history, router }) => {
+const SorterPage = ({ sorters, getSorter, idbStore, newSorterResult, incrementViewCount, match, history, router }) => {
     const sorterId = match.params.id;
     const [sorter, setSorter] = useState();
     const [sorterGroups, setSorterGroups] = useState();
@@ -31,8 +33,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
                 results: calcState.currentRoundArr[0],
                 ties: calcState.ties
             });
-        } else if (calcState && calcState.progress > 0)
-            localStorage.setItem(LOCAL_STORAGE_STRING + sorterId, JSON.stringify({ calcState, selectedItems }));
+        } else if (calcState && calcState.progress > 0) set(STORAGE_KEY + sorterId, { calcState }, idbStore);
     }, [calcState]);
     useEffect(() => {
         if (isSorting) history.push(router.location.pathname);
@@ -49,11 +50,13 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
     }, [sorters]);
     useEffect(() => {
         if (sorter) {
-            const initialState = JSON.parse(localStorage.getItem(LOCAL_STORAGE_STRING + sorterId));
-            if (initialState) {
-                setCalcState(initialState.calcState);
-                setSelectedItems(initialState.selectedItems);
-            }
+            get(STORAGE_KEY + sorterId, idbStore)
+                .then((initialState) => {
+                    if (initialState && initialState.calcState) {
+                        setCalcState(initialState.calcState);
+                    }
+                })
+                .catch((err) => console.log(err));
             setSorterGroups(sorter.info[0].groups.map((_, index) => index));
             setHasUngrouped(sorter.info[0].items == null ? false : sorter.info[0].items.some((item) => item.group == null));
         }
@@ -79,6 +82,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
     };
 
     const handleRestart = () => {
+        del(STORAGE_KEY + sorterId, idbStore);
         const itemIndices =
             sorter.info[0].groups && sorter.info[0].groups.length
                 ? sorter.info[0].items.reduce((acc, item, index) => {
@@ -86,6 +90,7 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
                       return acc;
                   }, [])
                 : sorter.info[0].items.map((_, index) => [index]);
+        shuffleArray(itemIndices);
         setCalcState({
             currentRoundArr: itemIndices,
             nextRoundArr: [],
@@ -198,7 +203,8 @@ const SorterPage = ({ sorters, getSorter, newSorterResult, incrementViewCount, m
 
 const mapStateToProps = (state) => ({
     sorters: state.sorters.sorterList,
-    router: { location: state.router.location, action: state.router.action }
+    router: { location: state.router.location, action: state.router.action },
+    idbStore: state.app.idbStore
 });
 
 const mapDispatchToProps = {

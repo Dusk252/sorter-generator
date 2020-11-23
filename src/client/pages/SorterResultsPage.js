@@ -14,6 +14,7 @@ const SorterResultsPage = ({ results, sorters, getSorterResult, getSorter, getSo
     const [sorter, setSorter] = useState();
     const [result, setResult] = useState();
     const [urlCopied, setUrlCopied] = useState(false);
+    const [downloading, setDownloading] = useState(false);
     useEffect(() => {
         if (results[resultId] && results[resultId].results) {
             setResult(results[resultId]);
@@ -38,14 +39,16 @@ const SorterResultsPage = ({ results, sorters, getSorterResult, getSorter, getSo
             .replace(/[^\w-]+/g, '');
 
     const downloadImageResults = (sorterName) => {
-        const pageLayout = document.getElementsByTagName('main')[0];
+        setDownloading(true);
+        const pageLayout = document.getElementsByClassName('container')[0];
         htmlToImage
             .toJpeg(pageLayout, {
                 quality: 0.95,
                 backgroundColor: '#131313',
                 filter: (node) => {
                     return !(node.classList && node.classList.contains('control-buttons'));
-                }
+                },
+                pixelRatio: window.devicePixelRatio ?? 1
             })
             .then(function (dataUrl) {
                 const date = new Date();
@@ -55,6 +58,7 @@ const SorterResultsPage = ({ results, sorters, getSorterResult, getSorter, getSo
                 }-${date.getDate()}_${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}.jpg`;
                 link.href = dataUrl;
                 link.click();
+                setDownloading(false);
             });
     };
 
@@ -91,7 +95,13 @@ const SorterResultsPage = ({ results, sorters, getSorterResult, getSorter, getSo
                         </Row>
                         <Row className='control-buttons' justify='center'>
                             <Col sm={16} md={14} lg={12} xl={10} style={{ textAlign: 'center' }}>
-                                <Button type='primary' htmlType='button' onClick={() => downloadImageResults(sorter.name)}>
+                                <Button
+                                    type='primary'
+                                    htmlType='button'
+                                    onClick={() => downloadImageResults(sorter.name)}
+                                    disabled={downloading}
+                                    loading={downloading}
+                                >
                                     Download as Image
                                 </Button>
                             </Col>

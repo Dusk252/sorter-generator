@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
-import { submitNewSorter } from '../store/sorters/sortersActions';
+import { submitNewSorter, updateSorterDraft } from '../store/sorters/sortersActions';
 import { submissionStatus } from '../store/sorters/sortersReducer';
 import { Affix, Row, Col, Steps, Form, Button, Space } from 'antd';
 import { red, volcano, orange, gold, yellow, lime, green, cyan, blue, geekblue, purple, magenta } from '@ant-design/colors';
@@ -9,9 +9,13 @@ import CreateFormBase from '../components/sorters/CreateFormBase';
 import CreateFormGroups from '../components/sorters/CreateFormGroups';
 import CreateFormItems from '../components/sorters/CreateFormItems';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
+import BoxWrapper from './../components/general/BoxWrapper';
 import SorterItemListing from './../components/sorters/SorterItemListing';
 import { validateData } from './../../schema/clientValidation';
 import { sorterFormSchema } from './../../schema/sorter.schema';
+import { get } from 'idb-keyval';
+
+const STORAGE_KEY = 'NEW_SORTER_DRAFT';
 
 const lastStep = 3;
 const initialStepStatus = [
@@ -35,25 +39,71 @@ const colorOptions = [
     magenta.primary
 ];
 
-const SorterNew = ({ status, submitNewSorter, history }) => {
+const SorterNew = ({ status, idbStore, submitNewSorter, updateSorterDraft, history }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [stepStatus, setStepStatus] = useState(initialStepStatus);
     const stepForms = [...Form.useForm(), ...Form.useForm(), ...Form.useForm()];
     const [charaEditForm] = Form.useForm();
     const [editFormState, setEditFormState] = useState({ index: null, visible: false });
-    const [mainFormState, setMainFormState] = useState([]);
     const [formError, setFormError] = useState(null);
+    const [loadDraftInfo, setLoadDraftInfo] = useState(null);
+    const [loadingDraft, setLoadingDraft] = useState(false);
+    const [mainFormState, setMainFormState] = useState([]);
 
     useEffect(() => {
-        if (currentStep === 3 && status === submissionStatus.SUCCESS) history.push('/');
+        get(STORAGE_KEY, idbStore)
+            .then((initialState) => {
+                if (initialState && initialState.submissionForm && Array.isArray(initialState.submissionForm)) {
+                    setLoadDraftInfo(initialState.submissionForm);
+                }
+            })
+            .catch((err) => console.log(err));
+    }, []);
+
+    useEffect(() => {
+        if (currentStep === lastStep && status === submissionStatus.SUCCESS) history.push('/sorters');
     }, [status]);
 
+    useEffect(() => {
+        if (stepStatus[currentStep].prev === 'error') handleFormValidation(stepForms[currentStep]);
+    }, [currentStep]);
+
+    useEffect(() => {
+        if (loadingDraft) {
+            if (loadDraftInfo) {
+                let newSubmissionState = [];
+                for (let i in stepForms) {
+                    if (loadDraftInfo[i]) {
+                        stepForms[i].setFieldsValue(loadDraftInfo[i]);
+                        newSubmissionState.push(loadDraftInfo[i]);
+                    } else newSubmissionState.push(null);
+                }
+                setMainFormState(newSubmissionState);
+                setLoadDraftInfo(null);
+            }
+            setLoadingDraft(false);
+        }
+    }, [loadingDraft]);
+
+    const updateForm = (currentStep, formValues) => {
+        setMainFormState((currentState) => {
+            const newState = Object.assign([], currentState, { [currentStep]: formValues });
+            updateSorterDraft(newState);
+            return newState;
+        });
+    };
+
+    const handleLoadDraft = () => {
+        setLoadingDraft(true);
+    };
+
     const handleSubmit = () => {
-        const validatedData = validateData(mainFormState, sorterFormSchema, null, {
+        const finalForm = mainFormState.reduce((acc, value) => ({ ...acc, ...value }), {});
+        const validatedData = validateData(finalForm, sorterFormSchema, null, {
             abortEarly: false,
             allowUnknown: true,
             stripUnknown: true,
-            context: mainFormState != null && mainFormState.groups != null ? { groupLen: mainFormState.groups.length } : {}
+            context: finalForm != null && finalForm.groups != null ? { groupLen: finalForm.groups.length } : {}
         });
         if (!validatedData.errors) {
             submitNewSorter(validatedData.values);
@@ -62,7 +112,12 @@ const SorterNew = ({ status, submitNewSorter, history }) => {
         }
     };
 
-    const handleFormValidation = (form, formValues) => {
+    const handleFieldValidation = (form, formValues) => {
+        updateForm(currentStep, formValues);
+        return handleFormValidation(form, formValues, true);
+    };
+
+    const handleFormValidation = (form, formValues, ignoreEmpty = false) => {
         formValues = formValues ?? form.getFieldsValue();
         let fields = formValues ? Object.keys(formValues) : null;
 
@@ -74,7 +129,12 @@ const SorterNew = ({ status, submitNewSorter, history }) => {
 
         if (errors) {
             const errorKeys = Object.keys(errors);
-            form.setFields(errorKeys.map((key) => ({ name: errors[key].path, errors: errors[key].message })));
+            form.setFields(
+                errorKeys.map((key) => ({
+                    name: errors[key].path,
+                    errors: ignoreEmpty && formValues[key] == null ? null : errors[key].message
+                }))
+            );
             form.setFields(fields.filter((field) => !errorKeys.includes(field)).map((key) => ({ name: key, errors: null })));
             return false;
         } else {
@@ -92,7 +152,6 @@ const SorterNew = ({ status, submitNewSorter, history }) => {
             }));
             setCurrentStep(current);
         } else if (stepForms[currentStep]) {
-            setMainFormState((prev) => ({ ...prev, ...stepForms[currentStep].getFieldsValue() }));
             if (handleFormValidation(stepForms[currentStep])) {
                 setStepStatus((prevState) => ({
                     ...prevState,
@@ -111,12 +170,24 @@ const SorterNew = ({ status, submitNewSorter, history }) => {
         }
     };
 
-    useEffect(() => {
-        if (stepStatus[currentStep].prev === 'error') handleFormValidation(stepForms[currentStep]);
-    }, [currentStep]);
-
     return (
         <>
+            {loadDraftInfo ? (
+                <BoxWrapper style={{ padding: '10px', marginTop: '50px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>There is a saved draft of this form. Do you want to load the previous draft?</span>
+                    <Button
+                        type='primary'
+                        htmlType='button'
+                        size='small'
+                        style={{ marginLeft: '15px' }}
+                        onClick={handleLoadDraft}
+                    >
+                        Load Draft
+                    </Button>
+                </BoxWrapper>
+            ) : (
+                <></>
+            )}
             <Row style={{ width: '100%' }}>
                 <Col span={6}>
                     <Affix>
@@ -134,77 +205,96 @@ const SorterNew = ({ status, submitNewSorter, history }) => {
                         </LayoutBlockWrapper>
                     </Affix>
                 </Col>
-                <Col span={18}>
-                    <LayoutBlockWrapper>
-                        {/*--------------Step 1 - Basic Info--------------*/}
-                        {currentStep === 0 && (
-                            <CreateFormBase form={stepForms[0]} formName='step1' onValuesChange={handleFormValidation} />
-                        )}
-                        {/*--------------Step 2 - Groups--------------*/}
-                        {currentStep === 1 && (
-                            <CreateFormGroups
-                                form={stepForms[1]}
-                                formName='step2'
-                                colors={colorOptions}
-                                onValuesChange={handleFormValidation}
-                            />
-                        )}
-                        {/*--------------Step 3 - Items--------------*/}
-                        {currentStep === 2 && (
-                            <CreateFormItems
-                                form={stepForms[2]}
-                                formName='step3'
-                                groups={(() => {
-                                    const groups = stepForms[1].getFieldValue('groups');
-                                    return groups != null ? groups.filter((group) => group.name && group.name.length) : [];
-                                }).call()}
-                                editForm={charaEditForm}
-                                editFormState={editFormState}
-                                setEditFormState={setEditFormState}
-                                onValuesChange={handleFormValidation}
-                            />
-                        )}
-                        {/*--------------Step 4 - Submit--------------*/}
-                        {currentStep === 3 && (
-                            <Space size='middle' direction='vertical' style={{ width: '100%' }}>
-                                <SorterItemListing
-                                    groups={mainFormState.groups}
-                                    items={mainFormState.items ?? []}
-                                    pictureField={'displayPicture'}
-                                    columnsCountBreakPoints={{ 350: 1, 750: 2 }}
+                {!loadingDraft ? (
+                    <Col span={18}>
+                        <LayoutBlockWrapper>
+                            {/*--------------Step 1 - Basic Info--------------*/}
+                            {currentStep === 0 && (
+                                <CreateFormBase
+                                    form={stepForms[0]}
+                                    formName='step1'
+                                    onValuesChange={handleFieldValidation}
                                 />
+                            )}
+                            {/*--------------Step 2 - Groups--------------*/}
+                            {currentStep === 1 && (
+                                <CreateFormGroups
+                                    form={stepForms[1]}
+                                    formName='step2'
+                                    colors={colorOptions}
+                                    onValuesChange={handleFieldValidation}
+                                />
+                            )}
+                            {/*--------------Step 3 - Items--------------*/}
+                            {currentStep === 2 && (
+                                <CreateFormItems
+                                    form={stepForms[2]}
+                                    formName='step3'
+                                    groups={(() => {
+                                        const groups = stepForms[1].getFieldValue('groups');
+                                        return groups != null
+                                            ? groups.filter((group) => group.name && group.name.length)
+                                            : [];
+                                    }).call()}
+                                    editForm={charaEditForm}
+                                    editFormState={editFormState}
+                                    setEditFormState={setEditFormState}
+                                    onValuesChange={handleFieldValidation}
+                                />
+                            )}
+                            {/*--------------Step 4 - Submit--------------*/}
+                            {currentStep === 3 && (
+                                <Space size='middle' direction='vertical' style={{ width: '100%' }}>
+                                    <SorterItemListing
+                                        groups={
+                                            mainFormState[1] && mainFormState[1].groups
+                                                ? mainFormState[1].groups.filter(
+                                                      (group) => group != null && group.color != null && group.name != null
+                                                  )
+                                                : []
+                                        }
+                                        items={mainFormState[2] && mainFormState[2].items ? mainFormState[2].items : []}
+                                        pictureField={'displayPicture'}
+                                    />
 
-                                {formError && (
-                                    <div className='form-errors'>
-                                        {Object.values(formError).map((error, index) => (
-                                            <div className='ant-form-item-explain' key={index}>
-                                                {error.message}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                <Button
-                                    type='primary'
-                                    onClick={handleSubmit}
-                                    disabled={status === submissionStatus.INPROGRESS}
-                                >
-                                    Submit Sorter
-                                </Button>
-                            </Space>
-                        )}
-                    </LayoutBlockWrapper>
-                </Col>
+                                    {formError && (
+                                        <div className='form-errors'>
+                                            {Object.values(formError).map((error, index) => (
+                                                <div className='ant-form-item-explain' key={index}>
+                                                    {error.message}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <Button
+                                        type='primary'
+                                        onClick={handleSubmit}
+                                        disabled={status === submissionStatus.INPROGRESS}
+                                        loading={status === submissionStatus.INPROGRESS}
+                                        block
+                                    >
+                                        Submit Sorter
+                                    </Button>
+                                </Space>
+                            )}
+                        </LayoutBlockWrapper>
+                    </Col>
+                ) : (
+                    <></>
+                )}
             </Row>
         </>
     );
 };
 
 const mapStateToProps = (state) => ({
-    status: state.sorters.submissionStatus
+    status: state.sorters.submissionStatus,
+    idbStore: state.app.idbStore
 });
 
 const mapDispatchToProps = {
     submitNewSorter,
+    updateSorterDraft,
     history: { push }
 };
 

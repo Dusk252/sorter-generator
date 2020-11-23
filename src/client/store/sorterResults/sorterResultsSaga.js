@@ -1,16 +1,18 @@
 import { push } from 'connected-react-router';
-import { put, call, takeLatest, all, select, take } from 'redux-saga/effects';
+import { put, call, takeLatest, all, select, take, delay } from 'redux-saga/effects';
 import * as SorterActions from './sorterResultsActions';
 import { getNewToken, MESSAGES as AUTH_MESSAGES } from './../auth/authActions';
 import { startRequest, endRequest } from './../app/appActions';
 import { saveSorterResult, getSorterResultById, getSorterResultList } from './../apiCalls';
 import { incrementTakeCount } from './../sorters/sortersActions';
+import { del } from 'idb-keyval';
 
 const { SIGNALS, MESSAGES, ...actions } = SorterActions;
 
 const getAccessToken = (state) => state.auth.accessToken;
+const getIdbStore = (state) => state.app.idbStore;
 
-const LOCAL_STORAGE_STRING = 'SORTER_PROGRESS_';
+const STORAGE_KEY = 'SORTER_PROGRESS_';
 
 function* processNewResultSubmit({ sorterResult }) {
     yield put(startRequest());
@@ -22,9 +24,11 @@ function* processNewResultSubmit({ sorterResult }) {
             if (action.type === AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED) accessToken = yield select(getAccessToken);
         }
         const res = yield call(saveSorterResult, sorterResult, accessToken);
-        localStorage.removeItem(LOCAL_STORAGE_STRING + sorterResult.sorter_id);
+        const idbStore = yield select(getIdbStore);
+        if (idbStore) yield call(del, STORAGE_KEY + sorterResult.sorter_id, idbStore);
         yield put(actions.resolveNewSorterResult(res.data));
         yield put(incrementTakeCount(sorterResult.sorter_id));
+        yield delay(300);
         yield put(push(`/results/${res.data._id}?share=true`));
     } catch {
         //TODO general frontend handling of errors
