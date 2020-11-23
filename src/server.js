@@ -3,6 +3,7 @@ import '@babel/polyfill';
 import express from 'express';
 import React from 'react';
 import bodyParser from 'body-parser';
+import path from 'path';
 import url from 'url';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -17,6 +18,7 @@ import cookieParser from 'cookie-parser';
 import createRootReducer from './client/store/rootReducer';
 import ignoreFavicon from './api/_middleware/ignoreFavicon';
 import querystring from 'querystring';
+import { MongoClient } from 'mongodb';
 require('./api/auth/passportConfig');
 
 const port = process.env.PORT || 3000;
@@ -26,10 +28,20 @@ function shouldCompress(req, res) {
     return compression.filter(req, res);
 }
 
+//f production build send js files as their gzipped versions
+if (process.env.NODE_ENV === 'production') {
+    app.use('*.js', function (req, res, next) {
+        req.url = req.url + '.gz';
+        res.set('Content-Encoding', 'gzip');
+        res.set('Content-Type', 'text/javascript');
+        return next();
+    });
+}
+
 app.use(helmet());
 app.use(cors());
 app.use(morgan('combined')); //logging http requests
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, '/../public')));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -85,14 +97,20 @@ app.use(/\/((?!api).)*/, (req, res) => {
 });
 
 //connect to database
-db.connect('mongodb://localhost:27017/', 'sorter-generator', function (err) {
+const uri =
+    process.env.NODE_ENV === 'production'
+        ? `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.1ffv3.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`
+        : `mongodb://localhost:27017/${process.env.MONGO_DB}`;
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+db.connect(client, process.env.MONGO_DB, function (err) {
     if (err) {
+        console.log(err);
         console.log('Unable to connect to Mongo.');
         process.exit(1);
     } else {
         //start server
         app.listen(port, function () {
-            console.log('Listening on port 3000...');
+            console.log(`Listening on port ${port}...`);
         });
         //clean database on exit
         process.on('exit', () => {

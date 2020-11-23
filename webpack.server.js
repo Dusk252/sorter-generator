@@ -1,11 +1,11 @@
 const webpack = require('webpack');
 const path = require('path');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const webpackNodeExternals = require('webpack-node-externals');
 const baseConfig = require('./webpack.base.js');
+const Dotenv = require('dotenv-webpack');
 
 const config = {
-    mode: 'production',
     // Inform webpack that we're building a bundle
     // for nodeJS, rather than for the browser
     target: 'node',
@@ -28,7 +28,8 @@ const config = {
             'process.env': {
                 STATIC_PATH: JSON.stringify('./public')
             }
-        })
+        }),
+        new Dotenv()
     ]
 };
 

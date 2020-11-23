@@ -1,10 +1,10 @@
 const webpack = require('webpack');
 const path = require('path');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const TerserPlugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const baseConfig = require('./webpack.base');
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const config = {
     mode: 'production',
@@ -22,24 +22,23 @@ const config = {
         minimize: true,
         minimizer: [new TerserPlugin()]
     },
-    // Tell webpack to root file of our server app
-    entry: './src/client/client.js',
+    // Tell webpack to root file of our client app
+    entry: './src/client/index.js',
 
     // Tell webpack where to put output file
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'public')
     },
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     plugins: [
-        // new BundleAnalyzerPlugin(),
-        new CompressionPlugin()
-        // new webpack.DefinePlugin({
-        //     'process.env': {
-        //         NODE_ENV: JSON.stringify('production'),
-        //         BROWSER: JSON.stringify(true)
-        //     }
-        // })
+        new BundleAnalyzerPlugin(),
+        new CompressionPlugin(),
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: JSON.stringify('production')
+            }
+        })
     ]
 };
 
