@@ -44,8 +44,9 @@ async function localSignUp(req, res, next) {
 async function localLogin(req, res, next) {
     try {
         const user = req.user;
+        const old_token = req.cookies.refresh_token;
         const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
-        await authService.updateRefreshToken(user._id, null, refreshToken);
+        await authService.updateRefreshToken(user._id, old_token, refreshToken);
         res.cookie('refresh_token', refreshToken, { httpOnly: true });
         res.status(200).json({ callback: `${req.protocol}://${req.get('host')}/login/result` });
     } catch (err) {
@@ -56,9 +57,10 @@ async function localLogin(req, res, next) {
 async function login(req, res, next) {
     try {
         const user = req.user;
+        const old_token = req.cookies.refresh_token;
         const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
         res.cookie('refresh_token', refreshToken, { httpOnly: true });
-        await authService.updateRefreshToken(user._id, null, refreshToken);
+        await authService.updateRefreshToken(user._id, old_token, refreshToken);
         res.redirect(302, `${req.protocol}://${req.get('host')}/login/result`);
     } catch (err) {
         next(err);

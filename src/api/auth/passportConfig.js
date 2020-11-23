@@ -40,7 +40,8 @@ passport.use(
         }
     )
 );
-//local auth
+
+//local authentication
 passport.use(
     'login',
     new localStrategy(
@@ -61,11 +62,16 @@ passport.use(
     )
 );
 
+//custom handler for 3-legged o-auth without session
+//https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens
 passport.use(
     'twitterLogin',
     new customStrategy(async (req, done) => {
         const callbackURL = '/twitter/callback';
+        //handler handles both performing the initial request for the request token
+        //and the received request to the callback url and performing the subsequent authentication request
         if (req.path !== callbackURL) {
+            //initial request -  Step 1: POST oauth/request_token
             const oauth = OAuth({
                 consumer: { key: config.twitter.oauth_key, secret: config.twitter.oauth_secret },
                 signature_method: 'HMAC-SHA1',
@@ -74,7 +80,7 @@ passport.use(
             const request_data = {
                 url: config.twitter.oauth_request_url,
                 method: 'POST',
-                data: { oauth_callback: 'http://localhost:3000/api/auth/twitter/callback' }
+                data: { oauth_callback: config.twitter.callback_url }
             };
             const authHeader = oauth.toHeader(oauth.authorize(request_data));
             try {
@@ -82,11 +88,15 @@ passport.use(
                 const data = querystring.parse(response.data);
                 if (!data.oauth_callback_confirmed)
                     req.res.status(500).json({ message: 'An issue occurred with twitter authentication.' });
+                //if success redirect the user to the twitter authentication page
+                //Step 2: GET oauth/authorize
                 else req.res.redirect(`${config.twitter.oauth_authorize_url}?oauth_token=${data.oauth_token}`);
             } catch (err) {
                 done(err);
             }
         } else {
+            //is a request to our defined callback url
+            //Step 3: POST oauth/access_token
             try {
                 const { oauth_token, oauth_verifier } = req.query;
                 if (!oauth_token || !oauth_verifier) done(null, false, { message: 'Twitter authentication failed.' });
@@ -105,11 +115,15 @@ passport.use(
                     const token = { key: oauth_token };
                     let authHeader = oauth.toHeader(oauth.authorize(tokenRequestData, token));
 
+                    //if this request succeeds the user is now autehtnicated
                     const res = await axios.post(tokenRequestData.url, {}, { headers: { ...authHeader } });
                     const {
                         oauth_token: twitter_oauth_token,
                         oauth_token_secret: twitter_oauth_token_secret
                     } = querystring.parse(res.data);
+
+                    //but we don't have access to all the date we need to create or update their profile
+                    //so we also request that
                     const userRequestData = {
                         url: config.twitter.user_profile_url,
                         method: 'GET'
@@ -128,6 +142,7 @@ passport.use(
                         oauth_token: twitter_oauth_token,
                         oauth_token_secret: twitter_oauth_token_secret
                     };
+                    //create or update user with the twitter integration
                     let user = await userService.getByEmail(profileData.email);
                     if (user) {
                         user = await userService.updateUser(
@@ -156,15 +171,18 @@ passport.use(
     })
 );
 
+//implementation of google authentication strategy
 passport.use(
     'googleLogin',
     new googleStrategy(
         {
             clientID: config.google.oauth_key,
             clientSecret: config.google.oauth_secret,
-            callbackURL: 'http://localhost:3000/api/auth/google/callback'
+            callbackURL: config.google.callback_url
         },
         async (accessToken, _, profile, done) => {
+            //authentication has succeeded, let's use the information to create
+            //or update a new user with the google integration
             const googleProfile = {
                 id: profile.id,
                 name: profile.displayName,
