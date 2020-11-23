@@ -1,6 +1,5 @@
 const config = require('./../config.json');
 const db = require('./../db');
-const ObjectID = require('mongodb').ObjectID;
 
 const pageSize = 10;
 
@@ -12,23 +11,27 @@ module.exports = {
 };
 
 async function getById(id, userId) {
-    return await db
-        .get()
-        .collection('sorter_results')
-        .findOne({
-            _id: new ObjectID(id)
-        });
+    return await db.get().collection('sorter_results').findOne({
+        _id: id
+    });
 }
 
-async function getResultsList(query, page) {
+async function checkNew(query, lastUpdated) {
+    return await db
+        .get()
+        .collection('sorters')
+        .count({ $and: [query, { created_date: { $gte: new Date(lastUpdated) } }] });
+}
+
+async function getResultsList(query, count) {
     return await db
         .get()
         .collection('sorter_results')
         .aggregate([
             { $match: query },
-            { $sort: { _id: -1 } },
-            { $skip: (page - 1) * pageSize },
-            { $limit: pageSize },
+            { $sort: { created_date: -1 } },
+            { $skip: count ?? 0 },
+            { $limit: count != null ? pageSize : Number.MAX_SAFE_INTEGER },
             {
                 $lookup: {
                     from: 'sorters',
@@ -91,12 +94,9 @@ async function getResultsList(query, page) {
 }
 
 async function getResultCount(sorterId) {
-    return await db
-        .get()
-        .collection('sorter_results')
-        .count({
-            sorter_id: new ObjectID(sorterId)
-        });
+    return await db.get().collection('sorter_results').count({
+        sorter_id: sorterId
+    });
 }
 
 async function insertResults(sorterResult) {
@@ -104,10 +104,7 @@ async function insertResults(sorterResult) {
         .get()
         .collection('sorter_results')
         .insertOne(sorterResult)
-        .then((result) => {
-            sorterResult._id = result.insertedId;
-            return sorterResult;
-        })
+        .then(() => sorterResult)
         .catch(() => {
             return false;
         });

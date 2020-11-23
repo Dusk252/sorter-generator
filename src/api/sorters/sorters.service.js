@@ -1,9 +1,8 @@
 const config = require('./../config.json');
 const db = require('./../db');
-const ObjectID = require('mongodb').ObjectID;
 const sorterStatus = require('./../_helpers/enum').sorterStatus;
 
-const pageSize = 15;
+const pageSize = 10;
 
 module.exports = {
     checkNew,
@@ -27,9 +26,9 @@ async function getSorterList(query, count) {
         .collection('sorters')
         .aggregate([
             { $match: query },
-            { $sort: { _id: -1 } },
-            { $skip: count },
-            { $limit: count ? pageSize : Number.MAX_SAFE_INTEGER },
+            { $sort: { 'meta.created_date': -1 } },
+            { $skip: count ?? 0 },
+            { $limit: count != null ? pageSize : Number.MAX_SAFE_INTEGER },
             {
                 $lookup: {
                     from: 'users',
@@ -95,7 +94,7 @@ async function getById(id, userId, getUserInfo = false, versionId = null) {
                                               input: '$data',
                                               as: 'item',
                                               cond: {
-                                                  $eq: ['$$item.version_id', new ObjectID(versionId)]
+                                                  $eq: ['$$item.version_id', versionId]
                                               }
                                           }
                                       },
@@ -115,8 +114,8 @@ async function getById(id, userId, getUserInfo = false, versionId = null) {
             .aggregate([
                 {
                     $match: {
-                        _id: new ObjectID(id),
-                        $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': new ObjectID(userId) }]
+                        _id: id,
+                        $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': userId }]
                     }
                 },
                 {
@@ -153,8 +152,8 @@ async function getById(id, userId, getUserInfo = false, versionId = null) {
             .collection('sorters')
             .findOne(
                 {
-                    _id: new ObjectID(id),
-                    $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': new ObjectID(userId) }]
+                    _id: id,
+                    $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': userId }]
                 },
                 {
                     fields: { meta: 1, info: infoQuery }
@@ -169,10 +168,10 @@ async function getSorterVersion(id, userId, versionId) {
         .collection('sorters')
         .findOne(
             {
-                _id: new ObjectID(id),
-                $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': new ObjectID(userId) }]
+                _id: id,
+                $or: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_by': userId }]
             },
-            { fields: { data: { $elemMatch: { version_id: new ObjectID(versionId) } } } }
+            { fields: { data: { $elemMatch: { version_id: versionId } } } }
         );
 }
 
@@ -199,12 +198,3 @@ async function updateSorter(findQuery, updateQuery, returnUpdated = false) {
         return res.ok === 1 ? res.value : null;
     } else db.get().collection('sorters').updateOne(findQuery, updateQuery);
 }
-
-// async function insertImage(url, deletehash) {
-//     return await db
-//         .get()
-//         .collection('images')
-//         .insertOne({ url, deletehash })
-//         .then(() => true)
-//         .catch(() => false);
-// }

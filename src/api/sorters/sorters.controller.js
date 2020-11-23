@@ -9,9 +9,9 @@ const Roles = require('./../_helpers/enum').roles;
 const sorterStatus = require('./../_helpers/enum').sorterStatus;
 const schemaValidator = require('../_middleware/schemaValidator');
 const fileUploadHandler = require('../_middleware/fileUploadHandler');
+const { nanoid } = require('nanoid');
 const sorterSchema = require('./../../schema/sorter.schema').sorterFormSchema;
-const imgurClientKey = require('./../config.json').imgur.oauth_key;
-const ObjectID = require('mongodb').ObjectID;
+const mimeTypeRegex = /image\/(p?jpeg|(x-)?png)/;
 
 // routes
 router.post('/', getPublic);
@@ -28,7 +28,7 @@ router.post(
         parseNested: true,
         abortOnLimit: true,
         limits: { fileSize: 3 * 1024 * 1024 },
-        mimeTypeRegex: /image\/(p?jpeg|(x-)?png)/,
+        mimeTypeRegex,
         uploadPath: '/data/uploads/'
     }),
     schemaValidator(sorterSchema),
@@ -53,7 +53,7 @@ function getNew(req, res, next) {
     const date = new Date(req.body.lastUpdated);
     if (date.valueOf()) {
         sorterService
-            .getSorterList({ $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_date': { $gte: date } }] }, 0)
+            .getSorterList({ $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_date': { $gte: date } }] }, null)
             .then((sorters) => res.json(sorters))
             .catch((err) => next(err));
     } else return res.status(400).json({ message: 'Bad Request' });
@@ -124,7 +124,7 @@ function createSorter(req, res, next) {
 
 function incrementViewCount(req, res, next) {
     sorterService
-        .updateSorter({ _id: ObjectID(req.body.id) }, { $inc: { 'meta.views': 1 } }, false)
+        .updateSorter({ _id: req.body.id }, { $inc: { 'meta.views': 1 } }, false)
         .then(() => res.sendStatus(200))
         .catch((err) => next(err));
 }
@@ -132,8 +132,9 @@ function incrementViewCount(req, res, next) {
 function mapSorterRequest(sorterObj, user) {
     const currentDate = new Date();
     return {
+        _id: nanoid(11),
         meta: {
-            created_by: new ObjectID(user.id),
+            created_by: user.id,
             created_date: currentDate,
             updated_date: currentDate,
             status: sorterObj.privacy ? sorterStatus.PRIVATE : sorterStatus.PUBLIC,
@@ -142,10 +143,10 @@ function mapSorterRequest(sorterObj, user) {
         },
         data: [
             {
-                version_id: new ObjectID(),
+                version_id: nanoid(11),
                 created_date: currentDate,
                 name: sorterObj.name,
-                picture: sorterObj.picture,
+                picture: sorterObj.picture ?? '',
                 description: sorterObj.description,
                 tags: sorterObj.tags ?? [],
                 groups: sorterObj.groups ?? [],
@@ -154,25 +155,3 @@ function mapSorterRequest(sorterObj, user) {
         ]
     };
 }
-
-//const formUrlEncoded = (x) => Object.keys(x).reduce((p, c) => p + `&${c}=${encodeURIComponent(x[c])}`, '');
-
-// async function storeImg(image) {
-//     const response = await axios.post(
-//         'https://api.imgur.com/3/upload',
-//         formUrlEncoded({
-//             image: image.data.toString('base64'),
-//             type: 'base64'
-//         }).substring(1),
-//         {
-//             headers: {
-//                 Authorization: `Client-ID ${imgurClientKey}`,
-//                 'Content-Type': 'application/x-www-form-urlencoded'
-//             }
-//         }
-//     );
-//     const url = response.data.data.link;
-//     const deleteHash = response.data.data.deletehash;
-//     sorterService.insertImage(url, deleteHash);
-//     return url;
-// }

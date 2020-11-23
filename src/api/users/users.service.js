@@ -1,7 +1,7 @@
 const Roles = require('../_helpers/enum').role;
 const db = require('./../db');
 const bycrpt = require('bcrypt');
-const ObjectID = require('mongodb').ObjectID;
+const { nanoid } = require('nanoid');
 
 const saltRounds = 10;
 const pageSize = 10;
@@ -20,7 +20,7 @@ async function getUserList(page) {
         .collection('users')
         .aggregate([
             { $match: {} },
-            { $sort: { _id: -1 } },
+            { $sort: { joined_date: -1 } },
             { $skip: (page - 1) * pageSize },
             { $limit: pageSize },
             { $project: { 'profile.username': 1, 'profile.icon': 1, role: 1 } }
@@ -30,7 +30,7 @@ async function getUserList(page) {
 }
 
 async function getById(id, projection = {}) {
-    let query = { _id: new ObjectID(id) };
+    let query = { _id: id };
     const userMatch = await db
         .get()
         .collection('users')
@@ -44,7 +44,7 @@ async function getById(id, projection = {}) {
                         {
                             $match: { $expr: { $eq: ['$user_id', '$$userId'] } }
                         },
-                        { $sort: { _id: -1 } },
+                        { $sort: { created_date: -1 } },
                         { $limit: pageSize },
                         { $project: { _id: 1 } }
                     ],
@@ -78,6 +78,7 @@ async function getByEmail(email) {
 
 async function createUser(username, email, password, icon, account_status, integration) {
     let user = {
+        _id: nanoid(11),
         joined_date: new Date(),
         friends: [],
         favorite_sorters: [],
@@ -95,8 +96,7 @@ async function createUser(username, email, password, icon, account_status, integ
         role: Roles.User,
         account_status: account_status
     };
-    const { insertedId } = await db.get().collection('users').insertOne(user);
-    user._id = insertedId;
+    await db.get().collection('users').insertOne(user);
     return user;
 }
 

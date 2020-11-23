@@ -5,5 +5,6 @@ export const extended_info = {
     favorite_sorters: 1,
     profile: 1,
     role: 1,
-    account_status: 1
+    account_status: 1,
+    sorter_history: 1
 };
