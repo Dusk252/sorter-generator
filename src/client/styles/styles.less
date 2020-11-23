@@ -50,6 +50,10 @@
 p:last-child {
     margin-bottom: 0;
 }
+.ant-btn > .ant-btn-loading-icon .anticon {
+    padding-right: 0;
+    margin-right: 8px;
+}
 // .ant-input-affix-wrapper > input.ant-input {
 //     border: solid 2px #131313;
 // }
@@ -140,7 +144,6 @@ p:last-child {
         padding: 8px 24px;
         width: 100%;
         background-color: @background-color-light;
-        margin-bottom: 24px;
     }
     &-wrapper {
         display: flex;
@@ -166,7 +169,6 @@ p:last-child {
         padding: 8px 24px;
         width: 100%;
         background-color: @background-color-light;
-        margin-bottom: 24px;
     }
 
     &-wrapper {
@@ -198,7 +200,7 @@ p:last-child {
     height: 193px;
 }
 
-.chara-form {
+.item-form {
     margin-top: 25px;
     &-item {
         padding: 10px 15px;
@@ -219,6 +221,7 @@ p:last-child {
     }
     &-error {
         text-align: center;
+        margin: 0;
         .ant-form-item-control-input {
             display: none;
         }
@@ -300,10 +303,10 @@ p:last-child {
     &-title {
         padding: 4px 10px;
     }
-    &-char-list {
+    &-item-list {
         padding: 12px 6px;
     }
-    &-char {
+    &-item {
         display: flex;
         align-items: center;
         padding: 4px 10px;
@@ -349,10 +352,10 @@ p:last-child {
         align-items: center;
         min-height: 50px;
 
-        .chara-form-text-name {
+        .item-form-text-name {
             line-height: 30px;
         }
-        .chara-form-text-group {
+        .item-form-text-group {
             line-height: 20px;
         }
     }
