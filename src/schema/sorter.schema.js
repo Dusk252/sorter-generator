@@ -1,40 +1,5 @@
 const Joi = require('joi');
 
-// export const sorterDatabaseSchema = {
-//     schema: Joi.object({
-//         base_info: Joi.object({
-//             name: Joi.string().max(50).required,
-//             picture: Joi.string().required(),
-//             tags: Joi.array().items(Joi.string()).required(),
-//             description: Joi.string().max(1000),
-//             privacy: Joi.string().max(30).required(),
-//             creator_id: Joi.string().required(),
-//             favorites: Joi.number().positive().integer().required(),
-//             totalPlays: Joi.number().positive().integer().required()
-//         }).required(),
-//         extended_info: Joi.object({
-//             groups: Joi.array()
-//                 .items(
-//                     Joi.object({
-//                         name: Joi.string().max(50).required(),
-//                         color: Joi.string().regex(/^#([A-Fa-f0-9]{3,4}){1,2}$/)
-//                     })
-//                 )
-//                 .required(),
-//             items: Joi.array()
-//                 .items(
-//                     Joi.object({
-//                         name: Joi.string().max(50).required(),
-//                         picture: Joi.any().meta({ swaggerType: 'file' }),
-//                         group: Joi.number().positive().integer()
-//                     })
-//                 )
-//                 .min(3)
-//                 .required()
-//         }).required()
-//     })
-// };
-
 export const sorterFormSchema = {
     schema: Joi.object({
         name: Joi.string().max(50).messages({
@@ -44,14 +9,19 @@ export const sorterFormSchema = {
         }),
         picture: Joi.alternatives()
             .try(
-                Joi.any().meta({ swaggerType: 'file' }),
-                Joi.string().regex(/^((https?|ftp|file):\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
-                Joi.string().regex(/^(([a-zA-Z]:)|(\\{2}\w+)\$?)(\\(\w[\w ]*.*))+$/),
-                Joi.string().regex(/([^ !$`&*()+]|(\[ !$`&*()+]))+/)
+                Joi.object().custom((value, helpers) => {
+                    if (value instanceof File) return value;
+                    else return helpers.error('any.invalid');
+                }),
+                Joi.string().uri(),
+                Joi.string().regex(/^(?:[\w-_\.]+\/)*[\w-_\.]+\.(p?jpe?g|(x-)?png)$/)
             )
             .messages({
                 'any.required': 'Please upload a logo or other representative picture.',
-                'any.empty': 'Please upload a logo or other representative picture.'
+                'any.empty': 'Please upload a logo or other representative picture.',
+                'string.empty': 'The main image must be either a valid url or an uploaded file.',
+                'string.pattern.base': 'The main image must be either a valid url or an uploaded file.',
+                'alternatives.match': 'The main image must be either a valid url or an uploaded file.'
             }),
         tags: Joi.array().items(Joi.string()),
         description: Joi.string().max(1000).messages({
@@ -82,14 +52,17 @@ export const sorterFormSchema = {
                     }),
                     picture: Joi.alternatives()
                         .try(
-                            Joi.any().meta({ swaggerType: 'file' }),
-                            Joi.string().regex(/^((https?|ftp|file):\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
-                            Joi.string().regex(/^(([a-zA-Z]:)|(\\{2}\w+)\$?)(\\(\w[\w ]*.*))+$/),
-                            Joi.string().regex(/([^ !$`&*()+]|(\[ !$`&*()+]))+/)
+                            Joi.object().custom((value, helpers) => {
+                                if (value instanceof File) return value;
+                                else return helpers.error('any.invalid');
+                            }),
+                            Joi.string().uri(),
+                            Joi.string().regex(/^(?:[\w-_\.]+\/)*[\w-_\.]+\.(p?jpe?g|(x-)?png)$/)
                         )
+                        .allow('')
+                        .optional()
                         .messages({
-                            'any.required': 'A item needs to have a picture.',
-                            'any.empty': 'A item needs to have a picture.'
+                            'alternatives.match': 'The image field will only take a valid url or an uploaded file.'
                         }),
                     group: Joi.when(Joi.ref('$groupLen'), {
                         is: Joi.exist(),

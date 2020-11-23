@@ -104,7 +104,6 @@ const uri =
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 db.connect(client, process.env.MONGO_DB, function (err) {
     if (err) {
-        console.log(err);
         console.log('Unable to connect to Mongo.');
         process.exit(1);
     } else {
