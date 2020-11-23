@@ -60,7 +60,7 @@ function* processLocationChange({ payload }) {
     if (payload.location && payload.location.pathname) yield put(actions.locationChange(payload.location.pathname));
 }
 
-function* watchInitialLogin() {
+function* watchInitialLoad() {
     yield takeLatest(SIGNALS.INITIAL_LOAD, processInitialLoad);
 }
 
@@ -73,5 +73,5 @@ function* watchLocationChange() {
 }
 
 export default function* () {
-    yield all([watchInitialLogin(), watchRouteChange(), watchLocationChange()]);
+    yield all([watchInitialLoad(), watchRouteChange(), watchLocationChange()]);
 }

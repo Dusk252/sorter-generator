@@ -6,12 +6,13 @@ const Link = ({ to, children, ...props }) => {
     const dispatch = useDispatch();
 
     const handleClick = (e) => {
+        if (e.ctrlKey && e.type == 'click') return;
         e.preventDefault();
         e.stopPropagation();
         dispatch(changeRoute(to));
     };
     return (
-        <a onClick={handleClick} {...props}>
+        <a href={to} onClick={handleClick} {...props}>
             {children}
         </a>
     );
