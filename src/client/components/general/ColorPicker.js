@@ -64,6 +64,10 @@ const ColorPicker = ({
     };
 
     useEffect(() => {
+        handleSwatchChange(initialColor);
+    }, [initialColor]);
+
+    useEffect(() => {
         if (onChange) onChange(currentColor);
     }, [currentColor]);
 

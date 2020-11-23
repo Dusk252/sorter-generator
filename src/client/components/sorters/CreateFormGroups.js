@@ -18,6 +18,7 @@ const CreateFormGroups = ({ form, formName, colors, onValuesChange }) => {
                         <>
                             {fields.length ? (
                                 fields.map((field, index) => {
+                                    const group = form.getFieldValue('groups')[index];
                                     return (
                                         <div key={index} style={{ display: 'flex', marginBottom: 8 }}>
                                             <Form.Item
@@ -35,8 +36,8 @@ const CreateFormGroups = ({ form, formName, colors, onValuesChange }) => {
                                             >
                                                 <ColorPicker
                                                     initialColor={
-                                                        form.getFieldValue('groups')[index] != null
-                                                            ? form.getFieldValue('groups')[index].color
+                                                        group != null && group.color != null
+                                                            ? group.color
                                                             : colors.find(
                                                                   (item) =>
                                                                       !form
