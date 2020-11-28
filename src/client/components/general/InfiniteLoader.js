@@ -101,7 +101,7 @@ const InfiniteLoader = ({ data, page, pageName, getPage, getNewItems, resetHasMo
                 <></>
             )}
             <div id='top' ref={topLoader}></div>
-            {render(page.items, data)}
+            {page && (!page.items || !page.items.length) && page.hasMore ? <></> : render(page.items, data)}
             <div ref={bottomLoader}></div>
         </>
     );

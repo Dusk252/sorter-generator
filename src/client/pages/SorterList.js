@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { pageTypes, getPage, resetHasMoreCheck, getNewItems } from '../store/pagination/paginationActions';
 import { ArrowUpOutlined } from '@ant-design/icons';
+import BoxWrapper from '../components/general/BoxWrapper';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import InfiniteLoader from './../components/general/InfiniteLoader';
 import SorterListItem from './../components/sorters/SorterListItem';
@@ -27,7 +28,16 @@ const SorterList = ({ sorters, sortersPage, getPage, getNewItems }) => {
                     getNewItems={() => getNewItems(sortersPage.lastUpdated, pageTypes.sorters)}
                     resetHasMoreCheck={resetHasMoreCheck}
                     ToTopComponent={ToTopComponent}
-                    render={(items, data) => items.map((id) => <SorterListItem data={data[id]} key={id} />)}
+                    render={(items, data) =>
+                        items && items.length ? (
+                            items.map((id) => <SorterListItem data={data[id]} key={id} />)
+                        ) : (
+                            <BoxWrapper>
+                                <p>No sorters to be seen here!</p>
+                                <p>Head to "Create Sorters" to create your first one.</p>
+                            </BoxWrapper>
+                        )
+                    }
                 ></InfiniteLoader>
             </div>
         </LayoutBlockWrapper>
