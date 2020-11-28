@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image } from 'antd';
 
-const rootLocation = require('./../../config.json').s3RootUri;
+const rootLocation = require('./../../config.json').rootPath;
 const relativePathRegex = /^(?:[\w-_\.]+\/)*[\w-_\.]+\.(?:[\w-_\.]+)$/;
 
 const ImageWithFallback = ({ fallback, src, ...props }) => {

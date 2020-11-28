@@ -9,10 +9,13 @@ const Roles = require('./../_helpers/enum').roles;
 const sorterStatus = require('./../_helpers/enum').sorterStatus;
 const schemaValidator = require('../_middleware/schemaValidator');
 const fileUploadHandler = require('../_middleware/fileUploadHandler');
+const demoUploadHandler = require('../_middleware/demoUploadHandler');
 const s3UploadHandler = require('../_middleware/s3UploadHandler');
 const { nanoid } = require('nanoid');
 const sorterSchema = require('./../../schema/sorter.schema').sorterFormSchema;
 const mimeTypeRegex = /image\/(p?jpeg|(x-)?png)/;
+
+const uploadHandler = process.env.UPLOAD_TYPE === 'LOCAL' ? demoUploadHandler : s3UploadHandler;
 
 // routes
 router.post('/', getPublic);
@@ -31,7 +34,7 @@ router.post(
         limits: { fileSize: 3 * 1024 * 1024 },
         mimeTypeRegex
     }),
-    s3UploadHandler(
+    uploadHandler(
         [
             { objectPath: ['picture'], uploadPath: 'sorter-banners/' },
             { objectPath: ['items', 'picture'], uploadPath: 'sorter-images/' }
