@@ -1,7 +1,6 @@
 const crypto = require('crypto');
-const config = require('../config.json');
 
-const secret = config.auth_token_secret;
+const secret = process.env.AUTH_TOKEN_SECRET;
 const algorithm = 'aes-192-cbc';
 
 const key = crypto.scryptSync(secret, 'salt', 24);

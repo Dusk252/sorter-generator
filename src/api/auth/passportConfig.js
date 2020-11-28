@@ -8,7 +8,6 @@ const crypto = require('crypto');
 const querystring = require('querystring');
 const OAuth = require('oauth-1.0a');
 const { tokenType, accountState } = require('../_helpers/enum');
-const config = require('../config.json');
 const authService = require('./auth.service');
 const userService = require('../users/users.service');
 const { UnauthorizedError } = require('express-jwt');
@@ -19,7 +18,7 @@ passport.use(
     new JWTstrategy(
         {
             //secret we used to sign our JWT
-            secretOrKey: config.auth_token_secret,
+            secretOrKey: process.env.AUTH_TOKEN_SECRET,
             //we expect the user to send the access token in the header
             jwtFromRequest: (req) => {
                 if (!req.headers.authorization) return null;
@@ -68,19 +67,24 @@ passport.use(
     'twitterLogin',
     new customStrategy(async (req, done) => {
         const callbackURL = '/twitter/callback';
+        const oauth_request_url = 'https://api.twitter.com/oauth/request_token';
+        const oauth_authorize_url = 'https://api.twitter.com/oauth/authorize';
+        const oauth_access_url = 'https://api.twitter.com/oauth/access_token';
+        const user_profile_url =
+            'https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true&skip_status=true&include_entities=false';
         //handler handles both performing the initial request for the request token
         //and the received request to the callback url and performing the subsequent authentication request
         if (req.path !== callbackURL) {
             //initial request -  Step 1: POST oauth/request_token
             const oauth = OAuth({
-                consumer: { key: config.twitter.oauth_key, secret: config.twitter.oauth_secret },
+                consumer: { key: process.env.TWITTER_OAUTH_KEY, secret: process.env.TWITTER_OAUTH_SECRET },
                 signature_method: 'HMAC-SHA1',
                 hash_function: (base_string, key) => crypto.createHmac('sha1', key).update(base_string).digest('base64')
             });
             const request_data = {
-                url: config.twitter.oauth_request_url,
+                url: oauth_request_url,
                 method: 'POST',
-                data: { oauth_callback: config.twitter.callback_url }
+                data: { oauth_callback: process.env.TWITTER_CALLBACK }
             };
             const authHeader = oauth.toHeader(oauth.authorize(request_data));
             try {
@@ -90,7 +94,7 @@ passport.use(
                     req.res.status(500).json({ message: 'An issue occurred with twitter authentication.' });
                 //if success redirect the user to the twitter authentication page
                 //Step 2: GET oauth/authorize
-                else req.res.redirect(`${config.twitter.oauth_authorize_url}?oauth_token=${data.oauth_token}`);
+                else req.res.redirect(`${oauth_authorize_url}?oauth_token=${data.oauth_token}`);
             } catch (err) {
                 done(err);
             }
@@ -102,13 +106,13 @@ passport.use(
                 if (!oauth_token || !oauth_verifier) done(null, false, { message: 'Twitter authentication failed.' });
                 else {
                     const oauth = OAuth({
-                        consumer: { key: config.twitter.oauth_key, secret: config.twitter.oauth_secret },
+                        consumer: { key: process.env.TWITTER_OAUTH_KEY, secret: process.env.TWITTER_OAUTH_SECRET },
                         signature_method: 'HMAC-SHA1',
                         hash_function: (base_string, key) =>
                             crypto.createHmac('sha1', key).update(base_string).digest('base64')
                     });
                     const tokenRequestData = {
-                        url: config.twitter.oauth_access_url,
+                        url: oauth_access_url,
                         method: 'POST',
                         data: { oauth_verifier }
                     };
@@ -125,7 +129,7 @@ passport.use(
                     //but we don't have access to all the date we need to create or update their profile
                     //so we also request that
                     const userRequestData = {
-                        url: config.twitter.user_profile_url,
+                        url: user_profile_url,
                         method: 'GET'
                     };
                     const accessToken = { key: twitter_oauth_token, secret: twitter_oauth_token_secret };
@@ -176,9 +180,9 @@ passport.use(
     'googleLogin',
     new googleStrategy(
         {
-            clientID: config.google.oauth_key,
-            clientSecret: config.google.oauth_secret,
-            callbackURL: config.google.callback_url
+            clientID: process.env.GOOGLE_OAUTH_KEY,
+            clientSecret: process.env.GOOGLE_OAUTH_SECRET,
+            callbackURL: process.env.GOOGLE_CALLBACK
         },
         async (accessToken, _, profile, done) => {
             //authentication has succeeded, let's use the information to create

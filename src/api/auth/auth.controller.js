@@ -2,7 +2,6 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 const axios = require('axios');
-const config = require('../config.json');
 const crypto = require('crypto');
 const querystring = require('querystring');
 const OAuth = require('oauth-1.0a');

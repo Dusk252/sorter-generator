@@ -1,10 +1,9 @@
 const AWS = require('aws-sdk');
-const config = require('../config.json').amazon_s3;
-const bucketname = config.bucket_name;
+const bucketname = process.env.AWS_BUCKET_NAME;
 
 const s3 = new AWS.S3({
-    accessKeyId: config.aws_access_key_id,
-    secretAccessKey: config.aws_secret_access_key
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
 const uploadFile = (file, path, mimeType) => {

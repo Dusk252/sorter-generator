@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const config = require('./../config.json');
 const { tokenType } = require('./../_helpers/enum');
 //const { encrypt, decrypt } = require('./../_helpers/encryptionUtil');
 
@@ -15,7 +14,7 @@ export const generateRefreshToken = (sub) => {
 };
 
 const generateToken = (sub, type) => {
-    const secret = config.auth_token_secret;
+    const secret = process.env.AUTH_TOKEN_SECRET;
     //if encrypting, do it here
     return jwt.sign({ type }, secret, {
         expiresIn: type == tokenType.ACCESS_TOKEN ? access_token_expiration : refresh_token_expiration,
@@ -25,5 +24,5 @@ const generateToken = (sub, type) => {
 
 //only needed if decrypting, do it inside verify
 export const getTokenData = (token) => {
-    return jwt.verify(token, config.auth_token_secret);
+    return jwt.verify(token, process.env.AUTH_TOKEN_SECRET);
 };

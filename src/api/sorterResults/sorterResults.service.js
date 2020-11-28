@@ -1,4 +1,3 @@
-const config = require('./../config.json');
 const db = require('./../db');
 
 const pageSize = 10;
