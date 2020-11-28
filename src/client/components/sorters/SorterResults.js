@@ -24,7 +24,7 @@ const SorterResults = ({ results, ties, items, groups }) => {
                             <div className='sorter-results-rank-top'>{counter}</div>
                         </div>
                         <div className='sorter-results-img'>
-                            <Image src={items[char].picture} />
+                            <Image src={items[char].picture} crossOrigin='anonymous' />
                         </div>
                         <div className='sorter-results-name'>
                             <div className='item-form-text item-form-text-name'>

@@ -9,7 +9,7 @@ const SorterListItem = ({ data }) => {
         <div className='sorter-list-item'>
             {data.info[0].picture ? (
                 <div className='sorter-list-item-img'>
-                    <Image width='200' height='100' src={data.info[0].picture} />
+                    <Image width='200' height='100' src={data.info[0].picture} crossOrigin='anonymous' />
                 </div>
             ) : (
                 <></>

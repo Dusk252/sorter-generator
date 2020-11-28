@@ -20,7 +20,7 @@ const ProfilePage = ({ user, sorterResults, getSelf }) => {
                     <Divider orientation='left'>{user.profile.username}'s Profile</Divider>
                     <div className='user-info'>
                         <div className='user-info-img'>
-                            <Image src={user.profile.icon} />
+                            <Image src={user.profile.icon} crossOrigin='anonymous' />
                         </div>
                         <div className='user-info-misc'>
                             <Typography.Paragraph>

@@ -193,7 +193,7 @@ const SorterPage = ({ sorters, getSorter, idbStore, newSorterResult, incrementVi
                             />
                         )}
                         <Divider orientation='left'>Sorter Info</Divider>
-                        <SorterItemListing groups={sorter.info[0].groups} items={sorter.info[0].items} />
+                        <SorterItemListing groups={sorter.info[0].groups} items={sorter.info[0].items} corsHeader={true} />
                     </Space>
                 )}
             </LayoutBlockWrapper>

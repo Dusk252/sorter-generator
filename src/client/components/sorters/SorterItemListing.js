@@ -8,7 +8,8 @@ const SorterItemListing = ({
     groups,
     pictureField = 'picture',
     columnsCountBreakPoints = { 350: 2, 992: 3 },
-    gutter = '15px'
+    gutter = '15px',
+    corsHeader = false
 }) => {
     const ungroupedItems = items == null ? [] : items.filter((item) => item.group == null);
     let groupItemsArray = [];
@@ -44,7 +45,14 @@ const SorterItemListing = ({
                             <div className='group-info-item-list'>
                                 {group.itemArray.map((item, index) => (
                                     <div className='group-info-item' key={index}>
-                                        {item[pictureField] ? <Image src={item[pictureField]} /> : <></>}
+                                        {item[pictureField] ? (
+                                            <Image
+                                                src={item[pictureField]}
+                                                {...(corsHeader ? { crossOrigin: 'anonymous' } : {})}
+                                            />
+                                        ) : (
+                                            <></>
+                                        )}
                                         <div>{item.name}</div>
                                     </div>
                                 ))}

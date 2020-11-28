@@ -7,7 +7,7 @@ const ItemButton = ({ item, onClick }) => {
         <Button type='text' htmlType='button' className='sorter-item' onClick={onClick}>
             {item.picture ? (
                 <div className='sorter-item-img'>
-                    <Image className='sorter-item-img' src={item.picture} />
+                    <Image className='sorter-item-img' src={item.picture} crossOrigin='anonymous' />
                 </div>
             ) : (
                 <></>

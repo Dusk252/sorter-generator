@@ -9,7 +9,7 @@ const SorterHistoryItem = ({ data }) => {
         <Link to={`/results/${data._id}`}>
             <div className='sorter-history-item'>
                 <div className='sorter-history-item-img'>
-                    <Image width='200' height='100' src={data.sorter_img}></Image>
+                    <Image width='200' height='100' src={data.sorter_img} crossOrigin='anonymous'></Image>
                 </div>
                 <div className='sorter-history-item-right'>
                     <div className='sorter-history-item-title'>
