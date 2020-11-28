@@ -6,9 +6,20 @@
       "request": "attach",
       "name": "Attach by Process ID",
       "processId": "${command:PickProcess}",
-      "skipFiles": ["<node_internals>/**"],
-      "outFiles": ["${workspaceRoot}/build/bundle.js"],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "outFiles": [
+        "${workspaceRoot}/build/bundle.js"
+      ],
       "sourceMaps": true
+    },
+    {
+      "name": "Docker Node.js Launch",
+      "type": "docker",
+      "request": "launch",
+      "preLaunchTask": "docker-run: debug",
+      "platform": "node"
     }
   ],
   "compounds": []

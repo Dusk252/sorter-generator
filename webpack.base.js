@@ -66,5 +66,17 @@ module.exports = {
     },
     optimization: {
         usedExports: true
-    }
+    },
+    plugins: [
+        {
+            apply: (compiler) => {
+                compiler.hooks.done.tap('DonePlugin', (stats) => {
+                    console.log('Compile is done!');
+                    setTimeout(() => {
+                        process.exit(0);
+                    });
+                });
+            }
+        }
+    ]
 };

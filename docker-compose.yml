@@ -1,0 +1,31 @@
+version: '3.4'
+services:
+    sorter-generator:
+        container_name: sorter-generator
+        image: sortergenerator
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - 3000:3000
+        links:
+            - mongo
+        command: node build/bundle.js
+        volumes:
+            - uploaded_files:/sorter-generator/public/uploaded_files:rw
+    mongo:
+        container_name: mongo
+        image: mongo:4.4.0
+        command: mongod --dbpath /data/db
+        volumes:
+            - database:/data/db
+            - ./database/initdb.js:/docker-entrypoint-initdb.d/initdb.js:ro
+        ports:
+            - '27017:27017'
+        environment:
+            MONGO_INITDB_ROOT_USERNAME:
+            MONGO_INITDB_ROOT_PASSWORD:
+            MONGO_INITDB_DATABASE: sorter-generator
+volumes:
+    uploaded_files:
+    database:
