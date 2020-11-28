@@ -6,7 +6,7 @@
     "scripts": {
         "start": "node build/bundle.js",
         "build:dev": "webpack --config webpack.client.js --mode development && webpack --config webpack.server.js --mode development",
-        "build:prod": "rm -rf build && rm -rf public && webpack --config webpack.server.js --mode production && webpack --progress --config webpack.client.prod.js --mode production",
+        "build:prod": "webpack --config webpack.server.js --mode production && webpack --config webpack.client.prod.js --mode production",
         "heroku-postbuild": "npm install && npm run build:prod",
         "dev": "npm-run-all --parallel dev:*",
         "dev:client": "webpack --config webpack.client.js --mode development --watch",
@@ -43,7 +43,6 @@
         "antd": "^4.8.2",
         "aws-sdk": "^2.792.0",
         "axios": "^0.19.2",
-        "bcrypt": "^5.0.0",
         "compression": "^1.7.4",
         "connected-react-router": "^6.8.0",
         "cookie-parser": "^1.4.5",
@@ -76,8 +75,8 @@
         "react-lazy-load-image-component": "^1.5.0",
         "react-redux": "7.2.0",
         "react-responsive-masonry": "^2.1.0",
-        "react-router-config": "5.1.1",
-        "react-router-dom": "5.1.2",
+        "react-router-config": "^5.1.1",
+        "react-router": "^5.2.0",
         "react-scroll": "^1.8.1",
         "react-spring": "^8.0.27",
         "redux": "4.0.5",
@@ -108,7 +107,6 @@
         "eslint-plugin-prettier": "^3.1.4",
         "eslint-plugin-react": "^7.21.5",
         "eslint-plugin-react-hooks": "^4.0.8",
-        "husky": "^4.3.0",
         "isomorphic-style-loader": "^5.1.0",
         "keymirror": "^0.1.1",
         "less": "^3.12.2",
@@ -123,7 +121,6 @@
         "webpack": "^5.4.0",
         "webpack-bundle-analyzer": "^3.9.0",
         "webpack-cli": "^4.0.2",
-        "webpack-dev-server": "^3.11.0",
         "webpack-merge": "^5.4.0",
         "webpack-node-externals": "^2.5.2"
     }

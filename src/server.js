@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import '@babel/polyfill';
 import express from 'express';
-import React from 'react';
 import bodyParser from 'body-parser';
 import path from 'path';
 import url from 'url';
@@ -97,10 +96,7 @@ app.use(/\/((?!api).)*/, (req, res) => {
 });
 
 //connect to database
-const uri =
-    process.env.NODE_ENV === 'production'
-        ? `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.1ffv3.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`
-        : `mongodb://localhost:27017/${process.env.MONGO_DB}`;
+const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 db.connect(client, process.env.MONGO_DB, function (err) {
     if (err) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from './../general/Link';
 import { Typography } from 'antd';
 import { formatDate } from './../../../helpers/formatDate';
 import Image from './../general/ImageWithFallback';

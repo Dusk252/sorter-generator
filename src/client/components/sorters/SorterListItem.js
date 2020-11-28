@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from './../general/ImageWithFallback';
-import { Link } from 'react-router-dom';
+import Link from './../general/Link';
 import { Typography, Tag } from 'antd';
 import { HeartOutlined } from '@ant-design/icons';
 
