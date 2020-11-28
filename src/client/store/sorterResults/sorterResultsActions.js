@@ -1,4 +1,4 @@
-const keyMirror = require('keyMirror');
+import keyMirror from 'keymirror';
 
 export const SIGNALS = keyMirror({
     NEW_SORTER_RESULT_START: null,

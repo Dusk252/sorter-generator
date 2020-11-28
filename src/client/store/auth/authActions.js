@@ -1,4 +1,4 @@
-const keyMirror = require('keyMirror');
+import keyMirror from 'keymirror';
 
 export const SIGNALS = keyMirror({
     GET_NEW_TOKEN: null,

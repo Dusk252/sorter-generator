@@ -1,6 +1,6 @@
-import { put, call, takeLatest, all, select, take, debounce } from 'redux-saga/effects';
+import { put, call, take, takeLatest, all, select, debounce } from 'redux-saga/effects';
 import * as SorterActions from './sortersActions';
-import { getNewToken, MESSAGES as AUTH_MESSAGES } from './../auth/authActions';
+import { startAuthenticatedCall as startCall, MESSAGES as APP_MESSAGES } from './../app/appActions';
 import { startRequest, endRequest } from './../app/appActions';
 import { createSorter, getSorterById, getSorterVersionById, incrementSorterViews } from './../apiCalls';
 import { set, del } from 'idb-keyval';
@@ -9,26 +9,19 @@ const { SIGNALS, MESSAGES, ...actions } = SorterActions;
 
 const STORAGE_KEY = 'NEW_SORTER_DRAFT';
 
-const getAccessToken = (state) => state.auth.accessToken;
 const getIdbStore = (state) => state.app.idbStore;
 
 function* processNewSorterSubmit({ sorter }) {
     yield put(startRequest());
     yield put(actions.requestNewSorter());
-    try {
-        let accessToken = yield select(getAccessToken);
-        if (!accessToken) {
-            yield put(getNewToken());
-            const action = yield take([AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED, AUTH_MESSAGES.AUTH_REJECTED]);
-            if (action.type === AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED) {
-                accessToken = yield select(getAccessToken);
-            } else throw new Error('Unauthorized user');
-        }
-        const res = yield call(createSorter, sorter, accessToken);
+    yield put(startCall(createSorter, [sorter]));
+    const action = yield take([APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED, APP_MESSAGES.AUTHENTICATED_CALL_REJECTED]);
+    if (action.type === APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED) {
+        const res = action.payload;
         yield put(actions.resolveNewSorter(res.data));
         const idbStore = yield select(getIdbStore);
         if (idbStore) yield call(del, STORAGE_KEY, idbStore);
-    } catch {
+    } else {
         yield put(actions.rejectNewSorter());
     }
     yield put(endRequest());
@@ -44,20 +37,12 @@ function* processUpdateSorterDraft({ newFormState }) {
 function* processGetSorter({ id, getUserInfo, versionId }) {
     yield put(startRequest());
     yield put(actions.requestGetSorter());
-    try {
-        let accessToken = yield select(getAccessToken);
-        if (!accessToken) {
-            yield put(getNewToken());
-            const action = yield take([AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED, AUTH_MESSAGES.AUTH_REJECTED]);
-            if (action.type === AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED) {
-                accessToken = yield select(getAccessToken);
-            } else {
-                accessToken = null;
-            }
-        }
-        const res = yield call(getSorterById, id, getUserInfo, versionId);
+    yield put(startCall(getSorterById, [id, getUserInfo, versionId]));
+    const action = yield take([APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED, APP_MESSAGES.AUTHENTICATED_CALL_REJECTED]);
+    if (action.type === APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED) {
+        const res = action.payload;
         yield put(actions.resolveGetSorter(res.data));
-    } catch {
+    } else {
         yield put(actions.rejectGetSorter());
     }
     yield put(endRequest());
@@ -66,21 +51,11 @@ function* processGetSorter({ id, getUserInfo, versionId }) {
 function* processGetSorterVersion({ id, versionId }) {
     yield put(startRequest());
     yield put(actions.requestGetSorterVersion());
-    try {
-        let accessToken = yield select(getAccessToken);
-        if (!accessToken) {
-            yield put(getNewToken());
-            const action = yield take([AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED, AUTH_MESSAGES.AUTH_REJECTED]);
-            if (action.type === AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED) {
-                accessToken = yield select(getAccessToken);
-            } else {
-                accessToken = null;
-            }
-        }
-        const res = yield call(getSorterVersionById, id, versionId);
+    yield put(startCall(getSorterVersionById, [id, versionId]));
+    const action = yield take([APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED, APP_MESSAGES.AUTHENTICATED_CALL_REJECTED]);
+    if (action.type === APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED) {
+        const res = action.payload;
         yield put(actions.resolveGetSorterVersion(id, res.data));
-    } catch {
-        //yield put(actions.rejectGetSorterVersion());
     }
     yield put(endRequest());
 }

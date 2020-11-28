@@ -1,6 +1,5 @@
 const Roles = require('../_helpers/enum').role;
 const db = require('./../db');
-const bycrpt = require('bcrypt');
 const { nanoid } = require('nanoid');
 
 const saltRounds = 10;

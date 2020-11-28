@@ -72,8 +72,9 @@ export const saveSorterResult = (result, accessToken = null) => {
     else return publicCall('POST', '/api/sorter_results/new', result);
 };
 
-export const getSorterResultById = (id) => {
-    return publicCall('GET', `/api/sorter_results/${id}`);
+export const getSorterResultById = (id, accessToken = null) => {
+    if (accessToken) return privateCall('GET', `/api/sorter_results/${id}`, null, accessToken);
+    else return publicCall('GET', `/api/sorter_results/${id}`);
 };
 
 export const getSorterResultList = (ids) => {

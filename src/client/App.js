@@ -2,15 +2,30 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { renderRoutes } from 'react-router-config';
 import Link from './components/general/Link';
-import { Layout, Menu, BackTop, Spin } from 'antd';
+import { Layout, Menu, BackTop, Spin, message } from 'antd';
 import Loading from './components/general/Loading';
-import { initialLoad, initializeIdbStore } from './store/app/appActions';
+import { initialLoad, initializeIdbStore, clearError } from './store/app/appActions';
 import useStyles from 'isomorphic-style-loader/useStyles';
 import style from './../client/styles/styles.less';
 
 const { Header, Content, Footer } = Layout;
 
-const App = ({ route, isLoading, isFirstRender, pathname, initialLoad, initializeIdbStore, isLoggedIn }) => {
+const getShorterPath = (pathname) => {
+    const lastIndex = pathname.lastIndexOf('/');
+    return lastIndex > 0 ? pathname.substring(0, lastIndex) : '';
+};
+
+const App = ({
+    route,
+    isLoading,
+    isFirstRender,
+    pathname,
+    initialLoad,
+    initializeIdbStore,
+    isLoggedIn,
+    error,
+    clearError
+}) => {
     useStyles(style);
     useEffect(() => {
         if (isFirstRender) {
@@ -18,6 +33,17 @@ const App = ({ route, isLoading, isFirstRender, pathname, initialLoad, initializ
             initializeIdbStore();
         }
     }, []);
+    useEffect(() => {
+        if (error) message.error(error);
+        return () => clearError();
+    }, [error]);
+
+    const paths = route && route.routes ? route.routes.map((r) => r.path) : [];
+    let initialPath = pathname;
+    while (initialPath != '') {
+        if (paths.includes(initialPath)) break;
+        initialPath = getShorterPath(initialPath);
+    }
 
     return (
         <Layout className='layout'>
@@ -27,7 +53,7 @@ const App = ({ route, isLoading, isFirstRender, pathname, initialLoad, initializ
             ) : (
                 <>
                     <Header>
-                        <Menu theme='dark' mode='horizontal' selectedKeys={[pathname]}>
+                        <Menu theme='dark' mode='horizontal' selectedKeys={[initialPath]}>
                             <Menu.Item key='/'>
                                 <Link to='/'>Home</Link>
                             </Menu.Item>
@@ -68,12 +94,14 @@ const mapStateToProps = (state) => ({
     isLoading: state.app.isLoading ?? false,
     isFirstRender: state.app.isFirstRender,
     pathname: state.router.location.pathname,
-    isLoggedIn: state.auth.currentUser != null
+    isLoggedIn: state.auth.currentUser != null,
+    error: state.app.error
 });
 
 const mapDispatchToProps = {
     initialLoad,
-    initializeIdbStore
+    initializeIdbStore,
+    clearError
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -7,8 +7,7 @@ const fileType = require('file-type');
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$/;
 
 const CustomError = () => ({
-    status: 'failed',
-    error: 'Failed to upload a picture.'
+    message: 'Failed to upload a picture.'
 });
 
 const getExtensionFromMimeType = (mimeType, mimeTypeRegex) => {

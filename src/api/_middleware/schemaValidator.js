@@ -9,8 +9,7 @@ const validationOptions = {
 };
 
 const CustomError = {
-    status: 'failed',
-    error: 'Invalid request data. Please review request and try again.'
+    Message: 'Invalid request data. Please review request and try again.'
 };
 
 function schemaValidator(schemaObj = null) {

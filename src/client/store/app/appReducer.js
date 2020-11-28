@@ -21,6 +21,12 @@ const appReducer = (state = initialState, action) => {
             return { ...state, idbStore: Object.freeze(new Store('sorter-generator-db', 'sorter-generator-store')) };
         case MESSAGES.LOCATION_CHANGE:
             return { ...state, prevLocation: state.currentLocation, currentLocation: payload.newLocation };
+        case MESSAGES.AUTHENTICATED_CALL_RESOLVED:
+            return { ...state, error: null };
+        case MESSAGES.AUTHENTICATED_CALL_REJECTED:
+            return { ...state, error: payload };
+        case MESSAGES.CLEAR_ERROR:
+            return { ...state, error: null };
         default:
             return state;
     }

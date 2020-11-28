@@ -3,58 +3,43 @@ import * as PageActions from './paginationActions';
 import { getNewToken, MESSAGES as AUTH_MESSAGES } from './../auth/authActions';
 import { requestList, checkList, requestListNew } from './../apiCalls';
 import { startRequest, endRequest } from './../app/appActions';
+import { startAuthenticatedCall as startCall, MESSAGES as APP_MESSAGES } from './../app/appActions';
 
 const { SIGNALS, MESSAGES, ...actions } = PageActions;
 
 const getAccessToken = (state) => state.auth.accessToken;
 
-function* processGetPage({ name, count, lastUpdated, isPrivate }) {
+function* processGetPage({ name, count, lastUpdated }) {
     yield put(startRequest());
     yield put(actions.startPageRequest());
-    try {
-        let accessToken = null;
-        if (isPrivate) {
-            accessToken = yield select(getAccessToken);
-            if (!accessToken) {
-                yield put(getNewToken());
-                const action = yield take([AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED, AUTH_MESSAGES.AUTH_REJECTED]);
-                if (action.type === AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED) {
-                    accessToken = yield select(getAccessToken);
-                } else throw new Error('Unauthorized user');
-            }
-        }
-        const res = yield call(requestList, name, count ?? 0, lastUpdated, accessToken);
+    yield put(startCall(requestList, [name, count ?? 0, lastUpdated]));
+    const action = yield take([APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED, APP_MESSAGES.AUTHENTICATED_CALL_REJECTED]);
+    if (action.type === APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED) {
+        const res = action.payload;
         yield put(actions.populateState({ name, payload: res.data }));
         yield put(actions.resolvePageRequest({ name, payload: { items: res.data } }));
-    } catch (err) {
-        //console.log(err);
-        yield put(actions.rejectPageRequest({ error: err.error }));
+    } else {
+        yield put(actions.rejectPageRequest());
     }
     yield put(endRequest());
 }
 
-function* processGetNewItems({ name, lastUpdated, isPrivate }) {
-    try {
-        let accessToken = null;
-        if (isPrivate) {
-            accessToken = yield select(getAccessToken);
-            if (!accessToken) {
-                yield put(getNewToken());
-                const action = yield take([AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED, AUTH_MESSAGES.AUTH_REJECTED]);
-                if (action.type === AUTH_MESSAGES.GET_NEW_TOKEN_RESOLVED) {
-                    accessToken = yield select(getAccessToken);
-                } else throw new Error('Unauthorized user');
-            }
-        }
-        const newCount = yield call(checkList, name, lastUpdated, accessToken);
+function* processGetNewItems({ name, lastUpdated }) {
+    yield put(startCall(requestListNew, [name, lastUpdated]));
+    const action = yield take([APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED, APP_MESSAGES.AUTHENTICATED_CALL_REJECTED]);
+    if (action.type === APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED) {
+        const newCount = action.payload;
         if (newCount.data) {
-            yield put(startRequest());
-            const res = yield call(requestListNew, name, lastUpdated, accessToken);
-            yield put(actions.populateState({ name, payload: res.data }));
-            yield put(actions.resolveGetNewItems({ name, payload: { items: res.data } }));
-            yield put(endRequest());
+            try {
+                let accessToken = yield select(getAccessToken);
+                yield put(startRequest());
+                const res = yield call(requestListNew, name, lastUpdated, accessToken);
+                yield put(actions.populateState({ name, payload: res.data }));
+                yield put(actions.resolveGetNewItems({ name, payload: { items: res.data } }));
+                yield put(endRequest());
+            } catch {}
         }
-    } catch {}
+    }
 }
 
 function* watchGetPage() {

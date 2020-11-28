@@ -1,31 +1,24 @@
-const keyMirror = require('keyMirror');
+import keyMirror from 'keymirror';
 
-const role = keyMirror({
+export const role = keyMirror({
     ADMIN: null,
     USER: null
 });
 
-const tokenType = keyMirror({
+export const tokenType = keyMirror({
     ACCESS_TOKEN: null,
     REFRESH_TOKEN: null
 });
 
-const accountState = keyMirror({
+export const accountState = keyMirror({
     ACTIVE: null,
     PENDING: null,
     SUSPENDED: null,
     DELETED: null
 });
 
-const sorterStatus = keyMirror({
+export const sorterStatus = keyMirror({
     PUBLIC: null,
     UNLISTED: null,
     PRIVATE: null
 });
-
-module.exports = {
-    role,
-    tokenType,
-    accountState,
-    sorterStatus
-};

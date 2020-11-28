@@ -14,7 +14,7 @@ const Login = ({ authError, localLogin }) => {
 
     useEffect(() => {
         if (authError) {
-            message.error('Invalid email and password combination.');
+            message.error('Authentication failed.');
         }
     }, [authError]);
 

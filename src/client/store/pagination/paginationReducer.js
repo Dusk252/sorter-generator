@@ -28,7 +28,7 @@ const paginationReducer = (state = initialState, action) => {
             return { ...state, [name]: newState, isFetching: false };
         }
         case MESSAGES.REQUEST_REJECTED:
-            return { ...state, isFetching: false, error: payload.error };
+            return { ...state, isFetching: false, error: payload };
         case MESSAGES.RESET_HASMORE_CHECK:
             return { ...state, [name]: { ...state[name], hasMore: true } };
         // case MESSAGES.REQUEST_CHECK_NEW_RESOLVED:
