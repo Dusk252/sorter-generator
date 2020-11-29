@@ -11,7 +11,7 @@ db.users.insertOne({
     friends: [],
     favorite_sorters: [],
     profile: { username: 'exUser', about_me: '', links_list: [], share_settings: {}, icon: '' },
-    email: 'test@gmail.com',
+    email: 'test@example.com',
     password: 'test',
     localLogin: null,
     integration3rdparty: {},

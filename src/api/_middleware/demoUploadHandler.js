@@ -2,6 +2,7 @@
 module.exports = demoUploadHandler;
 const { nanoid } = require('nanoid');
 const axios = require('axios');
+const sharp = require('sharp');
 const fs = require('fs');
 const util = require('util');
 const stream = require('stream');
@@ -32,6 +33,7 @@ const ensureDirectoryExistence = (filePath) => {
 };
 
 const uploadFromUrl = async (url, uploadPath, mimeTypeRegex) => {
+    const transformFunction = sharp().resize(500, 500, { fit: 'outside', withoutEnlargement: true });
     //get file from url as stream
     const response = await axios({
         url,
@@ -45,7 +47,7 @@ const uploadFromUrl = async (url, uploadPath, mimeTypeRegex) => {
         const path = `${uploadPath}.${type.ext}`;
         ensureDirectoryExistence(`${uploadRoot}${path}`);
         const writeStream = fs.createWriteStream(`${uploadRoot}${path}`);
-        await pipeline(fileTypeStream, writeStream);
+        await pipeline(fileTypeStream.pipe(transformFunction), writeStream);
         return path;
     } else throw new CustomError();
 };
@@ -55,7 +57,8 @@ const uploadFromFile = async (fileObj, uploadPath, mimeTypeRegex) => {
     if (extension) {
         const path = `${uploadPath}.${extension}`;
         ensureDirectoryExistence(`${uploadRoot}${path}`);
-        fileObj.mv(`${uploadRoot}${path}`);
+        const writeStream = fs.createWriteStream(`${uploadRoot}${path}`);
+        await pipeline(sharp(fileObj.data).resize(500, 500, { fit: 'outside', withoutEnlargement: true }), writeStream);
         return path;
     } else throw new CustomError();
 };
