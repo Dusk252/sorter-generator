@@ -84,3 +84,11 @@ export const getSorterResultList = (ids) => {
 export const getUserProfile = (id, accessToken) => {
     return privateCall('GET', `/api/users/${id}`, null, accessToken);
 };
+
+export const addFavoriteSorter = (sorter_id, accessToken) => {
+    return privateCall('POST', `/api/users/addFavorite`, { sorter_id: sorter_id }, accessToken);
+};
+
+export const removeFavoriteSorter = (sorter_id, accessToken) => {
+    return privateCall('POST', `/api/users/removeFavorite`, { sorter_id: sorter_id }, accessToken);
+};

@@ -56,6 +56,24 @@ const sortersReducer = (state = initialState, action) => {
                     })
                 })
             };
+        case MESSAGES.INCREMENT_FAVORITE_COUNT:
+            return {
+                ...state,
+                sorterList: Object.assign({}, state.sorterList, {
+                    [payload]: merge({}, state.sorterList[payload], {
+                        meta: { favorites: state.sorterList[payload].meta.favorites + 1 }
+                    })
+                })
+            };
+        case MESSAGES.DECREMENT_FAVORITE_COUNT:
+            return {
+                ...state,
+                sorterList: Object.assign({}, state.sorterList, {
+                    [payload]: merge({}, state.sorterList[payload], {
+                        meta: { favorites: state.sorterList[payload].meta.favorites - 1 }
+                    })
+                })
+            };
         case MESSAGES.POPULATE_SORTERS_STATE:
             let sorterList = { ...state.sorterList };
             payload.forEach((sorter) => {

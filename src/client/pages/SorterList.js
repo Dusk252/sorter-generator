@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { pageTypes, getPage, resetHasMoreCheck, getNewItems } from '../store/pagination/paginationActions';
+import { toggleFavorite } from '../store/users/usersActions';
 import { ArrowUpOutlined } from '@ant-design/icons';
 import BoxWrapper from '../components/general/BoxWrapper';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
@@ -16,7 +17,7 @@ const ToTopComponent = () => {
     );
 };
 
-const SorterList = ({ sorters, sortersPage, getPage, getNewItems }) => {
+const SorterList = ({ sorters, sortersPage, getPage, getNewItems, favorites, toggleFavorite }) => {
     return (
         <LayoutBlockWrapper>
             <div className='sorter-list'>
@@ -30,7 +31,16 @@ const SorterList = ({ sorters, sortersPage, getPage, getNewItems }) => {
                     ToTopComponent={ToTopComponent}
                     render={(items, data) =>
                         items && items.length ? (
-                            items.map((id) => <SorterListItem data={data[id]} key={id} />)
+                            items.map((id) => (
+                                <SorterListItem
+                                    data={data[id]}
+                                    key={id}
+                                    isFavorite={favorites.includes(id)}
+                                    toggleFavorite={() => {
+                                        toggleFavorite(id);
+                                    }}
+                                />
+                            ))
                         ) : (
                             <BoxWrapper>
                                 <p>No sorters to be seen here!</p>
@@ -46,13 +56,15 @@ const SorterList = ({ sorters, sortersPage, getPage, getNewItems }) => {
 
 const mapStateToProps = (state) => ({
     sortersPage: state.pages.sorters,
-    sorters: state.sorters.sorterList
+    sorters: state.sorters.sorterList,
+    favorites: state.auth.currentUser.favorite_sorters
 });
 
 const mapDispatchToProps = {
     getPage,
     resetHasMoreCheck,
-    getNewItems
+    getNewItems,
+    toggleFavorite
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SorterList);

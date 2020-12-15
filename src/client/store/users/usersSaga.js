@@ -1,15 +1,17 @@
 import { put, call, takeLatest, all, select, take } from 'redux-saga/effects';
 import * as UserActions from './usersActions';
 import { getNewToken, MESSAGES as AUTH_MESSAGES } from './../auth/authActions';
+import { incrementFavoritesCount, decrementFavoritesCount } from './../sorters/sortersActions';
 import { startRequest, endRequest } from './../app/appActions';
 import { startAuthenticatedCall as startCall, MESSAGES as APP_MESSAGES } from './../app/appActions';
 import { processGetResults } from './../sorterResults/sorterResultsSaga';
-import { requestList, getUserProfile } from './../apiCalls';
+import { requestList, getUserProfile, addFavoriteSorter, removeFavoriteSorter } from './../apiCalls';
 
 const { SIGNALS, MESSAGES, ...actions } = UserActions;
 
 const getAccessToken = (state) => state.auth.accessToken;
 const getCurrentUserId = (state) => state.auth.currentUser._id;
+const getCurrentFavorites = (state) => state.auth.currentUser.favorite_sorters;
 
 function* processGetUser({ id }) {
     yield put(startRequest());
@@ -47,6 +49,21 @@ function* processGetSelf() {
     yield put(endRequest());
 }
 
+function* processToggleFavorite({ id }) {
+    yield put(startRequest());
+    const favorites = yield select(getCurrentFavorites);
+    const isAdd = !favorites.includes(id);
+    if (isAdd) yield put(startCall(addFavoriteSorter, [id]));
+    else yield put(startCall(removeFavoriteSorter, [id]));
+    const action = yield take([APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED, APP_MESSAGES.AUTHENTICATED_CALL_REJECTED]);
+    if (action.type === APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED) {
+        yield put(actions.resolveToggleFavorite(id, isAdd));
+        if (isAdd) yield put(incrementFavoritesCount(id));
+        else yield put(decrementFavoritesCount(id));
+    }
+    yield put(endRequest());
+}
+
 function* watchGetUser() {
     yield takeLatest(SIGNALS.GET_USER_START, processGetUser);
 }
@@ -55,6 +72,10 @@ function* watchGetSelf() {
     yield takeLatest(SIGNALS.GET_SELF_START, processGetSelf);
 }
 
+function* watchToggleFavorite() {
+    yield takeLatest(SIGNALS.TOGGLE_FAVORITE, processToggleFavorite);
+}
+
 export default function* () {
-    yield all([watchGetUser(), watchGetSelf()]);
+    yield all([watchGetUser(), watchGetSelf(), watchToggleFavorite()]);
 }

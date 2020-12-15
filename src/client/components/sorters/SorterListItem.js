@@ -2,9 +2,9 @@ import React from 'react';
 import Image from './../general/ImageWithFallback';
 import Link from './../general/Link';
 import { Typography, Tag } from 'antd';
-import { HeartOutlined } from '@ant-design/icons';
+import { HeartFilled, HeartOutlined } from '@ant-design/icons';
 
-const SorterListItem = ({ data }) => {
+const SorterListItem = ({ data, isFavorite, toggleFavorite }) => {
     return (
         <div className='sorter-list-item'>
             {data.info[0].picture ? (
@@ -60,7 +60,11 @@ const SorterListItem = ({ data }) => {
                     </div>
                 </div>
                 <div className='sorter-list-item-favorite'>
-                    <HeartOutlined />
+                    {isFavorite ? (
+                        <HeartFilled onClick={toggleFavorite} color='primary' />
+                    ) : (
+                        <HeartOutlined onClick={toggleFavorite} />
+                    )}
                 </div>
             </div>
         </div>

@@ -1,5 +1,6 @@
 import { MESSAGES } from './authActions';
 import { MESSAGES as SORTER_RESULT_MESSAGES } from './../sorterResults/sorterResultsActions';
+import { MESSAGES as USER_MESSAGES } from './../users/usersActions';
 
 const sorter_history_len = 12;
 
@@ -31,6 +32,18 @@ const authReducer = (state = initialState, action) => {
                         : state.currentUser.sorter_history.slice(0, -1);
                 sorterHistory.unshift({ _id: payload._id });
                 return { ...state, currentUser: { ...state.currentUser, sorter_history: sorterHistory } };
+            }
+        case USER_MESSAGES.TOGGLE_FAVORITE_RESOLVE:
+            const favorites = state.currentUser.favorite_sorters.slice(0, state.currentUser.favorite_sorters.length);
+            if (payload.isAdd)
+                return { ...state, currentUser: { ...state.currentUser, favorite_sorters: [...favorites, payload.id] } };
+            else {
+                const index = state.currentUser.favorite_sorters.indexOf(payload.id);
+                if (index === -1) return state;
+                else {
+                    favorites.splice(index, 1);
+                    return { ...state, currentUser: { ...state.currentUser, favorite_sorters: favorites } };
+                }
             }
         default:
             return state;

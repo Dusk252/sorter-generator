@@ -23,6 +23,11 @@ const usersReducer = (state = initialState, action) => {
         case MESSAGES.GET_SELF_RESOLVE:
             //console.log(payload);
             return state;
+        // case MESSAGES.TOGGLE_FAVORITE_RESOLVE:
+        //     if (!userList[payload.id])
+        //         return state;
+        //     let user = userList[payload.id];
+        //     if (user.base_info.favorite_sorters)
         default:
             return state;
     }

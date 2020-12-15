@@ -50,6 +50,19 @@ async function getSorterList(query, count) {
                 }
             },
             {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: 'favorite_sorters',
+                    as: 'favoritesArray'
+                }
+            },
+            {
+                $addFields: {
+                    'meta.favorites': { $size: '$favoritesArray' }
+                }
+            },
+            {
                 $project: {
                     meta: 1,
                     user_info: {
@@ -126,8 +139,22 @@ async function getById(id, userId, getUserInfo = false, versionId = null) {
                     }
                 },
                 {
+                    $lookup: {
+                        from: 'users',
+                        localField: '_id',
+                        foreignField: 'favorite_sorters',
+                        as: 'favoritesArray'
+                    }
+                },
+                {
+                    $addFields: {
+                        'meta.favorites': { $size: '$favoritesArray' }
+                    }
+                },
+                {
                     $project: {
                         meta: 1,
+                        favoritesCount: 1,
                         user_info: {
                             username: {
                                 $arrayElemAt: ['$user_info_array.profile.username', 0]

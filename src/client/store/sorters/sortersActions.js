@@ -20,7 +20,9 @@ export const MESSAGES = keyMirror({
     NEW_SORTER_RESOLVE: null,
     NEW_SORTER_REJECT: null,
     POPULATE_SORTERS_STATE: null,
-    INCREMENT_TAKE_COUNT: null
+    INCREMENT_TAKE_COUNT: null,
+    INCREMENT_FAVORITE_COUNT: null,
+    DECREMENT_FAVORITE_COUNT: null
 });
 
 export const submitNewSorter = (sorter) => ({ type: SIGNALS.NEW_SORTER_SUBMIT, sorter });
@@ -44,3 +46,5 @@ export const resolveGetSorterVersion = (id, version) => ({
 });
 
 export const incrementTakeCount = (id) => ({ type: MESSAGES.INCREMENT_TAKE_COUNT, payload: id });
+export const incrementFavoritesCount = (id) => ({ type: MESSAGES.INCREMENT_FAVORITE_COUNT, payload: id });
+export const decrementFavoritesCount = (id) => ({ type: MESSAGES.DECREMENT_FAVORITE_COUNT, payload: id });
