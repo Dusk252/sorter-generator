@@ -40,15 +40,15 @@ const InfiniteLoader = ({ data, page, pageName, getPage, getNewItems, resetHasMo
             bottomObserver.observe(bottomLoader.current);
         }
 
-        const getNew = setInterval(() => {
-            setLoadingNew(true);
-            getNewItems();
-        }, 120000);
+        // const getNew = setInterval(() => {
+        //     setLoadingNew(true);
+        //     getNewItems();
+        // }, 120000);
 
         return () => {
             topObserver.disconnect();
             bottomObserver.disconnect();
-            clearInterval(getNew);
+            //clearInterval(getNew);
         };
     }, [page]);
 
