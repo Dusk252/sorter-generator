@@ -1,5 +1,6 @@
 import { push } from 'connected-react-router';
 import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { getNewToken, clearAuthError } from '../store/auth/authActions';
 import { Spin, Alert } from 'antd';
@@ -23,34 +24,39 @@ const LoginResult = ({ isFetching, authError, getNewToken, clearAuthError, push 
     };
 
     return (
-        <LayoutBlockWrapper>
-            <BoxWrapper className='small-box' style={{ margin: 'auto' }}>
-                {loading && !authError ? (
-                    <div style={{ textAlign: 'center' }}>
-                        <Spin tip='Logging in...'></Spin>
-                    </div>
-                ) : authError ? (
-                    <>
-                        <Alert
-                            message='Error'
-                            description='Authentication failed. We could not log you in.'
-                            type='error'
-                            showIcon
-                        />
-                        <br />
+        <>
+            <Helmet>
+                <title>Login</title>
+            </Helmet>
+            <LayoutBlockWrapper>
+                <BoxWrapper className='small-box' style={{ margin: 'auto' }}>
+                    {loading && !authError ? (
                         <div style={{ textAlign: 'center' }}>
-                            Click <a onClick={handleReturn}>here</a> to return to the login page.
+                            <Spin tip='Logging in...'></Spin>
                         </div>
-                    </>
-                ) : (
-                    <>
-                        <Alert message='Success' description='Login Successful! Welcome back.' type='success' showIcon />
-                        <br />
-                        <div style={{ textAlign: 'center' }}>You will be redirected soon...</div>
-                    </>
-                )}
-            </BoxWrapper>
-        </LayoutBlockWrapper>
+                    ) : authError ? (
+                        <>
+                            <Alert
+                                message='Error'
+                                description='Authentication failed. We could not log you in.'
+                                type='error'
+                                showIcon
+                            />
+                            <br />
+                            <div style={{ textAlign: 'center' }}>
+                                Click <a onClick={handleReturn}>here</a> to return to the login page.
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <Alert message='Success' description='Login Successful! Welcome back.' type='success' showIcon />
+                            <br />
+                            <div style={{ textAlign: 'center' }}>You will be redirected soon...</div>
+                        </>
+                    )}
+                </BoxWrapper>
+            </LayoutBlockWrapper>
+        </>
     );
 };
 

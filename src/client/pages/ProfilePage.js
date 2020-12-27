@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { Space, Divider, Row, Col, Typography } from 'antd';
 import { getSelf } from '../store/users/usersActions';
@@ -13,45 +14,49 @@ const ProfilePage = ({ user, sorterResults, getSelf }) => {
         getSelf();
     }, []);
     return (
-        user &&
-        user.profile && (
-            <LayoutBlockWrapper>
-                <Space size='large' direction='vertical' style={{ width: '100%' }}>
-                    <Divider orientation='left'>{user.profile.username}'s Profile</Divider>
-                    <div className='user-info'>
-                        <div className='user-info-img'>
-                            <Image src={user.profile.icon} crossOrigin='anonymous' />
+        <>
+            <Helmet>
+                <title>{`Profile${user && user.profile ? ` - ${user.profile.username}` : ''}`}</title>
+            </Helmet>
+            {user && user.profile && (
+                <LayoutBlockWrapper>
+                    <Space size='large' direction='vertical' style={{ width: '100%' }}>
+                        <Divider orientation='left'>{user.profile.username}'s Profile</Divider>
+                        <div className='user-info'>
+                            <div className='user-info-img'>
+                                <Image src={user.profile.icon} crossOrigin='anonymous' />
+                            </div>
+                            <div className='user-info-misc'>
+                                <Typography.Paragraph>
+                                    <Typography.Title level={5}>Joined Date: </Typography.Title>
+                                </Typography.Paragraph>
+                                <Typography.Paragraph>
+                                    <Typography.Text type='primary'>
+                                        {formatDate(new Date(user.joined_date), false)}
+                                    </Typography.Text>
+                                </Typography.Paragraph>
+                            </div>
                         </div>
-                        <div className='user-info-misc'>
-                            <Typography.Paragraph>
-                                <Typography.Title level={5}>Joined Date: </Typography.Title>
-                            </Typography.Paragraph>
-                            <Typography.Paragraph>
-                                <Typography.Text type='primary'>
-                                    {formatDate(new Date(user.joined_date), false)}
-                                </Typography.Text>
-                            </Typography.Paragraph>
-                        </div>
-                    </div>
-                    <Divider orientation='left'>Sorter History</Divider>
-                    <Row className='sorter-history' gutter={'10'}>
-                        {user.sorter_history &&
-                            user.sorter_history.map((res, index) => (
-                                <Col key={index} span={24} lg={12}>
-                                    {sorterResults[res._id] ? (
-                                        <SorterHistoryItem data={sorterResults[res._id]} />
-                                    ) : (
-                                        <SorterHistoryItem.Skeleton />
-                                    )}
-                                </Col>
-                            ))}
-                    </Row>
-                    <Link to='/results/history' style={{ display: 'block', textAlign: 'center' }}>
-                        View More
-                    </Link>
-                </Space>
-            </LayoutBlockWrapper>
-        )
+                        <Divider orientation='left'>Sorter History</Divider>
+                        <Row className='sorter-history' gutter={'10'}>
+                            {user.sorter_history &&
+                                user.sorter_history.map((res, index) => (
+                                    <Col key={index} span={24} lg={12}>
+                                        {sorterResults[res._id] ? (
+                                            <SorterHistoryItem data={sorterResults[res._id]} />
+                                        ) : (
+                                            <SorterHistoryItem.Skeleton />
+                                        )}
+                                    </Col>
+                                ))}
+                        </Row>
+                        <Link to='/results/history' style={{ display: 'block', textAlign: 'center' }}>
+                            View More
+                        </Link>
+                    </Space>
+                </LayoutBlockWrapper>
+            )}
+        </>
     );
 };
 

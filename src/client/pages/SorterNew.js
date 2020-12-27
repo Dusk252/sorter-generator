@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { submitNewSorter, updateSorterDraft } from '../store/sorters/sortersActions';
@@ -172,6 +173,9 @@ const SorterNew = ({ status, idbStore, submitNewSorter, updateSorterDraft, histo
 
     return (
         <>
+            <Helmet>
+                <title>Create Sorter</title>
+            </Helmet>
             {loadDraftInfo ? (
                 <BoxWrapper style={{ padding: '10px', marginTop: '50px', display: 'flex', justifyContent: 'space-between' }}>
                     <span>There is a saved draft of this form. Do you want to load the previous draft?</span>

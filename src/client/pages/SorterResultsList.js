@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { Space, Divider, Col, Row } from 'antd';
 import { pageTypes, getPage, resetHasMoreCheck, getNewItems } from '../store/pagination/paginationActions';
@@ -18,37 +19,42 @@ const ToTopComponent = () => {
 
 const SorterResultsList = ({ results, resultsPage, getPage, getNewItems, user }) => {
     return (
-        <LayoutBlockWrapper>
-            <Space size='large' direction='vertical' style={{ width: '100%' }}>
-                {user && (
-                    <>
-                        <Divider orientation='center'>{user.profile.username}'s Sorter History</Divider>
-                        <div className='sorter-results-list'>
-                            <InfiniteLoader
-                                data={results}
-                                page={resultsPage}
-                                pageName='results'
-                                getPage={() =>
-                                    getPage(resultsPage.items.length, resultsPage.lastUpdated, pageTypes.sorter_results)
-                                }
-                                getNewItems={() => getNewItems(resultsPage.lastUpdated, pageTypes.sorter_results)}
-                                resetHasMoreCheck={resetHasMoreCheck}
-                                render={(items, data) => (
-                                    <Row className='sorter-history' gutter={'10'}>
-                                        {items.map((id) => (
-                                            <Col span={24} lg={12} key={id}>
-                                                <SorterHistoryItem data={data[id]} />
-                                            </Col>
-                                        ))}
-                                    </Row>
-                                )}
-                                ToTopComponent={ToTopComponent}
-                            ></InfiniteLoader>
-                        </div>
-                    </>
-                )}
-            </Space>
-        </LayoutBlockWrapper>
+        <>
+            <Helmet>
+                <title>{`Sorter History${user && user.profile ? ` - ${user.profile.username}` : ''}`}</title>
+            </Helmet>
+            <LayoutBlockWrapper>
+                <Space size='large' direction='vertical' style={{ width: '100%' }}>
+                    {user && (
+                        <>
+                            <Divider orientation='center'>{user.profile.username}'s Sorter History</Divider>
+                            <div className='sorter-results-list'>
+                                <InfiniteLoader
+                                    data={results}
+                                    page={resultsPage}
+                                    pageName='results'
+                                    getPage={() =>
+                                        getPage(resultsPage.items.length, resultsPage.lastUpdated, pageTypes.sorter_results)
+                                    }
+                                    getNewItems={() => getNewItems(resultsPage.lastUpdated, pageTypes.sorter_results)}
+                                    resetHasMoreCheck={resetHasMoreCheck}
+                                    render={(items, data) => (
+                                        <Row className='sorter-history' gutter={'10'}>
+                                            {items.map((id) => (
+                                                <Col span={24} lg={12} key={id}>
+                                                    <SorterHistoryItem data={data[id]} />
+                                                </Col>
+                                            ))}
+                                        </Row>
+                                    )}
+                                    ToTopComponent={ToTopComponent}
+                                ></InfiniteLoader>
+                            </div>
+                        </>
+                    )}
+                </Space>
+            </LayoutBlockWrapper>
+        </>
     );
 };
 

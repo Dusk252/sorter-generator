@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { getSorter, incrementViewCount } from '../store/sorters/sortersActions';
@@ -127,77 +128,85 @@ const SorterPage = ({ sorters, getSorter, idbStore, newSorterResult, incrementVi
     };
 
     return (
-        sorter != null &&
-        sorterGroups != null && (
-            <LayoutBlockWrapper>
-                {isSorting && calcState != null ? (
-                    <Sorter
-                        items={sorter.info[0].items}
-                        groups={sorter.info[0].groups}
-                        sorterName={sorter.info[0].name}
-                        sorterLogo={sorter.info[0].picture}
-                        calcState={calcState}
-                        setCalcState={setCalcState}
-                    />
-                ) : (
-                    <Space size='large' direction='vertical' style={{ width: '100%' }}>
-                        <SorterHeader
+        <>
+            <Helmet>
+                <title>{`Sorter${sorter != null && sorterGroups != null ? ` - ${sorter.info[0].name}` : ''}`}</title>
+            </Helmet>
+            {sorter != null && sorterGroups != null && (
+                <LayoutBlockWrapper>
+                    {isSorting && calcState != null ? (
+                        <Sorter
+                            items={sorter.info[0].items}
+                            groups={sorter.info[0].groups}
                             sorterName={sorter.info[0].name}
                             sorterLogo={sorter.info[0].picture}
-                            className='sorter-header'
+                            calcState={calcState}
+                            setCalcState={setCalcState}
                         />
-                        {calcState && calcState.progress > 0 && (
-                            <div style={{ textAlign: 'center' }}>
-                                <Typography.Paragraph>
-                                    You have progress saved for this sorter. Current progress:{' '}
-                                    {Math.round((calcState.progress * 100) / calcState.totalOps)}%
-                                </Typography.Paragraph>
-                                {sorter.info[0].groups != null && sorter.info[0].groups.length > 0 && (
-                                    <Typography.Paragraph type='warning'>
-                                        If you decide to continue with your previous progress your group selection in this
-                                        page will be ignored.
-                                    </Typography.Paragraph>
-                                )}
-                            </div>
-                        )}
-                        <Row justify='center'>
-                            <Button
-                                type='primary'
-                                htmlType='button'
-                                onClick={handleRestart}
-                                className='sorter-start-button'
-                                block
-                            >
-                                {calcState && calcState.progress > 0 ? 'Restart' : 'Start'}
-                            </Button>
+                    ) : (
+                        <Space size='large' direction='vertical' style={{ width: '100%' }}>
+                            <SorterHeader
+                                sorterName={sorter.info[0].name}
+                                sorterLogo={sorter.info[0].picture}
+                                className='sorter-header'
+                            />
                             {calcState && calcState.progress > 0 && (
+                                <div style={{ textAlign: 'center' }}>
+                                    <Typography.Paragraph>
+                                        You have progress saved for this sorter. Current progress:{' '}
+                                        {Math.round((calcState.progress * 100) / calcState.totalOps)}%
+                                    </Typography.Paragraph>
+                                    {sorter.info[0].groups != null && sorter.info[0].groups.length > 0 && (
+                                        <Typography.Paragraph type='warning'>
+                                            If you decide to continue with your previous progress your group selection in
+                                            this page will be ignored.
+                                        </Typography.Paragraph>
+                                    )}
+                                </div>
+                            )}
+                            <Row justify='center'>
                                 <Button
                                     type='primary'
                                     htmlType='button'
-                                    onClick={handleContinue}
+                                    onClick={handleRestart}
                                     className='sorter-start-button'
                                     block
                                 >
-                                    Continue
+                                    {calcState && calcState.progress > 0 ? 'Restart' : 'Start'}
                                 </Button>
+                                {calcState && calcState.progress > 0 && (
+                                    <Button
+                                        type='primary'
+                                        htmlType='button'
+                                        onClick={handleContinue}
+                                        className='sorter-start-button'
+                                        block
+                                    >
+                                        Continue
+                                    </Button>
+                                )}
+                            </Row>
+                            {sorter.info[0].groups != null && sorter.info[0].groups.length !== 0 && (
+                                <SorterGroupSelect
+                                    groups={sorter.info[0].groups}
+                                    selectedGroups={sorterGroups}
+                                    handleCheckGroup={handleCheckGroup}
+                                    toggleSelectAll={toggleSelectAll}
+                                    toggleSelectUngrouped={hasUngrouped ? (check) => setSelectUngrouped(check) : null}
+                                    className='sorter-group-select'
+                                />
                             )}
-                        </Row>
-                        {sorter.info[0].groups != null && sorter.info[0].groups.length !== 0 && (
-                            <SorterGroupSelect
+                            <Divider orientation='left'>Sorter Info</Divider>
+                            <SorterItemListing
                                 groups={sorter.info[0].groups}
-                                selectedGroups={sorterGroups}
-                                handleCheckGroup={handleCheckGroup}
-                                toggleSelectAll={toggleSelectAll}
-                                toggleSelectUngrouped={hasUngrouped ? (check) => setSelectUngrouped(check) : null}
-                                className='sorter-group-select'
+                                items={sorter.info[0].items}
+                                corsHeader={true}
                             />
-                        )}
-                        <Divider orientation='left'>Sorter Info</Divider>
-                        <SorterItemListing groups={sorter.info[0].groups} items={sorter.info[0].items} corsHeader={true} />
-                    </Space>
-                )}
-            </LayoutBlockWrapper>
-        )
+                        </Space>
+                    )}
+                </LayoutBlockWrapper>
+            )}
+        </>
     );
 };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { pageTypes, getPage, resetHasMoreCheck, getNewItems } from '../store/pagination/paginationActions';
 import { toggleFavorite } from '../store/users/usersActions';
@@ -19,38 +20,43 @@ const ToTopComponent = () => {
 
 const SorterList = ({ sorters, sortersPage, getPage, getNewItems, favorites, toggleFavorite }) => {
     return (
-        <LayoutBlockWrapper>
-            <div className='sorter-list'>
-                <InfiniteLoader
-                    data={sorters}
-                    page={sortersPage}
-                    pageName='sorters'
-                    getPage={() => getPage(sortersPage.items.length, sortersPage.lastUpdated, pageTypes.sorters)}
-                    getNewItems={() => getNewItems(sortersPage.lastUpdated, pageTypes.sorters)}
-                    resetHasMoreCheck={resetHasMoreCheck}
-                    ToTopComponent={ToTopComponent}
-                    render={(items, data) =>
-                        items && items.length ? (
-                            items.map((id) => (
-                                <SorterListItem
-                                    data={data[id]}
-                                    key={id}
-                                    isFavorite={favorites.includes(id)}
-                                    toggleFavorite={() => {
-                                        toggleFavorite(id);
-                                    }}
-                                />
-                            ))
-                        ) : (
-                            <BoxWrapper>
-                                <p>No sorters to be seen here!</p>
-                                <p>Head to "Create Sorters" to create your first one.</p>
-                            </BoxWrapper>
-                        )
-                    }
-                ></InfiniteLoader>
-            </div>
-        </LayoutBlockWrapper>
+        <>
+            <Helmet>
+                <title>Sorters</title>
+            </Helmet>
+            <LayoutBlockWrapper>
+                <div className='sorter-list'>
+                    <InfiniteLoader
+                        data={sorters}
+                        page={sortersPage}
+                        pageName='sorters'
+                        getPage={() => getPage(sortersPage.items.length, sortersPage.lastUpdated, pageTypes.sorters)}
+                        getNewItems={() => getNewItems(sortersPage.lastUpdated, pageTypes.sorters)}
+                        resetHasMoreCheck={resetHasMoreCheck}
+                        ToTopComponent={ToTopComponent}
+                        render={(items, data) =>
+                            items && items.length ? (
+                                items.map((id) => (
+                                    <SorterListItem
+                                        data={data[id]}
+                                        key={id}
+                                        isFavorite={favorites.includes(id)}
+                                        toggleFavorite={() => {
+                                            toggleFavorite(id);
+                                        }}
+                                    />
+                                ))
+                            ) : (
+                                <BoxWrapper>
+                                    <p>No sorters to be seen here!</p>
+                                    <p>Head to "Create Sorters" to create your first one.</p>
+                                </BoxWrapper>
+                            )
+                        }
+                    ></InfiniteLoader>
+                </div>
+            </LayoutBlockWrapper>
+        </>
     );
 };
 

@@ -33,7 +33,6 @@ export default (req, store, context) => {
                     window.__PRELOADED_STATE__ = ${serialize(store.getState()).replace(/</g, '\\u003c')}
                 </script>
                 <script src="/bundle.js"></script>
-                <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
             </body>
     </html>`;
 };

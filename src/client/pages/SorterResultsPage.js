@@ -74,58 +74,86 @@ const SorterResultsPage = ({ results, sorters, getSorterResult, getSorter, getSo
             });
     };
 
-    return result && sorter ? (
-        <LayoutBlockWrapper>
-            <div className='sorter-results-page'>
-                <SorterHeader sorterName={sorter.name} sorterLogo={sorter.picture} className='sorter-header' />
-                {location.query && location.query.share ? (
-                    <>
-                        <Row className='control-buttons' justify='center'>
-                            <Col sm={16} md={14} lg={12} xl={10} style={{ textAlign: 'center' }}>
-                                <div className='share-results'>
-                                    <p>Share your results:</p>
-                                    <Tooltip placement='right' title={urlCopied ? 'Url copied' : 'Copy the url'}>
-                                        <div
-                                            style={{ display: 'flex', cursor: 'pointer' }}
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(
-                                                    window.location.href.replace(location.search, '')
-                                                );
-                                                setUrlCopied(true);
-                                            }}
-                                        >
-                                            <Input
-                                                value={window.location.href.replace(location.search, '')}
-                                                disabled
-                                                style={{ cursor: 'pointer' }}
-                                            />
-                                            {urlCopied ? <CheckOutlined /> : <CopyOutlined />}
+    return (
+        <>
+            <Helmet>
+                <title>{`Sorter Results${result && sorter ? ` - ${sorter.name}` : ''}`}</title>
+            </Helmet>
+            {result && sorter ? (
+                <LayoutBlockWrapper>
+                    <div className='sorter-results-page'>
+                        <SorterHeader sorterName={sorter.name} sorterLogo={sorter.picture} className='sorter-header' />
+                        {location.query && location.query.share ? (
+                            <>
+                                <Row className='control-buttons' justify='center'>
+                                    <Col sm={16} md={14} lg={12} xl={10} style={{ textAlign: 'center' }}>
+                                        <div className='share-results'>
+                                            <p>Share your results:</p>
+                                            <Tooltip placement='right' title={urlCopied ? 'Url copied' : 'Copy the url'}>
+                                                <div
+                                                    style={{ display: 'flex', cursor: 'pointer' }}
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(
+                                                            window.location.href.replace(location.search, '')
+                                                        );
+                                                        setUrlCopied(true);
+                                                    }}
+                                                >
+                                                    <Input
+                                                        value={window.location.href.replace(location.search, '')}
+                                                        disabled
+                                                        style={{ cursor: 'pointer' }}
+                                                    />
+                                                    {urlCopied ? <CheckOutlined /> : <CopyOutlined />}
+                                                </div>
+                                            </Tooltip>
                                         </div>
-                                    </Tooltip>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row className='control-buttons' justify='center'>
-                            <Col sm={16} md={14} lg={12} xl={10} style={{ textAlign: 'center' }}>
-                                <Button
-                                    type='primary'
-                                    htmlType='button'
-                                    onClick={() => downloadImageResults(sorter.name)}
-                                    disabled={downloading}
-                                    loading={downloading}
-                                >
-                                    Download as Image
-                                </Button>
-                            </Col>
-                        </Row>
-                    </>
-                ) : (
-                    <></>
-                )}
+                                    </Col>
+                                </Row>
+                                <Row className='control-buttons' justify='center'>
+                                    <Col sm={16} md={14} lg={12} xl={10} style={{ textAlign: 'center' }}>
+                                        <Button
+                                            type='primary'
+                                            htmlType='button'
+                                            onClick={() => downloadImageResults(sorter.name)}
+                                            disabled={downloading}
+                                            loading={downloading}
+                                        >
+                                            Download as Image
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </>
+                        ) : (
+                            <></>
+                        )}
 
-                {result2 ? (
-                    <Row gutter={24}>
-                        <Col sm={12}>
+                        {result2 ? (
+                            <Row gutter={24}>
+                                <Col sm={12}>
+                                    <SorterResults
+                                        results={result.results}
+                                        ties={result.ties}
+                                        items={sorter.items}
+                                        groups={sorter.groups}
+                                        handleMouseOver={handleMouseOver}
+                                        handleMouseOut={handleMouseOut}
+                                        refs={elRefs}
+                                    />
+                                </Col>
+                                <Col sm={12}>
+                                    <SorterResults
+                                        results={result2.results}
+                                        ties={result2.ties}
+                                        items={sorter2.items}
+                                        groups={sorter2.groups}
+                                        handleMouseOver={handleMouseOver}
+                                        handleMouseOut={handleMouseOut}
+                                        refs={elRefs2}
+                                    />
+                                </Col>
+                            </Row>
+                        ) : (
                             <SorterResults
                                 results={result.results}
                                 ties={result.ties}
@@ -135,34 +163,13 @@ const SorterResultsPage = ({ results, sorters, getSorterResult, getSorter, getSo
                                 handleMouseOut={handleMouseOut}
                                 refs={elRefs}
                             />
-                        </Col>
-                        <Col sm={12}>
-                            <SorterResults
-                                results={result2.results}
-                                ties={result2.ties}
-                                items={sorter2.items}
-                                groups={sorter2.groups}
-                                handleMouseOver={handleMouseOver}
-                                handleMouseOut={handleMouseOut}
-                                refs={elRefs2}
-                            />
-                        </Col>
-                    </Row>
-                ) : (
-                    <SorterResults
-                        results={result.results}
-                        ties={result.ties}
-                        items={sorter.items}
-                        groups={sorter.groups}
-                        handleMouseOver={handleMouseOver}
-                        handleMouseOut={handleMouseOut}
-                        refs={elRefs}
-                    />
-                )}
-            </div>
-        </LayoutBlockWrapper>
-    ) : (
-        <></>
+                        )}
+                    </div>
+                </LayoutBlockWrapper>
+            ) : (
+                <></>
+            )}
+        </>
     );
 };
 
