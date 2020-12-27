@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createRef } from 'react';
 import { connect } from 'react-redux';
 import { getSorterResult } from '../store/sorterResults/sorterResultsActions';
 import { getSorter, getSorterVersion } from '../store/sorters/sortersActions';
@@ -8,28 +8,40 @@ import { Button, Row, Col, Input, Tooltip } from 'antd';
 import { CopyOutlined, CheckOutlined } from '@ant-design/icons';
 import * as htmlToImage from 'html-to-image';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
+import useSorterResults from './../hooks/useSorterResults';
 
 const SorterResultsPage = ({ results, sorters, getSorterResult, getSorter, getSorterVersion, match, location }) => {
     const resultId = match.params.id;
-    const [sorter, setSorter] = useState();
-    const [result, setResult] = useState();
+    const compareId = location.query ? location.query.compare : undefined;
+
+    const [sorter, result, elRefs] = useSorterResults(
+        sorters,
+        results,
+        resultId,
+        getSorterResult,
+        getSorter,
+        getSorterVersion
+    );
+    const [sorter2, result2, elRefs2] = useSorterResults(
+        sorters,
+        results,
+        compareId,
+        getSorterResult,
+        getSorter,
+        getSorterVersion
+    );
+
     const [urlCopied, setUrlCopied] = useState(false);
     const [downloading, setDownloading] = useState(false);
-    useEffect(() => {
-        if (results[resultId] && results[resultId].results) {
-            setResult(results[resultId]);
-        } else getSorterResult(resultId);
-    }, [results]);
-    useEffect(() => {
-        if (result) {
-            if (!sorters[result.sorter_id]) getSorter(result.sorter_id, true, result.version_id);
-            else {
-                const version = sorters[result.sorter_id].info.find((el) => el.version_id === result.sorter_version_id);
-                if (version && version.items && version.groups) setSorter(version);
-                else getSorterVersion(result.sorter_id, result.sorter_version_id);
-            }
-        }
-    }, [result, sorters]);
+
+    const handleMouseOver = (id) => {
+        elRefs[id].current.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+        if (result2) elRefs2[id].current.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+    };
+    const handleMouseOut = (id) => {
+        elRefs[id].current.style.backgroundColor = 'rgba(255, 255, 255, 0.04)';
+        if (result2) elRefs2[id].current.style.backgroundColor = 'rgba(255, 255, 255, 0.04)';
+    };
 
     const toUrlSlug = (s) =>
         s
@@ -111,7 +123,42 @@ const SorterResultsPage = ({ results, sorters, getSorterResult, getSorter, getSo
                     <></>
                 )}
 
-                <SorterResults results={result.results} ties={result.ties} items={sorter.items} groups={sorter.groups} />
+                {result2 ? (
+                    <Row gutter={24}>
+                        <Col sm={12}>
+                            <SorterResults
+                                results={result.results}
+                                ties={result.ties}
+                                items={sorter.items}
+                                groups={sorter.groups}
+                                handleMouseOver={handleMouseOver}
+                                handleMouseOut={handleMouseOut}
+                                refs={elRefs}
+                            />
+                        </Col>
+                        <Col sm={12}>
+                            <SorterResults
+                                results={result2.results}
+                                ties={result2.ties}
+                                items={sorter2.items}
+                                groups={sorter2.groups}
+                                handleMouseOver={handleMouseOver}
+                                handleMouseOut={handleMouseOut}
+                                refs={elRefs2}
+                            />
+                        </Col>
+                    </Row>
+                ) : (
+                    <SorterResults
+                        results={result.results}
+                        ties={result.ties}
+                        items={sorter.items}
+                        groups={sorter.groups}
+                        handleMouseOver={handleMouseOver}
+                        handleMouseOut={handleMouseOut}
+                        refs={elRefs}
+                    />
+                )}
             </div>
         </LayoutBlockWrapper>
     ) : (

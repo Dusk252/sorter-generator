@@ -2,7 +2,7 @@ import React from 'react';
 import { Space, Typography } from 'antd';
 import Image from './../general/ImageWithFallback';
 
-const SorterResults = ({ results, ties, items, groups }) => {
+const SorterResults = ({ results, ties, items, groups, handleMouseOver, handleMouseOut, refs }) => {
     let counter = 1;
     let limit = 0;
 
@@ -18,7 +18,13 @@ const SorterResults = ({ results, ties, items, groups }) => {
                 }
                 let type = counter === 1 ? 'gold' : counter === 2 ? 'silver' : counter === 3 ? 'bronze' : 'flat';
                 return (
-                    <div className='sorter-results-item' key={char}>
+                    <div
+                        className='sorter-results-item'
+                        key={char}
+                        ref={refs[char]}
+                        onMouseOver={() => handleMouseOver(char)}
+                        onMouseOut={() => handleMouseOut(char)}
+                    >
                         <div className={`sorter-results-rank sorter-results-rank-${type}`}>
                             <div className='sorter-results-rank-bottom'></div>
                             <div className='sorter-results-rank-top'>{counter}</div>
