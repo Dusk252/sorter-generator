@@ -1,24 +1,14 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
-import { pageTypes, getPage, resetHasMoreCheck, getNewItems } from '../store/pagination/paginationActions';
+import { pageTypes, getPage, getUpdatedItems, resetHasMoreCheck } from '../store/pagination/paginationActions';
 import { toggleFavorite } from '../store/users/usersActions';
-import { ArrowUpOutlined } from '@ant-design/icons';
 import BoxWrapper from '../components/general/BoxWrapper';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import InfiniteLoader from './../components/general/InfiniteLoader';
 import SorterListItem from './../components/sorters/SorterListItem';
 
-const ToTopComponent = () => {
-    return (
-        <>
-            New Sorters
-            <ArrowUpOutlined style={{ marginLeft: '5px' }} />
-        </>
-    );
-};
-
-const SorterList = ({ sorters, sortersPage, getPage, getNewItems, favorites, toggleFavorite }) => {
+const SorterList = ({ sorters, sortersPage, getPage, getUpdatedItems, favorites, toggleFavorite }) => {
     return (
         <>
             <Helmet>
@@ -31,9 +21,10 @@ const SorterList = ({ sorters, sortersPage, getPage, getNewItems, favorites, tog
                         page={sortersPage}
                         pageName='sorters'
                         getPage={() => getPage(sortersPage.items.length, sortersPage.lastUpdated, pageTypes.sorters)}
-                        getNewItems={() => getNewItems(sortersPage.lastUpdated, pageTypes.sorters)}
+                        getUpdated={() =>
+                            getUpdatedItems(sortersPage.items.length, sortersPage.lastUpdated, pageTypes.sorters)
+                        }
                         resetHasMoreCheck={resetHasMoreCheck}
-                        ToTopComponent={ToTopComponent}
                         render={(items, data) =>
                             items && items.length ? (
                                 items.map((id) => (
@@ -68,8 +59,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
     getPage,
+    getUpdatedItems,
     resetHasMoreCheck,
-    getNewItems,
     toggleFavorite
 };
 

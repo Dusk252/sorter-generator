@@ -1,4 +1,5 @@
 import { MESSAGES } from './paginationActions';
+import merge from 'lodash.merge';
 
 const baseState = {
     hasMore: true,
@@ -33,15 +34,21 @@ const paginationReducer = (state = initialState, action) => {
             return { ...state, [name]: { ...state[name], hasMore: true } };
         // case MESSAGES.REQUEST_CHECK_NEW_RESOLVED:
         //     return { ...state, [name]: { ...state[name], hasNew: payload ? true : false } };
-        case MESSAGES.REQUEST_NEW_RESOLVED: {
+        case MESSAGES.REQUEST_UPDATED_RESOLVED: {
             const newState = {
                 hasMore: state[name].hasMore,
                 lastUpdated: Date.now(),
                 filter: state[name].filter,
                 items: [...state[name].items]
             };
-            newState.items.unshift(...payload.items.map((item) => item._id));
-            return { ...state, [name]: newState, isFetching: false };
+            return {
+                ...state,
+                [name]: merge(
+                    newState,
+                    payload.items.map((item) => item._id)
+                ),
+                isFetching: false
+            };
         }
 
         // case SORTER_MESSAGES.NEW_SORTER_RESOLVE:

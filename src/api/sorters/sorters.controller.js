@@ -21,7 +21,7 @@ const uploadHandler = process.env.UPLOAD_TYPE === 'LOCAL' ? demoUploadHandler : 
 router.post('/', getPublic);
 //router.get('/all', getAll); // sorters list
 router.post('/checkNew', checkForUpdates);
-router.post('/getNew', getNew);
+router.post('/getUpdate', updatePublic);
 router.get('/mySorters', getUserCreated); // sorters created by specific user
 //router.get('/:status', getByStatus); // get public, awaiting approval, private, etc
 router.post(
@@ -59,11 +59,15 @@ function checkForUpdates(req, res, next) {
         .catch((err) => next(err));
 }
 
-function getNew(req, res, next) {
+function updatePublic(req, res, next) {
     const date = new Date(req.body.lastUpdated);
-    if (date.valueOf()) {
+    if (Number.isInteger(req.body.count) && date.valueOf()) {
         sorterService
-            .getSorterList({ $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_date': { $gte: date } }] }, null)
+            .getSorterList(
+                { $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.updated_date': { $gte: date } }] },
+                null,
+                req.body.count
+            )
             .then((sorters) => res.json(sorters))
             .catch((err) => next(err));
     } else return res.status(400).json({ message: 'Bad Request' });
@@ -75,7 +79,8 @@ function getPublic(req, res, next) {
         sorterService
             .getSorterList(
                 { $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_date': { $lt: date } }] },
-                req.body.count
+                req.body.count,
+                null
             )
             .then((sorters) => res.json(sorters))
             .catch((err) => next(err));

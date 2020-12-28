@@ -33,14 +33,14 @@ export const requestList = (name, count, lastUpdated, accessToken = null) => {
     else return publicCall('POST', `/api/${name}`, { count, lastUpdated });
 };
 
-export const checkList = (name, lastUpdated, accessToken = null) => {
-    if (accessToken) return privateCall('POST', `/api/${name}/checkNew`, { lastUpdated }, accessToken);
-    else return publicCall('POST', `/api/${name}/checkNew`, { lastUpdated });
-};
+// export const checkList = (name, lastUpdated, accessToken = null) => {
+//     if (accessToken) return privateCall('POST', `/api/${name}/checkNew`, { lastUpdated }, accessToken);
+//     else return publicCall('POST', `/api/${name}/checkNew`, { lastUpdated });
+// };
 
-export const requestListNew = (name, lastUpdated, accessToken = null) => {
-    if (accessToken) return privateCall('POST', `/api/${name}/getNew`, { lastUpdated }, accessToken);
-    else return publicCall('POST', `/api/${name}/getNew`, { lastUpdated });
+export const requestListUpdate = (name, count, lastUpdated, accessToken = null) => {
+    if (accessToken) return privateCall('POST', `/api/${name}/getUpdate`, { count, lastUpdated }, accessToken);
+    else return publicCall('POST', `/api/${name}/getUpdate`, { count, lastUpdated });
 };
 
 export const createSorter = (sorter, accessToken) => {

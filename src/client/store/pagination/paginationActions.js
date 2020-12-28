@@ -18,15 +18,13 @@ export const pageTypes = {
 export const SIGNALS = keyMirror({
     GET_PAGE: null,
     //CHECK_NEW: null,
-    GET_NEW: null
+    GET_UPDATED: null
 });
 
 export const MESSAGES = keyMirror({
     REQUEST_STARTED: null,
     REQUEST_RESOLVED: null,
     REQUEST_REJECTED: null,
-    //REQUEST_CHECK_NEW_RESOLVED: null,
-    REQUEST_NEW_RESOLVED: null,
     REQUEST_UPDATED_RESOLVED: null,
     RESET_HASMORE_CHECK: null
 });
@@ -46,9 +44,10 @@ export const getPage = (itemCount, lastUpdated, pageType) => ({
 //     lastUpdated: lastUpdated,
 //     isPrivate: pageType.isPrivate
 // });
-export const getNewItems = (lastUpdated, pageType) => ({
-    type: SIGNALS.GET_NEW,
+export const getUpdatedItems = (itemCount, lastUpdated, pageType) => ({
+    type: SIGNALS.GET_UPDATED,
     name: pageType.name,
+    count: itemCount,
     lastUpdated: lastUpdated,
     isPrivate: pageType.isPrivate
 });
@@ -58,7 +57,7 @@ export const resolvePageRequest = ({ name, payload }) => ({ type: MESSAGES.REQUE
 export const rejectPageRequest = (payload) => ({ type: MESSAGES.REQUEST_REJECTED, payload });
 
 //export const resolveCheckNewRequest = ({ name, payload }) => ({ type: MESSAGES.REQUEST_CHECK_NEW_RESOLVED, name, payload });
-export const resolveGetNewItems = ({ name, payload }) => ({ type: MESSAGES.REQUEST_NEW_RESOLVED, name, payload });
+export const resolveGetUpdated = ({ name, payload }) => ({ type: MESSAGES.REQUEST_UPDATED_RESOLVED, name, payload });
 
 export const resetHasMoreCheck = (name) => ({ type: MESSAGES.RESET_HASMORE_CHECK, name });
 export const populateState = ({ name, payload }) => ({ type: genStateMessage(name), payload });
