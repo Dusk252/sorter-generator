@@ -4,8 +4,9 @@ import { push } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { getSorter, incrementViewCount } from '../store/sorters/sortersActions';
 import { newSorterResult } from '../store/sorterResults/sorterResultsActions';
-import { Button, Space, Divider, Row, Typography } from 'antd';
+import { Button, Space, Row, Typography } from 'antd';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
+import CollapseSection from './../components/general/CollapseSection';
 import Sorter from './../components/sorters/Sorter';
 import SorterGroupSelect from './../components/sorters/SorterGroupSelect';
 import SorterHeader from './../components/sorters/SorterHeader';
@@ -196,12 +197,13 @@ const SorterPage = ({ sorters, getSorter, idbStore, newSorterResult, incrementVi
                                     className='sorter-group-select'
                                 />
                             )}
-                            <Divider orientation='left'>Sorter Info</Divider>
-                            <SorterItemListing
-                                groups={sorter.info[0].groups}
-                                items={sorter.info[0].items}
-                                corsHeader={true}
-                            />
+                            <CollapseSection isOpen={false} title='Sorter Info'>
+                                <SorterItemListing
+                                    groups={sorter.info[0].groups}
+                                    items={sorter.info[0].items}
+                                    corsHeader={true}
+                                />
+                            </CollapseSection>
                         </Space>
                     )}
                 </LayoutBlockWrapper>

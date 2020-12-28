@@ -1,24 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSpring, animated } from 'react-spring';
+import React from 'react';
+import { animated } from 'react-spring';
+import useCollapse from './../../hooks/useCollapse';
 
 const SlideBox = ({ isOpen = false, title = '', color = '#fff', children }) => {
-    const [open, setOpen] = useState(isOpen);
-    const [{ height }, set] = useSpring(() => ({ height: isOpen ? 'auto' : 0 }));
-    const mountRef = useRef(false);
-    const el = useRef(null);
-
-    useEffect(() => {
-        if (mountRef.current) {
-            set({
-                reset: true,
-                from: { height: open ? 0 : el.current.offsetHeight },
-                to: async (next) => {
-                    await next({ height: open ? el.current.offsetHeight : 0 });
-                    open && (await next({ height: 'auto' }));
-                }
-            });
-        } else mountRef.current = true;
-    }, [open]);
+    const { setOpen, ref, height } = useCollapse(isOpen);
 
     return (
         <div>
@@ -27,7 +12,7 @@ const SlideBox = ({ isOpen = false, title = '', color = '#fff', children }) => {
                     {title}
                 </div>
                 <animated.div style={{ height }}>
-                    <div ref={el} className='slidebox-content'>
+                    <div ref={ref} className='slidebox-content'>
                         {children}
                     </div>
                 </animated.div>

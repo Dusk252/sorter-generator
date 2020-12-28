@@ -32,6 +32,29 @@
     background-color: @component-background;
 }
 
+//CollapseSection component
+
+.collapse-header {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    cursor: pointer;
+    &-divider {
+        width: calc(100% - 30px);
+        min-width: calc(100% - 30px);
+    }
+    &-icon {
+        display: flex;
+        width: 30px;
+        align-items: center;
+        justify-content: flex-end;
+    }
+}
+
+.collapse-content {
+    padding: 5px 0;
+}
+
 //Color Picker component
 
 .color-picker-current,
