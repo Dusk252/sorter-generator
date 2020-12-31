@@ -285,10 +285,10 @@ p:last-child {
 .sorter-header {
     .img-element {
         width: 100%;
-    }
-    img {
-        height: 200px;
-        object-fit: contain;
+        img {
+            height: 200px;
+            object-fit: contain;
+        }
     }
 }
 
@@ -386,6 +386,10 @@ p:last-child {
         background-color: @background-color-light;
         transition: background-color ease 0.5s;
         align-items: center;
+    }
+    &-compare {
+        display: flex;
+        justify-content: center;
     }
     &-img {
         width: 60px;
@@ -513,6 +517,13 @@ p:last-child {
         &-skeleton {
             height: 50px;
             width: 100%;
+        }
+        &-right {
+            display: flex;
+            margin-left: auto;
+            padding-left: 8px;
+            padding-right: 12px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
         }
     }
 }

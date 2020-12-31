@@ -2,6 +2,7 @@ import { put, call, take, takeLatest, all, select, debounce } from 'redux-saga/e
 import * as SorterActions from './sortersActions';
 import { startAuthenticatedCall as startCall, MESSAGES as APP_MESSAGES } from './../app/appActions';
 import { startRequest, endRequest } from './../app/appActions';
+import { processGetResults } from './../sorterResults/sorterResultsSaga';
 import { createSorter, getSorterById, getSorterVersionById, incrementSorterViews } from './../apiCalls';
 import { set, del } from 'idb-keyval';
 
@@ -34,14 +35,15 @@ function* processUpdateSorterDraft({ newFormState }) {
     }
 }
 
-function* processGetSorter({ id, getUserInfo, versionId }) {
+function* processGetSorter({ id, getUserInfo, versionId, resultCount }) {
     yield put(startRequest());
     yield put(actions.requestGetSorter());
-    yield put(startCall(getSorterById, [id, getUserInfo, versionId]));
+    yield put(startCall(getSorterById, [id, getUserInfo, versionId, resultCount]));
     const action = yield take([APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED, APP_MESSAGES.AUTHENTICATED_CALL_REJECTED]);
     if (action.type === APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED) {
         const res = action.payload;
         yield put(actions.resolveGetSorter(res.data));
+        yield call(processGetResults, { idList: res.data.sorter_history });
     } else {
         yield put(actions.rejectGetSorter());
     }

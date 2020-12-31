@@ -18,7 +18,7 @@ export default function useSorterResult(sorters, results, resultId, getSorterRes
             else {
                 const version = sorters[result.sorter_id].info.find((el) => el.version_id === result.sorter_version_id);
                 if (version && version.items && version.groups) {
-                    setSorter(version);
+                    setSorter({ user_info: sorters[result.sorter_id].user_info, ...version });
                     setElRefs(version.items.map(() => createRef()));
                 } else getSorterVersion(result.sorter_id, result.sorter_version_id);
             }

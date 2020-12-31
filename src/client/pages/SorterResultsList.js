@@ -5,7 +5,7 @@ import { Space, Divider, Col, Row } from 'antd';
 import { pageTypes, getPage, getUpdatedItems, resetHasMoreCheck } from '../store/pagination/paginationActions';
 import LayoutBlockWrapper from '../components/general/LayoutBlockWrapper';
 import InfiniteLoader from '../components/general/InfiniteLoader';
-import SorterHistoryItem from './../components/users/SorterHistoryItem';
+import SorterHistoryListing from '../components/sorterResults/SorterHistoryListing';
 
 const SorterResultsList = ({ results, resultsPage, getPage, getUpdatedItems, user }) => {
     return (
@@ -34,16 +34,7 @@ const SorterResultsList = ({ results, resultsPage, getPage, getUpdatedItems, use
                                         )
                                     }
                                     resetHasMoreCheck={resetHasMoreCheck}
-                                    render={(items, data) => (
-                                        <Row className='sorter-history' gutter={'10'}>
-                                            {items.map((id) => (
-                                                <Col span={24} lg={12} key={id}>
-                                                    <SorterHistoryItem data={data[id]} />
-                                                </Col>
-                                            ))}
-                                        </Row>
-                                    )}
-                                    ToTopComponent={ToTopComponent}
+                                    render={(items, data) => <SorterHistoryListing items={items} results={data} />}
                                 ></InfiniteLoader>
                             </div>
                         </>

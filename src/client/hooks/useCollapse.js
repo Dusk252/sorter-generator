@@ -8,7 +8,6 @@ export default function useCollapse(initialOpen = false) {
     const ref = useRef(null);
 
     useEffect(() => {
-        console.log('useeffect');
         if (mountRef.current) {
             const curHeight = ref.current.offsetHeight;
             set({

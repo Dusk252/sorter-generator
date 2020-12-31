@@ -26,7 +26,9 @@ export const resolveGetSorterResult = (sorterResult) => ({
 });
 //export const rejectGetSorterResult = () => ({ type: MESSAGES.GET_SORTER_RESULT_REJECT });
 
-export const populateSorterResults = (results) => ({
-    type: MESSAGES.POPULATE_SORTER_RESULTS_STATE,
-    payload: results
-});
+export const populateSorterResults = (results) => {
+    return {
+        type: MESSAGES.POPULATE_SORTER_RESULTS_STATE,
+        payload: results
+    };
+};

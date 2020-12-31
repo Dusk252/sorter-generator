@@ -10,13 +10,25 @@ import CollapseSection from './../components/general/CollapseSection';
 import Sorter from './../components/sorters/Sorter';
 import SorterGroupSelect from './../components/sorters/SorterGroupSelect';
 import SorterHeader from './../components/sorters/SorterHeader';
+import SorterHistoryListing from './../components/sorterResults/SorterHistoryListing';
 import SorterItemListing from './../components/sorters/SorterItemListing';
 import { get, set, del } from 'idb-keyval';
 import { shuffleArray } from './../../helpers/shuffleArray';
 
 const STORAGE_KEY = 'SORTER_PROGRESS_';
+const resultCount = 12;
 
-const SorterPage = ({ sorters, getSorter, idbStore, newSorterResult, incrementViewCount, match, history, router }) => {
+const SorterPage = ({
+    sorters,
+    getSorter,
+    sorterResults,
+    idbStore,
+    newSorterResult,
+    incrementViewCount,
+    match,
+    history,
+    router
+}) => {
     const sorterId = match.params.id;
     const [sorter, setSorter] = useState();
     const [sorterGroups, setSorterGroups] = useState();
@@ -48,7 +60,7 @@ const SorterPage = ({ sorters, getSorter, idbStore, newSorterResult, incrementVi
     useEffect(() => {
         if (sorters[sorterId] && sorters[sorterId].info[0].items) {
             setSorter(sorters[sorterId]);
-        } else getSorter(sorterId, sorters[sorterId] ? false : true);
+        } else getSorter(sorterId, true, null, resultCount);
     }, [sorters]);
     useEffect(() => {
         if (sorter) {
@@ -150,6 +162,7 @@ const SorterPage = ({ sorters, getSorter, idbStore, newSorterResult, incrementVi
                                 sorterName={sorter.info[0].name}
                                 sorterLogo={sorter.info[0].picture}
                                 className='sorter-header'
+                                user={sorter.user_info}
                             />
                             {calcState && calcState.progress > 0 && (
                                 <div style={{ textAlign: 'center' }}>
@@ -197,12 +210,15 @@ const SorterPage = ({ sorters, getSorter, idbStore, newSorterResult, incrementVi
                                     className='sorter-group-select'
                                 />
                             )}
-                            <CollapseSection isOpen={false} title='Sorter Info'>
+                            <CollapseSection isOpen={true} title='Sorter Info'>
                                 <SorterItemListing
                                     groups={sorter.info[0].groups}
                                     items={sorter.info[0].items}
                                     corsHeader={true}
                                 />
+                            </CollapseSection>
+                            <CollapseSection isOpen={false} title='Latest Results'>
+                                <SorterHistoryListing items={sorter.sorter_history} results={sorterResults} />
                             </CollapseSection>
                         </Space>
                     )}
@@ -214,6 +230,7 @@ const SorterPage = ({ sorters, getSorter, idbStore, newSorterResult, incrementVi
 
 const mapStateToProps = (state) => ({
     sorters: state.sorters.sorterList,
+    sorterResults: state.results.resultsList,
     router: { location: state.router.location, action: state.router.action },
     idbStore: state.app.idbStore
 });

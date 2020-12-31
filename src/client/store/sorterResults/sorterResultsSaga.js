@@ -48,7 +48,8 @@ export function* processGetResults({ idList }) {
     const action = yield take([APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED, APP_MESSAGES.AUTHENTICATED_CALL_REJECTED]);
     if (action.type === APP_MESSAGES.AUTHENTICATED_CALL_RESOLVED) {
         const res = action.payload;
-        yield put(actions.populateSorterResults(res.data));
+        const data = Array.isArray(res.data) ? res.data : [res.data];
+        yield put(actions.populateSorterResults(data));
     }
     yield put(endRequest());
 }

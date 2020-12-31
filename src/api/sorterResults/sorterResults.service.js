@@ -9,10 +9,14 @@ module.exports = {
     insertResults
 };
 
-async function getById(id, userId) {
-    return await db.get().collection('sorter_results').findOne({
-        _id: id
-    });
+async function getById(id, userId, sorterId) {
+    let query = {};
+    if (id) query._id = id;
+    if (userId) query.user_id = userId;
+    if (sorterId) query.sorter_id = sorterId;
+    const resList = await db.get().collection('sorter_results').find(query).sort({ created_date: -1 }).limit(1).toArray();
+    if (resList.length > 0) return resList[0];
+    else return null;
 }
 
 async function checkNew(query, lastUpdated) {
@@ -22,15 +26,15 @@ async function checkNew(query, lastUpdated) {
         .count({ $and: [query, { created_date: { $gte: new Date(lastUpdated) } }] });
 }
 
-async function getResultsList(query, count) {
+async function getResultsList(query, skip, limit) {
     return await db
         .get()
         .collection('sorter_results')
         .aggregate([
             { $match: query },
             { $sort: { created_date: -1 } },
-            { $skip: count ?? 0 },
-            { $limit: count != null ? pageSize : Number.MAX_SAFE_INTEGER },
+            { $skip: skip ?? 0 },
+            { $limit: limit != null ? limit : pageSize },
             {
                 $lookup: {
                     from: 'sorters',
@@ -74,8 +78,12 @@ async function getResultsList(query, count) {
                     _id: 1,
                     sorter_name: { $arrayElemAt: ['$sorter_array.sorter.name', 0] },
                     sorter_img: { $arrayElemAt: ['$sorter_array.sorter.picture', 0] },
+                    sorter_id: 1,
+                    sorter_version_id: 1,
+                    user_id: 1,
                     created_date: 1,
                     user_info: {
+                        id: '$user_id',
                         username: {
                             $arrayElemAt: ['$user_info_array.profile.username', 0]
                         },
@@ -85,7 +93,9 @@ async function getResultsList(query, count) {
                         role: {
                             $arrayElemAt: ['$user_info_array.role', 0]
                         }
-                    }
+                    },
+                    results: 1,
+                    ties: 1
                 }
             }
         ])

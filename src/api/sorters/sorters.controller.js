@@ -111,8 +111,9 @@ function getById(req, res, next) {
     const getUserInfo = req.body.getUserInfo;
     const versionId = req.body.versionId;
     const userId = req.user ? req.user.id : null;
+    const resultCount = req.body.resultCount ?? 10;
     sorterService
-        .getById(id, userId, getUserInfo, versionId)
+        .getById(id, userId, getUserInfo, versionId, resultCount)
         .then((sorter) => (sorter ? res.json(sorter) : res.sendStatus(404)))
         .catch((err) => next(err));
 }

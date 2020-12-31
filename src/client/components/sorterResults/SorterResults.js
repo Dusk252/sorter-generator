@@ -1,6 +1,6 @@
 import React from 'react';
 import { Space, Typography } from 'antd';
-import Image from './../general/ImageWithFallback';
+import Image from '../general/ImageWithFallback';
 
 const SorterResults = ({ results, ties, items, groups, handleMouseOver, handleMouseOut, refs }) => {
     let counter = 1;

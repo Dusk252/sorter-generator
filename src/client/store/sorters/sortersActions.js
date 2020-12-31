@@ -27,7 +27,13 @@ export const MESSAGES = keyMirror({
 
 export const submitNewSorter = (sorter) => ({ type: SIGNALS.NEW_SORTER_SUBMIT, sorter });
 export const updateSorterDraft = (newFormState) => ({ type: SIGNALS.UPDATE_SORTER_DRAFT, newFormState });
-export const getSorter = (id, getUserInfo, versionId) => ({ type: SIGNALS.GET_SORTER_START, id, getUserInfo, versionId });
+export const getSorter = (id, getUserInfo, versionId, resultCount) => ({
+    type: SIGNALS.GET_SORTER_START,
+    id,
+    getUserInfo,
+    versionId,
+    resultCount
+});
 export const getSorterVersion = (id, versionId) => ({ type: SIGNALS.GET_SORTER_VERSION_START, id, versionId });
 export const incrementViewCount = (id) => ({ type: SIGNALS.INCREMENT_VIEW_COUNT, id });
 

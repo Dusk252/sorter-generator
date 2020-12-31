@@ -66,6 +66,7 @@ async function getSorterList(query, skip, limit) {
                 $project: {
                     meta: 1,
                     user_info: {
+                        id: '$meta.created_by',
                         username: {
                             $arrayElemAt: ['$user_info_array.profile.username', 0]
                         },
@@ -91,7 +92,7 @@ async function getSorterList(query, skip, limit) {
         .toArray();
 }
 
-async function getById(id, userId, getUserInfo = false, versionId = null) {
+async function getById(id, userId, getUserInfo = false, versionId = null, resultCount = 0) {
     const infoQuery =
         versionId != null
             ? {
@@ -147,6 +148,21 @@ async function getById(id, userId, getUserInfo = false, versionId = null) {
                     }
                 },
                 {
+                    $lookup: {
+                        from: 'sorter_results',
+                        let: { sorterId: '$_id' },
+                        pipeline: [
+                            {
+                                $match: { $expr: { $eq: ['$sorter_id', '$$sorterId'] } }
+                            },
+                            { $sort: { created_date: -1 } },
+                            { $limit: resultCount },
+                            { $project: { _id: 1 } }
+                        ],
+                        as: 'sorter_history'
+                    }
+                },
+                {
                     $addFields: {
                         'meta.favorites': { $size: '$favoritesArray' }
                     }
@@ -156,6 +172,7 @@ async function getById(id, userId, getUserInfo = false, versionId = null) {
                         meta: 1,
                         favoritesCount: 1,
                         user_info: {
+                            id: '$meta.created_by',
                             username: {
                                 $arrayElemAt: ['$user_info_array.profile.username', 0]
                             },
@@ -166,7 +183,8 @@ async function getById(id, userId, getUserInfo = false, versionId = null) {
                                 $arrayElemAt: ['$user_info_array.role', 0]
                             }
                         },
-                        info: infoQuery
+                        info: infoQuery,
+                        sorter_history: 1
                     }
                 }
             ])

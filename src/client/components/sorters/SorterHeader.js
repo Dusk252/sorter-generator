@@ -1,6 +1,7 @@
 import React from 'react';
 import { Row, Col, Typography } from 'antd';
 import Image from './../general/ImageWithFallback';
+import UserBadge from './../users/UserBadge';
 
 const SorterHeader = ({ sorterName, sorterLogo, className, user }) => {
     return (
@@ -10,6 +11,7 @@ const SorterHeader = ({ sorterName, sorterLogo, className, user }) => {
                 <Typography.Title level={2} style={{ textAlign: 'center', marginTop: '0.5em' }}>
                     {sorterName}
                 </Typography.Title>
+                <UserBadge userId={user.id} icon={user.icon} username={user.username} size={32} prefix='by' />
             </Col>
         </Row>
     );

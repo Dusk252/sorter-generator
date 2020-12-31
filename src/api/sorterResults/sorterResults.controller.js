@@ -11,6 +11,7 @@ const { nanoid } = require('nanoid');
 // routes
 router.post('/', passport.authenticate('jwt', { session: false }), getUserHistory); // get result list
 router.post('/idList', getByIdList);
+router.post('/getLatestResultBySorterId', passport.authenticate('jwt', { session: false }), getLatestBySorter);
 router.post('/checkNew', passport.authenticate('jwt', { session: false }), checkForUpdates);
 router.post('/getNew', passport.authenticate('jwt', { session: false }), getNewUserHistory);
 router.post('/new', extractUser(), schemaValidator(sorterResultsSchema), createNewResultEntry); // insert new result
@@ -50,8 +51,19 @@ function getNewUserHistory(req, res, next) {
     if (!userId) res.sendStatus(401);
     else if (date.valueOf()) {
         sorterResultsService
-            .getResultsList({ $and: [{ user_id: userId }, { created_date: { $gte: date } }] }, null)
+            .getResultsList({ $and: [{ user_id: userId }, { created_date: { $gte: date } }] }, null, null)
             .then((results) => res.json(results))
+            .catch((err) => next(err));
+    } else return res.status(400).json({ message: 'Bad Request' });
+}
+
+function getLatestBySorter(req, res, next) {
+    const userId = req.user ? req.user.id : null;
+    if (!userId) res.sendStatus(401);
+    else if (req.body.sorter_id) {
+        sorterResultsService
+            .getResultsList({ user_id: userId, sorter_id: req.body.sorter_id }, 0, 1)
+            .then((result) => res.json(result[0]))
             .catch((err) => next(err));
     } else return res.status(400).json({ message: 'Bad Request' });
 }
@@ -70,8 +82,8 @@ function getById(req, res, next) {
     const resultId = req.params.id;
     const userId = req.user ? req.user.id : null;
     sorterResultsService
-        .getById(resultId, userId)
-        .then((results) => (results ? res.json(results) : res.sendStatus(404)))
+        .getResultsList({ _id: resultId }, 0, 1)
+        .then((results) => (results && results.length ? res.json(results[0]) : res.sendStatus(404)))
         .catch((err) => next(err));
 }
 
