@@ -8,7 +8,7 @@ import UserBadge from '../users/UserBadge';
 const SorterHistoryItem = ({ data }) => {
     return (
         <div className='sorter-history-item'>
-            <Link to={`/results/${data._id}`} style={{ display: 'flex' }}>
+            <Link className='sorter-history-item-left' to={`/results/${data._id}`}>
                 <div className='sorter-history-item-img'>
                     <Image width='200' height='100' src={data.sorter_img} crossOrigin='anonymous'></Image>
                 </div>

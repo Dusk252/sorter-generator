@@ -518,8 +518,18 @@ p:last-child {
             height: 50px;
             width: 100%;
         }
+        &-left {
+            display: flex;
+            flex-grow: 1;
+        }
+        &-center {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
         &-right {
             display: flex;
+            flex-shrink: 0;
             margin-left: auto;
             padding-left: 8px;
             padding-right: 12px;
