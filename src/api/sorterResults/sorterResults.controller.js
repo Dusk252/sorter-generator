@@ -91,7 +91,7 @@ function getByIdList(req, res, next) {
     const idList = req.body.idList;
     if (Array.isArray(idList)) {
         sorterResultsService
-            .getResultsList({ _id: { $in: idList.map((r) => r._id) } }, 0)
+            .getResultsList({ _id: { $in: idList } }, 0)
             .then((results) => (results ? res.json(results) : res.sendStatus(404)))
             .catch((err) => next(err));
     } else res.sendStatus(400).end();

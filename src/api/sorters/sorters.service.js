@@ -164,7 +164,14 @@ async function getById(id, userId, getUserInfo = false, versionId = null, result
                 },
                 {
                     $addFields: {
-                        'meta.favorites': { $size: '$favoritesArray' }
+                        'meta.favorites': { $size: '$favoritesArray' },
+                        sorter_history: {
+                            $map: {
+                                input: '$sorter_history',
+                                as: 'el',
+                                in: '$$el._id'
+                            }
+                        }
                     }
                 },
                 {

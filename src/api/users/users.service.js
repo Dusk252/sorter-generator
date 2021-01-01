@@ -51,6 +51,17 @@ async function getById(id, projection = {}) {
                 }
             },
             {
+                $addFields: {
+                    sorter_history: {
+                        $map: {
+                            input: '$sorter_history',
+                            as: 'el',
+                            in: '$$el._id'
+                        }
+                    }
+                }
+            },
+            {
                 $project: projection
             }
         ])

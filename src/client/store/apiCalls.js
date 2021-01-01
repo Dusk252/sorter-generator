@@ -6,7 +6,8 @@ const publicCall = (method, url, body) => {
         method,
         url,
         data: body,
-        responseType: 'json'
+        responseType: 'json',
+        timeout: 5000
     });
 };
 
@@ -16,7 +17,8 @@ const privateCall = (method, url, body, accessToken, extraHeaders = {}) => {
         url,
         data: body,
         headers: { Authorization: accessToken, ...extraHeaders },
-        responseType: 'json'
+        responseType: 'json',
+        timeout: 5000
     });
 };
 
