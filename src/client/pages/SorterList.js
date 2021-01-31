@@ -54,7 +54,7 @@ const SorterList = ({ sorters, sortersPage, getPage, getUpdatedItems, favorites,
 const mapStateToProps = (state) => ({
     sortersPage: state.pages.sorters,
     sorters: state.sorters.sorterList,
-    favorites: state.auth.currentUser.favorite_sorters
+    favorites: state.auth.currentUser == null ? [] : state.auth.currentUser.favorite_sorters
 });
 
 const mapDispatchToProps = {
