@@ -11,7 +11,8 @@ The aim of this project is to provide a generator interface for any kind of sort
 -   Sorter taking history (user can view past results for all sorters taken)
 -   Pausing a sorter halfway through - progress is saved
 -   Sharing sorter results
--   Result comparison with other users (not yet implemented)
+-   Result comparison with other users
+-   Favorites
 -   Other assorted social functions (not yet implemented)
 
 The current state of the repo is a minimum viable product. You can spin up your own demo instance on docker by cloning the repo and running `docker-compose up` in the command line from the folder's root. The website will then be up on localhost:3000. The contents of the spun-up database will be no more than a user account with the following credentials:
