@@ -14,14 +14,16 @@ export const sorterFormSchema = {
                     else return helpers.error('any.invalid');
                 }),
                 Joi.string().uri(),
-                Joi.string().regex(/^(?:[\w-_\.]+\/)*[\w-_\.]+\.(p?jpe?g|(x-)?png)$/)
+                Joi.string().regex(/^(?:[\w-_\.]+\/)*[\w-_\.]+\.(p?jpe?g|(x-)?png|webp)$/)
             )
             .messages({
                 'any.required': 'Please upload a logo or other representative picture.',
                 'any.empty': 'Please upload a logo or other representative picture.',
                 'string.empty': 'The main image must be either a valid url or an uploaded file.',
-                'string.pattern.base': 'The main image must be either a valid url or an uploaded file.',
-                'alternatives.match': 'The main image must be either a valid url or an uploaded file.'
+                'string.pattern.base':
+                    'The main image must be either a valid url or an uploaded file.',
+                'alternatives.match':
+                    'The main image must be either a valid url or an uploaded file.'
             }),
         tags: Joi.array().items(Joi.string()),
         description: Joi.string().max(1000).messages({
@@ -57,12 +59,15 @@ export const sorterFormSchema = {
                                 else return helpers.error('any.invalid');
                             }),
                             Joi.string().uri(),
-                            Joi.string().regex(/^(?:[\w-_\.]+\/)*[\w-_\.]+\.(p?jpe?g|(x-)?png)$/)
+                            Joi.string().regex(
+                                /^(?:[\w-_\.]+\/)*[\w-_\.]+\.(p?jpe?g|(x-)?png|webp)$/
+                            )
                         )
                         .allow('')
                         .optional()
                         .messages({
-                            'alternatives.match': 'The image field will only take a valid url or an uploaded file.'
+                            'alternatives.match':
+                                'The image field will only take a valid url or an uploaded file.'
                         }),
                     group: Joi.when(Joi.ref('$groupLen'), {
                         is: Joi.exist(),

@@ -13,7 +13,7 @@ const demoUploadHandler = require('../_middleware/demoUploadHandler');
 const s3UploadHandler = require('../_middleware/s3UploadHandler');
 const { nanoid } = require('nanoid');
 const sorterSchema = require('./../../schema/sorter.schema').sorterFormSchema;
-const mimeTypeRegex = /image\/(p?jpeg|(x-)?png)/;
+const mimeTypeRegex = /image\/(p?jpeg|(x-)?png|webp)/;
 
 const uploadHandler = process.env.UPLOAD_TYPE === 'LOCAL' ? demoUploadHandler : s3UploadHandler;
 
@@ -64,7 +64,12 @@ function updatePublic(req, res, next) {
     if (Number.isInteger(req.body.count) && date.valueOf()) {
         sorterService
             .getSorterList(
-                { $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.updated_date': { $gte: date } }] },
+                {
+                    $and: [
+                        { 'meta.status': sorterStatus.PUBLIC },
+                        { 'meta.updated_date': { $gte: date } }
+                    ]
+                },
                 null,
                 req.body.count
             )
@@ -78,7 +83,12 @@ function getPublic(req, res, next) {
     if (Number.isInteger(req.body.count) && date.valueOf()) {
         sorterService
             .getSorterList(
-                { $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_date': { $lt: date } }] },
+                {
+                    $and: [
+                        { 'meta.status': sorterStatus.PUBLIC },
+                        { 'meta.created_date': { $lt: date } }
+                    ]
+                },
                 req.body.count,
                 null
             )
@@ -124,7 +134,9 @@ function getSorterVersion(req, res, next) {
     const userId = req.user ? req.user.id : null;
     sorterService
         .getSorterVersion(id, userId, sorterVersion)
-        .then((ver) => (ver && ver.data && ver.data.length ? res.json(ver.data[0]) : res.sendStatus(404)))
+        .then((ver) =>
+            ver && ver.data && ver.data.length ? res.json(ver.data[0]) : res.sendStatus(404)
+        )
         .catch((err) => next(err));
 }
 
