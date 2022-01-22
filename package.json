@@ -62,7 +62,7 @@
         "lodash.merge": "^4.6.2",
         "mongodb": "^3.6.3",
         "morgan": "^1.10.0",
-        "nanoid": "^3.1.16",
+        "nanoid": "^3.1.31",
         "oauth-1.0a": "^2.2.6",
         "passport": "^0.4.1",
         "passport-custom": "^1.1.1",
