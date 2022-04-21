@@ -21,7 +21,7 @@ const routes = [
             },
             {
                 component: Login,
-                path: '/login/',
+                path: '/login',
                 exact: true
             },
             {

@@ -22,7 +22,7 @@ User: test@example.com
 Password: test
 ```
 
-By default this demo will not have 3rd party auth working and will save uploaded images locally. You can test these features by cediting the .env.example file to include the appropriate credentials for twitter/google oauth and aws s3.
+By default this demo will not have 3rd party auth working and will save uploaded images locally. You can test these features by editing the .env.example file to include the appropriate credentials for twitter/google oauth and aws s3.
 
 <hr/>
 <br/>
