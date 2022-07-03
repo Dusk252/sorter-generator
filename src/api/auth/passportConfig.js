@@ -5,12 +5,11 @@ const localStrategy = require('passport-local').Strategy;
 const customStrategy = require('passport-custom').Strategy;
 const googleStrategy = require('passport-google-oauth2').Strategy;
 const crypto = require('crypto');
-const querystring = require('querystring');
-const OAuth = require('oauth-1.0a');
 const { tokenType, accountState } = require('../_helpers/enum');
 const authService = require('./auth.service');
 const userService = require('../users/users.service');
 const { UnauthorizedError } = require('express-jwt');
+const memCache = require('./../cache').default;
 
 //token auth
 passport.use(
@@ -61,93 +60,70 @@ passport.use(
     )
 );
 
-//custom handler for 3-legged o-auth without session
-//https://developer.twitter.com/en/docs/authentication/oauth-1-0a/obtaining-user-access-tokens
+//twitter oauth 2.0
+//https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token
 passport.use(
     'twitterLogin',
     new customStrategy(async (req, done) => {
         const callbackURL = '/twitter/callback';
-        const oauth_request_url = 'https://api.twitter.com/oauth/request_token';
-        const oauth_authorize_url = 'https://api.twitter.com/oauth/authorize';
-        const oauth_access_url = 'https://api.twitter.com/oauth/access_token';
+        const oauth_authorize_url = 'https://twitter.com/i/oauth2/authorize';
+        const oauth_token_url = 'https://api.twitter.com/2/oauth2/token';
         const user_profile_url =
-            'https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true&skip_status=true&include_entities=false';
+            'https://api.twitter.com/2/users/me?user.fields=profile_image_url';
         //handler handles both performing the initial request for the request token
         //and the received request to the callback url and performing the subsequent authentication request
         if (req.path !== callbackURL) {
-            //initial request -  Step 1: POST oauth/request_token
-            const oauth = OAuth({
-                consumer: { key: process.env.TWITTER_OAUTH_KEY, secret: process.env.TWITTER_OAUTH_SECRET },
-                signature_method: 'HMAC-SHA1',
-                hash_function: (base_string, key) => crypto.createHmac('sha1', key).update(base_string).digest('base64')
-            });
-            const request_data = {
-                url: oauth_request_url,
-                method: 'POST',
-                data: { oauth_callback: process.env.TWITTER_CALLBACK }
-            };
-            const authHeader = oauth.toHeader(oauth.authorize(request_data));
-            try {
-                const response = await axios.post(request_data.url, {}, { headers: { ...authHeader } });
-                const data = querystring.parse(response.data);
-                if (!data.oauth_callback_confirmed)
-                    req.res.status(500).json({ message: 'An issue occurred with twitter authentication.' });
-                //if success redirect the user to the twitter authentication page
-                //Step 2: GET oauth/authorize
-                else req.res.redirect(`${oauth_authorize_url}?oauth_token=${data.oauth_token}`);
-            } catch (err) {
-                done(err);
-            }
+            //initial request -  Step 1: GET oauth2/authorize
+            const code_verifier = crypto.randomBytes(48).toString('hex');
+            const code_challenge = code_verifier.toString('base64').replace(/\//g,'_').replace(/\+/g,'-');
+            const state = crypto.randomBytes(128).toString('base64').replace(/\//g,'_').replace(/\+/g,'-');
+            if (memCache.set(state, code_verifier))
+                req.res.redirect(`${oauth_authorize_url}?response_type=code&client_id=${process.env.TWITTER_CLIENT_ID}&redirect_uri=${process.env.TWITTER_CALLBACK}&scope=tweet.read%20users.read%20offline.access&state=${state}&code_challenge=${code_challenge}&code_challenge_method=plain`);
+            else
+                done(null, false, { message: 'Failed to save state. Twitter authentication failed.' })
         } else {
             //is a request to our defined callback url
-            //Step 3: POST oauth/access_token
+            //Step 2: POST oauth2/token
             try {
-                const { oauth_token, oauth_verifier } = req.query;
-                if (!oauth_token || !oauth_verifier) done(null, false, { message: 'Twitter authentication failed.' });
+                const { state, code } = req.query;
+                const code_verifier = memCache.get(state);
+                memCache.del(state);
+                const authorizationHeader = btoa(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`);
+                if (!state || !code || !code_verifier) done(null, false, { message: 'Twitter authentication failed.' });
                 else {
-                    const oauth = OAuth({
-                        consumer: { key: process.env.TWITTER_OAUTH_KEY, secret: process.env.TWITTER_OAUTH_SECRET },
-                        signature_method: 'HMAC-SHA1',
-                        hash_function: (base_string, key) =>
-                            crypto.createHmac('sha1', key).update(base_string).digest('base64')
-                    });
-                    const tokenRequestData = {
-                        url: oauth_access_url,
-                        method: 'POST',
-                        data: { oauth_verifier }
-                    };
-                    const token = { key: oauth_token };
-                    let authHeader = oauth.toHeader(oauth.authorize(tokenRequestData, token));
-
+                    const queryParams = {
+                        code: code,
+                        grant_type: 'authorization_code',
+                        client_id: process.env.TWITTER_CLIENT_ID,
+                        redirect_uri: process.env.TWITTER_CALLBACK,
+                        code_verifier: code_verifier
+                    }
+                    const queryString = new URLSearchParams(queryParams).toString();
+                    const config = {
+                        headers: {
+                            'Authorization': `Basic ${authorizationHeader}`,
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    }
                     //if this request succeeds the user is now autehtnicated
-                    const res = await axios.post(tokenRequestData.url, {}, { headers: { ...authHeader } });
-                    const {
-                        oauth_token: twitter_oauth_token,
-                        oauth_token_secret: twitter_oauth_token_secret
-                    } = querystring.parse(res.data);
+                    const res = await axios.post(`${oauth_token_url}?${queryString}`, null, config);
+                    const access_token = (new URLSearchParams(res.data)).get('access_token');
 
                     //but we don't have access to all the date we need to create or update their profile
                     //so we also request that
-                    const userRequestData = {
-                        url: user_profile_url,
-                        method: 'GET'
-                    };
-                    const accessToken = { key: twitter_oauth_token, secret: twitter_oauth_token_secret };
-                    authHeader = oauth.toHeader(oauth.authorize(userRequestData, accessToken));
-                    const { data: profileData } = await axios({
+                    const data = await axios({
                         method: 'GET',
-                        url: userRequestData.url,
-                        headers: { ...authHeader }
+                        url: user_profile_url,
+                        headers: { 'Authorization': `Bearer ${access_token}` }
                     });
+                    const profileData = data.data.data;
                     const twitterProfile = {
-                        id: profileData.id_str,
+                        id: profileData.id,
                         name: profileData.name,
-                        screen_name: profileData.screen_name,
-                        oauth_token: twitter_oauth_token,
-                        oauth_token_secret: twitter_oauth_token_secret
+                        username: profileData.username
                     };
                     //create or update user with the twitter integration
-                    let user = await userService.getByEmail(profileData.email);
+                    let user = await userService.getByTwitterId(profileData.id);
                     if (user) {
                         user = await userService.updateUser(
                             { _id: user._id },
@@ -159,7 +135,7 @@ passport.use(
                     } else {
                         user = await userService.createUser(
                             profileData.name,
-                            profileData.email.toLowerCase(),
+                            null,
                             null,
                             profileData.profile_image_url.replace('_normal', ''),
                             accountState.ACTIVE,

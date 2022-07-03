@@ -1,10 +1,6 @@
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
-const axios = require('axios');
-const crypto = require('crypto');
-const querystring = require('querystring');
-const OAuth = require('oauth-1.0a');
 const { base_info, extended_info } = require('./../users/users.entity');
 const userService = require('../users/users.service');
 const authService = require('./auth.service');
@@ -53,13 +49,23 @@ async function localLogin(req, res, next) {
     }
 }
 
+async function test(req, res, next) {
+    console.log('TEST');
+    try {
+        console.log(res);
+        res.status(200).end();
+    } catch (err) {
+        next(err);
+    }
+}
+
 async function login(req, res, next) {
     try {
         const user = req.user;
         const old_token = req.cookies.refresh_token;
         const refreshToken = generateRefreshToken({ id: user._id, role: user.role });
-        res.cookie('refresh_token', refreshToken, { httpOnly: true });
         await authService.updateRefreshToken(user._id, old_token, refreshToken);
+        res.cookie('refresh_token', refreshToken, { httpOnly: true });
         res.redirect(302, `${req.protocol}://${req.get('host')}/login/result`);
     } catch (err) {
         next(err);

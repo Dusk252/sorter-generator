@@ -9,6 +9,7 @@ module.exports = {
     getUserList,
     getById,
     getByEmail,
+    getByTwitterId,
     createUser,
     updateUser
 };
@@ -76,6 +77,22 @@ async function getByEmail(email) {
         .collection('users')
         .find({
             email: { $regex: new RegExp(email, 'i') }
+        })
+        .toArray();
+    if (users.length > 0) {
+        const user = users[0];
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+    }
+    return null;
+}
+
+async function getByTwitterId(id) {
+    const users = await db
+        .get()
+        .collection('users')
+        .find({
+            "integration3rdparty.twitter.id": id
         })
         .toArray();
     if (users.length > 0) {

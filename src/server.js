@@ -16,7 +16,6 @@ import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import createRootReducer from './client/store/rootReducer';
 import ignoreFavicon from './api/_middleware/ignoreFavicon';
-import querystring from 'querystring';
 import { MongoClient } from 'mongodb';
 require('./api/auth/passportConfig');
 
@@ -80,7 +79,7 @@ app.use(/\/((?!api).)*/, (req, res) => {
                 pathname: parsedUrl.path,
                 search: parsedUrl.search,
                 hash: parsedUrl.hash,
-                query: querystring.parse(parsedUrl.query)
+                query: new URLSearchParams(parsedUrl.query)
             },
             action: 'PUSH'
         }
