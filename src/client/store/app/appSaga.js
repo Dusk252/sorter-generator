@@ -50,8 +50,7 @@ function* processInitialLoad({ path }) {
             yield put(authActions.resolveAuth());
             yield put(push(path));
         } catch {
-            yield put(authActions.rejectAuth());
-            yield put(authActions.clearAuthError());
+            yield put(authActions.rejectAuth(false));
             yield put(actions.locationChange(path));
             if (match.length && match[0].route.private) yield put(push('/login'));
         }

@@ -19,11 +19,13 @@ const authReducer = (state = initialState, action) => {
         case MESSAGES.AUTH_RESOLVED:
             return { ...state, isFetching: false };
         case MESSAGES.AUTH_REJECTED:
-            return { ...state, isFetching: false, authError: true };
+            return { ...state, isFetching: false, authError: payload };
         case MESSAGES.GET_NEW_TOKEN_RESOLVED:
             return { ...state, authError: false, ...payload };
         case MESSAGES.CLEAR_AUTH_ERROR:
             return { ...state, authError: false };
+        case MESSAGES.CLEAR_USER:
+            return { ...initialState }
         case SORTER_RESULT_MESSAGES.NEW_SORTER_RESULT_RESOLVE:
             if (state.currentUser && state.currentUser.sorter_history) {
                 const sorterHistory =

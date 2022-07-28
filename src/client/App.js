@@ -6,6 +6,7 @@ import Link from './components/general/Link';
 import { Layout, Menu, BackTop, Spin, message } from 'antd';
 import Loading from './components/general/Loading';
 import { initialLoad, initializeIdbStore, clearError } from './store/app/appActions';
+import { logout } from './store/auth/authActions';
 import useStyles from 'isomorphic-style-loader/useStyles';
 import style from './../client/styles/styles.less';
 
@@ -25,7 +26,8 @@ const App = ({
     initializeIdbStore,
     isLoggedIn,
     error,
-    clearError
+    clearError,
+    logout
 }) => {
     useStyles(style);
     useEffect(() => {
@@ -82,6 +84,11 @@ const App = ({
                                 <Menu.Item key='/sorters/new'>
                                     <Link to='/sorters/new'>Create Sorter</Link>
                                 </Menu.Item>
+                                {isLoggedIn ? (
+                                    <Menu.Item key='/logout' onClick={logout}>Logout</Menu.Item>
+                                ) : (
+                                    <></>
+                                )}
                             </Menu>
                         </Header>
                         <Content>
@@ -109,7 +116,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
     initialLoad,
     initializeIdbStore,
-    clearError
+    clearError,
+    logout
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

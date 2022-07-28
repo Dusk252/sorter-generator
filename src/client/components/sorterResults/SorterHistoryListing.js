@@ -3,7 +3,6 @@ import { Col, Row } from 'antd';
 import SorterHistoryItem from './SorterHistoryItem';
 
 const SorterHistoryListing = ({ items, results }) => {
-    console.log(items, results);
     return (
         <Row className='sorter-history' gutter={'10'}>
             {items &&

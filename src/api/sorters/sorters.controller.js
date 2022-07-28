@@ -20,7 +20,7 @@ const uploadHandler = process.env.UPLOAD_TYPE === 'LOCAL' ? demoUploadHandler : 
 // routes
 router.post('/', getPublic);
 //router.get('/all', getAll); // sorters list
-router.post('/checkNew', checkForUpdates);
+//router.post('/checkNew', checkForUpdates);
 router.post('/getUpdate', updatePublic);
 router.get('/mySorters', getUserCreated); // sorters created by specific user
 //router.get('/:status', getByStatus); // get public, awaiting approval, private, etc
@@ -52,12 +52,12 @@ module.exports = router;
 
 function getAll(req, res, next) {}
 
-function checkForUpdates(req, res, next) {
-    sorterService
-        .checkNew(req.body.lastUpdated)
-        .then((count) => res.json(count))
-        .catch((err) => next(err));
-}
+// function checkForUpdates(req, res, next) {
+//     sorterService
+//         .checkNew(req.body.lastUpdated)
+//         .then((count) => res.json(count))
+//         .catch((err) => next(err));
+// }
 
 function updatePublic(req, res, next) {
     const date = new Date(req.body.lastUpdated);

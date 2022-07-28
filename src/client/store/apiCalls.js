@@ -30,6 +30,10 @@ export const localLogin = (email, password) => {
     return publicCall('POST', '/api/auth/login', { email, password });
 };
 
+export const logout = () => {
+    return privateCall('POST', '/api/auth/logout', '');
+}
+
 export const requestList = (name, count, lastUpdated, accessToken = null) => {
     if (accessToken) return privateCall('POST', `/api/${name}`, { count, lastUpdated }, accessToken);
     else return publicCall('POST', `/api/${name}`, { count, lastUpdated });

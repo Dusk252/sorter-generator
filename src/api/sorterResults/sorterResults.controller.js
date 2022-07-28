@@ -12,8 +12,8 @@ const { nanoid } = require('nanoid');
 router.post('/', passport.authenticate('jwt', { session: false }), getUserHistory); // get result list
 router.post('/idList', getByIdList);
 router.post('/getLatestResultBySorterId', passport.authenticate('jwt', { session: false }), getLatestBySorter);
-router.post('/checkNew', passport.authenticate('jwt', { session: false }), checkForUpdates);
-router.post('/getNew', passport.authenticate('jwt', { session: false }), getNewUserHistory);
+//router.post('/checkNew', passport.authenticate('jwt', { session: false }), checkForUpdates);
+router.post('/getUpdate', passport.authenticate('jwt', { session: false }), getNewUserHistory);
 router.post('/new', extractUser(), schemaValidator(sorterResultsSchema), createNewResultEntry); // insert new result
 router.get('/count/:id', getResultCount);
 router.get('/:id', extractUser(), getById); // view a result
@@ -23,15 +23,15 @@ router.get('/:id', extractUser(), getById); // view a result
 
 module.exports = router;
 
-function checkForUpdates(req, res, next) {
-    const userId = req.user ? req.user.id : null;
-    if (!userId) res.sendStatus(401);
-    else
-        sorterResultsService
-            .checkNew({ user_id: userId }, req.body.lastUpdated)
-            .then((count) => res.json(count))
-            .catch((err) => next(err));
-}
+// function checkForUpdates(req, res, next) {
+//     const userId = req.user ? req.user.id : null;
+//     if (!userId) res.sendStatus(401);
+//     else
+//         sorterResultsService
+//             .checkNew({ user_id: userId }, req.body.lastUpdated)
+//             .then((count) => res.json(count))
+//             .catch((err) => next(err));
+// }
 
 function getUserHistory(req, res, next) {
     const userId = req.user ? req.user.id : null;
