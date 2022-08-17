@@ -1,11 +1,14 @@
 import { push, replace } from 'connected-react-router';
-import { put, select, call, delay, takeLatest, all } from 'redux-saga/effects';
+import { put, select, call, delay, takeLatest, all, race, take } from 'redux-saga/effects';
 import * as AuthActions from './authActions';
+import * as AppActions from './../app/appActions';
 import { matchRoutes } from 'react-router-config';
 import routesSpec from './../../routes';
 import { refreshToken, localLogin, logout } from './../apiCalls';
+import { LOCATION_CHANGE } from 'connected-react-router';
 
 const { SIGNALS, MESSAGES, ...actions } = AuthActions;
+const { CHANGE_ROUTE } = AppActions.SIGNALS;
 const getCurrentLocation = (state) => state.app.currentLocation;
 
 function* processLocalLogin({ email, password }) {
@@ -19,6 +22,11 @@ function* processLocalLogin({ email, password }) {
     }
 }
 
+function* redirectSaga() {
+    yield delay(1000);
+    yield put(replace('/profile'));
+}
+
 function* processGetNewToken({ redirect }) {
     yield put(actions.requestAuth());
     try {
@@ -26,11 +34,13 @@ function* processGetNewToken({ redirect }) {
         yield put(actions.resolveGetNewToken({ accessToken: res.data.accessToken, currentUser: res.data.user }));
         //yield call(processGetResults, { idList: res.data.user.sorter_history });
         if (redirect) {
-            yield delay(2000);
-            yield put(replace('/profile'));
+            yield race({
+                task: call(redirectSaga),
+                cancel: take(CHANGE_ROUTE)
+            })
         }
         yield put(actions.resolveAuth());
-    } catch {
+    } catch (err) {
         yield put(actions.rejectAuth());
     }
 }

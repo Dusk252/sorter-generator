@@ -41,14 +41,17 @@ function* getTokenExecCall({ apiCall, args }) {
 function* processInitialLoad({ path }) {
     const match = matchRoutes(routesSpec[0].routes, path);
     const accessToken = yield select(getAccessToken);
-    if (!accessToken) {
+    if (!accessToken && path != '/login/result') {
         yield put(actions.startRequest());
         try {
             const res = yield call(refreshToken);
             yield put(authActions.resolveGetNewToken({ accessToken: res.data.accessToken, currentUser: res.data.user }));
             //yield call(processGetResults, { idList: res.data.user.sorter_history });
             yield put(authActions.resolveAuth());
-            yield put(push(path));
+            if (path == '/login')
+                yield put(push('/'));
+            else
+                yield put(push(path));
         } catch {
             yield put(authActions.rejectAuth(false));
             yield put(actions.locationChange(path));

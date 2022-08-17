@@ -25,12 +25,15 @@ async function authenticate(email, password) {
     return null;
 }
 
-async function deleteRefreshToken(token) {
-    await db.get().collection('refresh_tokens').deleteOne({ refresh_token: token });
+async function deleteRefreshToken(token, userId) {
+    if (userId)
+        await db.get().collection('refresh_tokens').deleteMany({ userId: userId.toString() });
+    else if (token)
+        await db.get().collection('refresh_tokens').deleteOne({ refresh_token: token });
 }
 
 async function updateRefreshToken(userId, old_token, new_token) {
-    if (old_token) await deleteRefreshToken(old_token);
+    await deleteRefreshToken(old_token, userId);
     await db.get().collection('refresh_tokens').insertOne({ userId: userId.toString(), refresh_token: new_token });
 }
 

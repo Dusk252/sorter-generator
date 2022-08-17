@@ -29,7 +29,7 @@ export const sorterFormSchema = {
         description: Joi.string().max(1000).messages({
             'string.max': 'The description field fits a max of 1000 items.'
         }),
-        isPrivate: Joi.bool(),
+        isPrivate: Joi.boolean().truthy('1').falsy('0'),
         groups: Joi.array().items(
             Joi.object({
                 name: Joi.string().max(50).required().messages({

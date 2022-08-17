@@ -71,9 +71,11 @@ function updatePublic(req, res, next) {
                     ]
                 },
                 null,
-                req.body.count
+                null
             )
-            .then((sorters) => res.json(sorters))
+            .then((sorters) => {
+                res.json(sorters)
+            })
             .catch((err) => next(err));
     } else return res.status(400).json({ message: 'Bad Request' });
 }
@@ -147,7 +149,8 @@ function createSorter(req, res, next) {
     sorterService
         .insertSorter(sorter)
         .then((insertedSorter) => res.json(insertedSorter))
-        .catch((err) => next(err));
+        .catch((err) => {
+            next(err)});
 }
 
 function incrementViewCount(req, res, next) {

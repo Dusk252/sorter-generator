@@ -3,7 +3,7 @@ import merge from 'lodash.merge';
 
 const baseState = {
     hasMore: true,
-    lastUpdated: new Date(),
+    lastUpdated: Date.now(),
     items: []
 };
 
@@ -35,18 +35,16 @@ const paginationReducer = (state = initialState, action) => {
         // case MESSAGES.REQUEST_CHECK_NEW_RESOLVED:
         //     return { ...state, [name]: { ...state[name], hasNew: payload ? true : false } };
         case MESSAGES.REQUEST_UPDATED_RESOLVED: {
+            const itemIds = payload.items.map((item) => item._id);
             const newState = {
                 hasMore: state[name].hasMore,
                 lastUpdated: Date.now(),
                 filter: state[name].filter,
-                items: [...state[name].items]
+                items: itemIds.concat([...state[name].items])
             };
             return {
                 ...state,
-                [name]: merge(
-                    newState,
-                    payload.items.map((item) => item._id)
-                ),
+                [name]: newState,
                 isFetching: false
             };
         }
