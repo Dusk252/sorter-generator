@@ -1,14 +1,14 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
-import { pageTypes, getPage, getUpdatedItems, resetHasMoreCheck } from '../store/pagination/paginationActions';
+import { pageTypes, getPage, resetHasMoreCheck } from '../store/pagination/paginationActions';
 import { toggleFavorite } from '../store/users/usersActions';
 import BoxWrapper from '../components/general/BoxWrapper';
 import LayoutBlockWrapper from './../components/general/LayoutBlockWrapper';
 import InfiniteLoader from './../components/general/InfiniteLoader';
 import SorterListItem from './../components/sorters/SorterListItem';
 
-const SorterList = ({ sorters, sortersPage, getPage, getUpdatedItems, favorites, toggleFavorite }) => {
+const SorterList = ({ sorters, sortersPage, getPage, favorites, toggleFavorite }) => {
     return (
         <>
             <Helmet>
@@ -21,8 +21,8 @@ const SorterList = ({ sorters, sortersPage, getPage, getUpdatedItems, favorites,
                         page={sortersPage}
                         pageName='sorters'
                         getPage={() => getPage(sortersPage.items.length, sortersPage.lastUpdated, pageTypes.sorters)}
-                        getUpdated={() =>
-                            getUpdatedItems(sortersPage.items.length, sortersPage.lastUpdated, pageTypes.sorters)
+                        getFirstPage={() =>
+                            getPage(0, sortersPage.lastUpdated, pageTypes.sorters)
                         }
                         resetHasMoreCheck={resetHasMoreCheck}
                         render={(items, data) =>
@@ -59,7 +59,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
     getPage,
-    getUpdatedItems,
     resetHasMoreCheck,
     toggleFavorite
 };

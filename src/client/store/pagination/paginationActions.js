@@ -18,7 +18,7 @@ export const pageTypes = {
 export const SIGNALS = keyMirror({
     GET_PAGE: null,
     //CHECK_NEW: null,
-    GET_UPDATED: null
+    //GET_UPDATED: null
 });
 
 export const MESSAGES = keyMirror({
@@ -34,7 +34,7 @@ const genStateMessage = (name) => `POPULATE_${name.toUpperCase()}_STATE`;
 export const getPage = (itemCount, lastUpdated, pageType) => ({
     type: SIGNALS.GET_PAGE,
     name: pageType.name,
-    count: itemCount,
+    skip: itemCount,
     lastUpdated: lastUpdated,
     isPrivate: pageType.isPrivate
 });
@@ -44,13 +44,13 @@ export const getPage = (itemCount, lastUpdated, pageType) => ({
 //     lastUpdated: lastUpdated,
 //     isPrivate: pageType.isPrivate
 // });
-export const getUpdatedItems = (itemCount, lastUpdated, pageType) => ({
-    type: SIGNALS.GET_UPDATED,
-    name: pageType.name,
-    count: itemCount,
-    lastUpdated: lastUpdated,
-    isPrivate: pageType.isPrivate
-});
+// export const getUpdatedItems = (itemCount, lastUpdated, pageType) => ({
+//     type: SIGNALS.GET_UPDATED,
+//     name: pageType.name,
+//     skip: itemCount,
+//     lastUpdated: lastUpdated,
+//     isPrivate: pageType.isPrivate
+// });
 
 export const startPageRequest = () => ({ type: MESSAGES.REQUEST_STARTED });
 export const resolvePageRequest = ({ name, payload }) => ({ type: MESSAGES.REQUEST_RESOLVED, name, payload });

@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect } from 'react-redux';
 import { Space, Divider, Col, Row } from 'antd';
-import { pageTypes, getPage, getUpdatedItems, resetHasMoreCheck } from '../store/pagination/paginationActions';
+import { pageTypes, getPage, resetHasMoreCheck } from '../store/pagination/paginationActions';
 import LayoutBlockWrapper from '../components/general/LayoutBlockWrapper';
 import InfiniteLoader from '../components/general/InfiniteLoader';
 import SorterHistoryListing from '../components/sorterResults/SorterHistoryListing';
@@ -26,9 +26,9 @@ const SorterResultsList = ({ results, resultsPage, getPage, getUpdatedItems, use
                                     getPage={() =>
                                         getPage(resultsPage.items.length, resultsPage.lastUpdated, pageTypes.sorter_results)
                                     }
-                                    getUpdated={() =>
-                                        getUpdatedItems(
-                                            resultsPage.items.length,
+                                    getFirstPage={() =>
+                                        getPage(
+                                            0,
                                             resultsPage.lastUpdated,
                                             pageTypes.sorter_results
                                         )
@@ -53,7 +53,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
     getPage,
-    getUpdatedItems,
     resetHasMoreCheck
 };
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-const InfiniteLoader = ({ data, page, pageName, getPage, getUpdated, resetHasMoreCheck, render }) => {
+const InfiniteLoader = ({ data, page, pageName, getPage, getFirstPage,/*getUpdated,*/ resetHasMoreCheck, render }) => {
     const bottomLoader = useRef(null);
 
     const handleBottomObserver = (entities) => {
@@ -27,8 +27,7 @@ const InfiniteLoader = ({ data, page, pageName, getPage, getUpdated, resetHasMor
 
     useEffect(() => {
         if (page) {
-            if (page.items && page.items.length) getUpdated();
-            else getPage();
+            getFirstPage();
         }
         return () => resetHasMoreCheck(pageName);
     }, []);

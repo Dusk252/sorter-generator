@@ -19,13 +19,14 @@ const paginationReducer = (state = initialState, action) => {
         case MESSAGES.REQUEST_STARTED:
             return { ...state, isFetching: true };
         case MESSAGES.REQUEST_RESOLVED: {
+            const newItems = payload.items.map((item) => item._id);
             const newState = {
                 hasMore: payload.items.length > 0,
                 lastUpdated: Date.now(),
                 filter: state[name].filter,
-                items: [...state[name].items]
+                items: payload.new ? [] : [...state[name].items]
             };
-            newState.items.push(...payload.items.map((item) => item._id));
+            newState.items.push(...newItems);
             return { ...state, [name]: newState, isFetching: false };
         }
         case MESSAGES.REQUEST_REJECTED:
@@ -34,20 +35,20 @@ const paginationReducer = (state = initialState, action) => {
             return { ...state, [name]: { ...state[name], hasMore: true } };
         // case MESSAGES.REQUEST_CHECK_NEW_RESOLVED:
         //     return { ...state, [name]: { ...state[name], hasNew: payload ? true : false } };
-        case MESSAGES.REQUEST_UPDATED_RESOLVED: {
-            const itemIds = payload.items.map((item) => item._id);
-            const newState = {
-                hasMore: state[name].hasMore,
-                lastUpdated: Date.now(),
-                filter: state[name].filter,
-                items: itemIds.concat([...state[name].items])
-            };
-            return {
-                ...state,
-                [name]: newState,
-                isFetching: false
-            };
-        }
+        // case MESSAGES.REQUEST_UPDATED_RESOLVED: {
+        //     const itemIds = payload.items.map((item) => item._id);
+        //     const newState = {
+        //         hasMore: state[name].hasMore,
+        //         lastUpdated: Date.now(),
+        //         filter: state[name].filter,
+        //         items: itemIds.concat([...state[name].items])
+        //     };
+        //     return {
+        //         ...state,
+        //         [name]: newState,
+        //         isFetching: false
+        //     };
+        // }
 
         // case SORTER_MESSAGES.NEW_SORTER_RESOLVE:
         //     return {

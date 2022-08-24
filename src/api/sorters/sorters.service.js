@@ -19,14 +19,12 @@ async function checkNew(lastUpdated) {
         .count({ $and: [{ 'meta.status': sorterStatus.PUBLIC }, { 'meta.created_date': { $gte: new Date(lastUpdated) } }] });
 }
 
-async function getSorterList(query, skip, limit) {
+async function getSorterList(query, skip, limit, sortquery = { 'meta.created_date': -1 }) {
     return await db
         .get()
         .collection('sorters')
         .aggregate([
             { $match: query },
-            { $sort: { 'meta.created_date': -1 } },
-            { $skip: skip ?? 0 },
             { $limit: limit != null ? limit : pageSize },
             {
                 $lookup: {
@@ -62,6 +60,8 @@ async function getSorterList(query, skip, limit) {
                     'meta.favorites': { $size: '$favoritesArray' }
                 }
             },
+            { $sort: sortquery },
+            { $skip: skip ?? 0 },
             {
                 $project: {
                     meta: 1,
