@@ -168,7 +168,7 @@ function mapSorterRequest(sorterObj, user) {
             created_by: user.id,
             created_date: currentDate,
             updated_date: currentDate,
-            status: sorterObj.privacy ? sorterStatus.PRIVATE : sorterStatus.PUBLIC,
+            status: sorterObj.isPrivate ? sorterStatus.PRIVATE : sorterStatus.PUBLIC,
             views: 0,
             favorites: 0
         },
