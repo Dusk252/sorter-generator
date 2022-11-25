@@ -7,7 +7,7 @@ import LayoutBlockWrapper from '../components/general/LayoutBlockWrapper';
 import InfiniteLoader from '../components/general/InfiniteLoader';
 import SorterHistoryListing from '../components/sorterResults/SorterHistoryListing';
 
-const SorterResultsList = ({ results, resultsPage, getPage, getUpdatedItems, user }) => {
+const SorterResultsList = ({ results, resultsPage, getPage, user }) => {
     return (
         <>
             <Helmet>
